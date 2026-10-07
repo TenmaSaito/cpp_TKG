@@ -74,8 +74,10 @@ private:
 	std::unique_ptr<CDebugProc> m_pDebugProc;			// デバッグ表示オブジェクトへのポインタ
 	std::unique_ptr<CSound> m_pSound;					// サウンドオブジェクトへのポインタ
 	std::unique_ptr<CLight> m_pLight;					// ライトオブジェクトへのポインタ
-	HWND m_hWnd;			// ウィンドウハンドル
-	int m_nCountFPS;		// FPSカウント
-	int m_nCounterFrame;	// フレームカウンター
+	HWND m_hWnd = nullptr;		// ウィンドウハンドル
+	int m_nCountFPS = 0;		// FPSカウント
+	int m_nCounterFrame = 0;	// フレームカウンター
+	int m_nCountReload = 0;		// リロードカウント
+	bool m_bPause = false;		// ポーズ状態
 };
 #endif

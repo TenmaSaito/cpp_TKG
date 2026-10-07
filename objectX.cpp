@@ -11,16 +11,21 @@
 #include "objectX.h"
 #include "manager.h"
 #include "renderer.h"
+#include "light.h"
 #include "texture.h"
 #include "input.h"
 #include "camera.h"
+#include "vec2math.h"
 #include "vec3math.h"
 #include "matrix.h"
+#include "wall.h"
 
 //==================================================================================
 // --- 生成処理 ---
 //==================================================================================
-CObjectX *CObjectX::Create(const char *pFilename,const Vector3& pos, const Vector3& rot)
+CObjectX *CObjectX::Create(std::string_view pFilename,
+	const Vector3 &pos, 
+	const Vector3 &rot)
 {
 	CObjectX *pObjectX = new CObjectX;		// 生成したオブジェクトへのポインタ
 	if (pObjectX != nullptr)
@@ -49,7 +54,9 @@ CObjectX::~CObjectX()
 //==================================================================================
 // --- 初期化処理 ---
 //==================================================================================
-HRESULT CObjectX::Init(const char *pFilename, const Vector3 &pos, const Vector3 &rot)
+HRESULT CObjectX::Init(std::string_view pFilename,
+	const Vector3 &pos,
+	const Vector3 &rot)
 { // Xファイル読み込み
 	LoadXFile(pFilename);
 
@@ -130,6 +137,87 @@ void CObjectX::Draw(void)
 }
 
 //==================================================================================
+// --- 描画処理 (マトリックス外部計算) ---
+//==================================================================================
+void CObjectX::Draw(const Matrix &mtx)
+{
+	CManager *pManager = CManager::GetInstance();			// マネージャーへのポインタ
+	CRenderer *pRenderer = pManager->GetRenderer();			// レンダラーへのポインタ
+	LPDIRECT3DDEVICE9 pDevice = pRenderer->GetDevice();		// デバイスへのポインタ
+	CTexture *pTexture = CTexture::GetInstance();			// テクスチャへのポインタ
+	D3DMATERIAL9 matDef;				// 現在のマテリアル保存用
+	D3DXMATERIAL *pMat = nullptr;		// マテリアルデータへのポインタ
+
+	m_mtxWorld = mtx;		// ワールドマトリックスの代入
+
+	//  ワールドマトリックスの設定
+	pDevice->SetTransform(D3DTS_WORLD, &m_mtxWorld);
+
+	//  現在のマテリアルを保存
+	pDevice->GetMaterial(&matDef);
+
+	// マテリアルを取得
+	pMat = static_cast<D3DXMATERIAL*>(m_pBuffMat->GetBufferPointer());
+
+	// 各マテリアルを描画
+	for (int nCntMat = 0; nCntMat < static_cast<int>(m_dwNumMat); nCntMat++)
+	{
+		// マテリアルの設定
+		pDevice->SetMaterial(&pMat[nCntMat].MatD3D);
+
+		// テクスチャの設定
+		pDevice->SetTexture(0, pTexture->GetAddress(m_vIdx[nCntMat]));
+
+		// モデル(パーツ)の描画
+		m_pMesh->DrawSubset(nCntMat);
+	}
+
+	// 保存していたマテリアルを戻す
+	pDevice->SetMaterial(&matDef);
+}
+
+//==================================================================================
+// --- 描画処理 (影) ---
+//==================================================================================
+void CObjectX::DrawShadow(const Matrix &mtxShadow)
+{
+	CManager *pManager = CManager::GetInstance();			// マネージャーへのポインタ
+	CRenderer *pRenderer = pManager->GetRenderer();			// レンダラーへのポインタ
+	LPDIRECT3DDEVICE9 pDevice = pRenderer->GetDevice();		// デバイスへのポインタ
+	CTexture *pTexture = CTexture::GetInstance();			// テクスチャへのポインタ
+	D3DMATERIAL9 matDef;				// 現在のマテリアル保存用
+	D3DXMATERIAL *pMat = nullptr;		// マテリアルデータへのポインタ
+
+	//  ワールドマトリックスの設定
+	pDevice->SetTransform(D3DTS_WORLD, &mtxShadow);
+
+	//  現在のマテリアルを保存
+	pDevice->GetMaterial(&matDef);
+
+	// マテリアルを取得
+	pMat = static_cast<D3DXMATERIAL*>(m_pBuffMat->GetBufferPointer());
+
+	// 各マテリアルを描画
+	for (int nCntMat = 0; nCntMat < static_cast<int>(m_dwNumMat); nCntMat++)
+	{
+		// マテリアルの設定
+		D3DMATERIAL9 matShadow = pMat[nCntMat].MatD3D;			// マテリアルのコピー
+		matShadow.Diffuse = Color(0.0f, 0.0f, 0.0f, 0.8f);		// マテリアルを黒色に変更
+
+		pDevice->SetMaterial(&matShadow);
+
+		// テクスチャの設定
+		pDevice->SetTexture(0, pTexture->GetAddress(m_vIdx[nCntMat]));
+
+		// モデル(パーツ)の描画
+		m_pMesh->DrawSubset(nCntMat);
+	}
+
+	// 保存していたマテリアルを戻す
+	pDevice->SetMaterial(&matDef);
+}
+
+//==================================================================================
 // --- レイとの処衝突判定処理 ---
 //==================================================================================
 bool CObjectX::IsHitByRay(const Vector3 &start, const Vector3 &vec, const float fLength)
@@ -175,7 +263,7 @@ bool CObjectX::IsHitByRay(const Vector3 &start, const Vector3 &vec, const float 
 //==================================================================================
 // --- Xファイルの読み込み処理 ---
 //==================================================================================
-HRESULT	CObjectX::LoadXFile(const char *pFilename)
+HRESULT	CObjectX::LoadXFile(std::string_view pFilename)
 {
 	CManager *pManager = CManager::GetInstance();			// マネージャーへのポインタ
 	CRenderer *pRenderer = pManager->GetRenderer();			// レンダラーへのポインタ
@@ -188,7 +276,7 @@ HRESULT	CObjectX::LoadXFile(const char *pFilename)
 	BYTE *pVtxBuff = nullptr;		// 頂点バッファへのポインタ
 
 	// Xファイルの読み込み
-	hr = D3DXLoadMeshFromX(pFilename,			// 読み込むXファイル名
+	hr = D3DXLoadMeshFromX(pFilename.data(),			// 読み込むXファイル名
 		D3DXMESH_SYSTEMMEM,
 		pDevice,		// デバイスポインタ
 		NULL,

@@ -261,3 +261,23 @@ void CObjectLine::SetVector(const Vector3 &origin, const Vector3 &vec, const flo
 	// 終点を計算
 	m_end = origin + (vec * fLength);
 }
+
+//==================================================================================
+// --- 色指定処理 ---
+//==================================================================================
+void CObjectLine::SetColor(const Color &color)
+{
+	VERTEX_3D *pVtx = nullptr;		// 頂点情報へのポインタ
+
+	m_color = color;		// 色を保存
+
+	// 頂点ロック
+	m_pVtxBuff->Lock(0, 0, (void **)&pVtx, 0);
+
+	// 色
+	pVtx[0].col = m_color;
+	pVtx[1].col = m_color;
+
+	// ロック解除
+	m_pVtxBuff->Unlock();
+}

@@ -1,40 +1,39 @@
 //==================================================================================
 // 
-// ライトクラスのヘッダーファイル [light.h]
+// プレイヤーカメラクラスのヘッダーファイル [playerCamera.h]
 // Author : TENMA SAITO
-// Date   : 2026/5/8
 // 
 //==================================================================================
-#ifndef _LIGHT_H_		// インクルードガード
-#define _LIGHT_H_
+#ifndef _PLAYER_CAMERA_H_		// インクルードガード
+#define _PLAYER_CAMERA_H_
 
 //**********************************************************************************
 // *** インクルードファイル ***
 //**********************************************************************************
-#include "main.h"
+#include "camera.h"
 
 //**********************************************************************************
-// *** 定数宣言 ***
+// *** 前方宣言 ***
 //**********************************************************************************
-constexpr int DEFAULT_LIGHT_NUM = 3;	// ライトの基本数
+class CPlayer;
 
 //**********************************************************************************
-// *** ライトクラス ***
+// *** プレイヤーカメラクラス ***
 //**********************************************************************************
-class CLight
+class CPlayerCamera : public CCamera
 {
 public:
-	CLight();
-	~CLight();
+	CPlayerCamera();
+	~CPlayerCamera();
 
-	void Init(void);
-	void Uninit(void);
-	void Update(void);
-	const D3DLIGHT9 *GetLight(const int nIdx) const { return &m_aLight[nIdx]; }
+	static CPlayerCamera *Create(const CPlayer *pPlayer);
+
+	void Init(const CPlayer *pPlayer);
+	void Uninit(void) override;
+	void Update(void) override;
+	void SetCamera(void) override;
 
 private:
-	D3DLIGHT9 m_aLight[DEFAULT_LIGHT_NUM] = {};		// ライトの情報
-	Vector3 m_rot = VECTOR3_NULL;	// 角度
-	int m_nIdxLight = -1;			// 現在操作しているライト
+	const CPlayer *m_pPlayer = nullptr;		// プレイヤーへのポインタ
 };
 #endif

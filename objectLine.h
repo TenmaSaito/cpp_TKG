@@ -40,6 +40,8 @@ public:
 	void SetVector(const Vector3 &origin, const Vector3 &vec, const float fLength);
 	const Vector3 *GetOrigin(void) const { return &m_start; }
 	const Vector3 *GetVector(void) const { return &m_vec; }
+	void SetColor(const Color &color);
+	const Color *GetColor(void) const { return &m_color; }
 	float GetLength(void) const { return m_fLength; }
 	void SetDisp(const bool bDisp) { m_bDisp = bDisp; }
 	bool GetDisp(void) const { return m_bDisp; }

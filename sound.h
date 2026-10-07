@@ -14,6 +14,11 @@
 #include "main.h"
 
 //**********************************************************************************
+// *** マクロ定義 ***
+//**********************************************************************************
+//#define ENABLE_SOUND		// サウンド有効マクロ
+
+//**********************************************************************************
 // *** 定数宣言 ***
 //**********************************************************************************
 constexpr float SOUND_VOLUME = 0.2f;	// 音量
@@ -35,16 +40,6 @@ public:
 	typedef enum
 	{
 		LABEL_BGM_TITLE = 0,		// タイトル画面のBGM
-		LABEL_BGM_GAME,				// ゲーム画面のBGM
-		LABEL_BGM_RESULT,			// 結果画面のBGM
-		LABEL_SE_SELECT,			// セレクト音
-		LABEL_SE_SWING,				// 投擲音
-		LABEL_SE_ELECTRIC,			// 通電音
-		LABEL_SE_ELECTRIC_LONG,		// 通電音 (long ver)
-		LABEL_SE_ELECTRIC_SHOCK,	// 感電音
-		LABEL_SE_WALK,				// 歩行音
-		LABEL_SE_PERCENT_UP,		// パーセント上昇音
-		LABEL_SE_SKIP,				// スキップボタン長押し音
 		LABEL_MAX
 	} LABEL;
 

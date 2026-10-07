@@ -1,40 +1,40 @@
 //==================================================================================
 // 
-// ライトクラスのヘッダーファイル [light.h]
+// ランキングのクライアントクラスのヘッダーファイル [rankingClient.h]
 // Author : TENMA SAITO
-// Date   : 2026/5/8
+// Date   : 2026/10/7
 // 
 //==================================================================================
-#ifndef _LIGHT_H_		// インクルードガード
-#define _LIGHT_H_
+#ifndef _RANKING_CLIENT_H_		// インクルードガード
+#define _RANKING_CLIENT_H_
 
 //**********************************************************************************
 // *** インクルードファイル ***
 //**********************************************************************************
 #include "main.h"
+#include "protocol_ranking.h"
 
 //**********************************************************************************
-// *** 定数宣言 ***
+// *** 前方宣言 ***
 //**********************************************************************************
-constexpr int DEFAULT_LIGHT_NUM = 3;	// ライトの基本数
+class CTcpClient;
 
 //**********************************************************************************
-// *** ライトクラス ***
+// *** ランキングのクライアントクラス ***
 //**********************************************************************************
-class CLight
+class CRankingClient
 {
 public:
-	CLight();
-	~CLight();
+	CRankingClient();
+	~CRankingClient();
 
-	void Init(void);
+	HRESULT Init(std::string_view sIPAddress, const u_short nPortID);
 	void Uninit(void);
-	void Update(void);
-	const D3DLIGHT9 *GetLight(const int nIdx) const { return &m_aLight[nIdx]; }
-
+	int Send(const int nScore);
+	std::array<int, MAX_RANKING> Get(void);
+	
 private:
-	D3DLIGHT9 m_aLight[DEFAULT_LIGHT_NUM] = {};		// ライトの情報
-	Vector3 m_rot = VECTOR3_NULL;	// 角度
-	int m_nIdxLight = -1;			// 現在操作しているライト
+	std::string m_sIPAddress;		// 接続先のIPアドレス
+	u_short m_nPortID = 0;			// 接続先のポート番号
 };
 #endif

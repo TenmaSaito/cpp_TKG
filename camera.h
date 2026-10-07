@@ -29,6 +29,7 @@ public:
 	typedef enum
 	{
 		TYPE_FREE = 0,		// フリーカメラ
+		TYPE_PLAYER,		// プレイヤーカメラ
 		TYPE_MAX
 	} TYPE;
 

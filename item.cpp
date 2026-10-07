@@ -1,75 +1,106 @@
 //==================================================================================
 // 
-// 床クラスのソースファイル [field.cpp]
+// アイテムクラスのソースファイル [item.cpp]
 // Author : TENMA SAITO
-// Date   : 2026/9/28
 // 
 //==================================================================================
 //**********************************************************************************
 // *** インクルードファイル ***
 //**********************************************************************************
-#include "field.h"
+#include "item.h"
+#include "model.h"
+#include "player.h"
+#include "vec3math.h"
 
 //==================================================================================
-// --- 生成処理 ---
+// --- アイテムの生成処理 ---
 //==================================================================================
-CField *CField::Create(const Vector3 &pos,
-	const Vector3 &rot,
-	const Vector2 &size)
+CItem *CItem::Create(std::string_view path,
+	const Vector3 &pos,
+	const float fRadius)
 {
-	CField *pField = new CField;		// 生成したオブジェクトへのポインタ
-	if (pField != nullptr)
-	{ // 初期化処理
-		pField->Init(pos, rot, size);
+	CItem *pItem = new CItem;		// 生成したオブジェクトへのポインタ
+	if (pItem != nullptr)
+	{ // 生成出来ていれば初期化
+		pItem->Init(path, pos, fRadius);
 	}
 
-	return pField;
+	return pItem;
 }
 
 //==================================================================================
 // --- コンストラクタ ---
 //==================================================================================
-CField::CField(const int nPriority) : CObject3D(nPriority)
-{ // タイプを指定
-	SetType(TYPE_FIELD);
+CItem::CItem(const int nPriority) : CObject(nPriority)
+{ // タイプ指定
+	SetType(TYPE_ITEM);
 }
 
 //==================================================================================
 // --- デストラクタ ---
 //==================================================================================
-CField::~CField()
+CItem::~CItem()
 {
 }
 
 //==================================================================================
 // --- 初期化処理 ---
 //==================================================================================
-HRESULT CField::Init(const Vector3 &pos,
-	const Vector3 &rot,
-	const Vector2 &size)
-{ // 親クラスの初期化
-	return CObject3D::Init(pos, rot, size, false);
+HRESULT CItem::Init(std::string_view path,
+	const Vector3 &pos,
+	const float fRadius)
+{ // モデル生成
+	m_pModel.reset(CModel::Create(path.data(), pos, VECTOR3_NULL));
+	m_fRadius = fRadius;		// 半径保存
+	return S_OK;
 }
 
 //==================================================================================
 // --- 終了処理 ---
 //==================================================================================
-void CField::Uninit(void)
-{ // 親クラスの終了処理
-	CObject3D::Uninit();
+void CItem::Uninit(void)
+{ // モデルの破棄
+	SafeUniqueUninit(m_pModel);
+
+	// 親クラスの終了
+	CObject::Release();
 }
 
 //==================================================================================
 // --- 更新処理 ---
 //==================================================================================
-void CField::Update(void)
-{ 
+void CItem::Update(void)
+{
+	if (m_pPlayer == nullptr)
+	{ // プレイヤーへのポインタが取得出来ていない場合、プレイヤーを検索
+		m_pPlayer = static_cast<CPlayer*>(CObject::FindAnyObjectByType(PLAYER_PRIORITY, CObject::TYPE_PLAYER));
+	}
+
+	if (m_pModel->GetPosition()->y < m_fRadius)
+	{ // 地面についていれば、フラグリセット
+		m_bLand = true;
+
+		// 座標を修正
+		m_pModel->SetPosition(Vector3(m_pModel->GetPosition()->x, m_fRadius, m_pModel->GetPosition()->z));
+	}
+
+	if (m_pPlayer == nullptr)
+	{ // プレイヤーがnullの場合スキップ
+		return;
+	}
+
+	float fRadiusAll = m_pPlayer->GetRadius() + m_fRadius;		// 半径の総合値
+	if (Vec3::Length(*m_pPlayer->GetPosition(), *m_pModel->GetPosition()) < fRadiusAll)
+	{ // プレイヤーの位置と自身の位置の距離がそれぞれの半径の総合値よりも小さかった場合
+		// 終了
+		Uninit();
+	}
 }
 
 //==================================================================================
 // --- 描画処理 ---
 //==================================================================================
-void CField::Draw(void)
-{ // 親クラスの描画処理
-	CObject3D::Draw();
+void CItem::Draw(void)
+{ // 描画
+	m_pModel->Draw();
 }

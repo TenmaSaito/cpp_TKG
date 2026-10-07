@@ -82,9 +82,9 @@ void CDebugProc::Update(void)
 void CDebugProc::Draw(void)
 {
 #ifdef _DEBUG
+#endif
 	RECT rect = { 0,0,SCREEN_WIDTH,SCREEN_HEIGHT };			// 画面サイズ
 
 	// デバッグ表示
 	m_pFont->DrawText(NULL, m_sProc.c_str(), -1, &rect, DT_LEFT, m_colFont);
-#endif
 }

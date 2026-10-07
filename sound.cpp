@@ -40,16 +40,6 @@ private:
 CSound::INFO const CSound::m_aInfo[CSound::LABEL_MAX] =		// サウンド情報
 {
 	{"data/SOUND/BGM/title.wav", -1},			// タイトル画面のBGM
-	{"data/SOUND/BGM/game.wav", -1},			// ゲーム画面のBGM
-	{"data/SOUND/BGM/result.wav", -1},			// 結果画面のBGM
-	{"data/SOUND/SE/select.wav", 0},			// 選択音
-	{"data/SOUND/SE/swing.wav", 0},				// 投擲音
-	{"data/SOUND/SE/electric.wav", 0},			// 通電音
-	{"data/SOUND/SE/electricLong.wav", 0},		// 通電音 (long ver)
-	{"data/SOUND/SE/electricShock.wav", 0},		// 感電音
-	{"data/SOUND/SE/walk.wav", -1},				// 歩行音
-	{"data/SOUND/SE/gaugeup.wav", -1},			// パーセント上昇音
-	{"data/SOUND/SE/electricLong.wav", -1},		// スキップ音
 };
 
 //**********************************************************************************
@@ -80,6 +70,7 @@ CSound::~CSound()
 //==================================================================================
 HRESULT CSound::Init(const HWND hWnd)
 {
+#ifdef ENABLE_SOUND
 	HRESULT hr;
 
 	// COMライブラリの初期化
@@ -256,7 +247,7 @@ HRESULT CSound::Init(const HWND hWnd)
 		// ファイルをクローズ
 		CloseHandle(hFile);
 	}
-
+#endif
 	return S_OK;
 }
 
@@ -265,6 +256,7 @@ HRESULT CSound::Init(const HWND hWnd)
 //==================================================================================
 void CSound::Uninit(void)
 {
+#ifdef ENABLE_SOUND
 	for (int nCntSound = 0; nCntSound < LABEL_MAX; nCntSound++)
 	{
 		if (m_apSourceVoice[nCntSound] != nullptr)
@@ -302,6 +294,7 @@ void CSound::Uninit(void)
 
 	// COMライブラリの終了処理
 	CoUninitialize();
+#endif
 }
 
 //==================================================================================
@@ -309,6 +302,7 @@ void CSound::Uninit(void)
 //==================================================================================
 void CSound::Play(const LABEL label)
 {
+#ifdef ENABLE_SOUND
 	XAUDIO2_VOICE_STATE xa2state;
 	XAUDIO2_BUFFER buffer;
 
@@ -335,6 +329,7 @@ void CSound::Play(const LABEL label)
 
 	// 再生
 	m_apSourceVoice[label]->Start(0);
+#endif
 }
 
 //==================================================================================
@@ -342,6 +337,7 @@ void CSound::Play(const LABEL label)
 //==================================================================================
 void CSound::Stop(const LABEL label)
 {
+#ifdef ENABLE_SOUND
 	XAUDIO2_VOICE_STATE xa2state;
 
 	// 状態取得
@@ -354,6 +350,7 @@ void CSound::Stop(const LABEL label)
 		// オーディオバッファの削除
 		m_apSourceVoice[label]->FlushSourceBuffers();
 	}
+#endif
 }
 
 //==================================================================================
@@ -361,6 +358,7 @@ void CSound::Stop(const LABEL label)
 //==================================================================================
 void CSound::Stop(void)
 { // 停止
+#ifdef ENABLE_SOUND
 	for (int nCntSound = 0; nCntSound < LABEL_MAX; nCntSound++)
 	{
 		if (m_apSourceVoice[nCntSound] != nullptr)
@@ -371,6 +369,7 @@ void CSound::Stop(void)
 			m_apSourceVoice[nCntSound]->FlushSourceBuffers();
 		}
 	}
+#endif
 }
 
 //==================================================================================
@@ -378,6 +377,7 @@ void CSound::Stop(void)
 //==================================================================================
 void CSound::Pause(const bool bPause, const LABEL label)
 {
+#ifdef ENABLE_SOUND
 	if (m_apSourceVoice[label] != nullptr)
 	{ // 一時停止
 		if (bPause == true)
@@ -389,6 +389,7 @@ void CSound::Pause(const bool bPause, const LABEL label)
 			m_apSourceVoice[label]->Start(0);
 		}
 	}
+#endif
 }
 
 //==================================================================================
@@ -396,10 +397,12 @@ void CSound::Pause(const bool bPause, const LABEL label)
 //==================================================================================
 void CSound::Pause(const bool bPause)
 { // 一時停止
+#ifdef ENABLE_SOUND
 	for (int nCntSound = 0; nCntSound < LABEL_MAX; nCntSound++)
 	{
 		Pause(bPause, static_cast<LABEL>(nCntSound));
 	}
+#endif
 }
 
 //==================================================================================
@@ -407,7 +410,9 @@ void CSound::Pause(const bool bPause)
 //==================================================================================
 void CSound::SetPitch(const LABEL label, const float fPitch)
 {
+#ifdef ENABLE_SOUND
 	m_apSourceVoice[label]->SetFrequencyRatio(fPitch);
+#endif
 }
 
 //==================================================================================
@@ -416,12 +421,12 @@ void CSound::SetPitch(const LABEL label, const float fPitch)
 bool CSound::GetPlay(const LABEL label) const
 {
 	bool bPlay = false;		// 再生状態
-
+#ifdef ENABLE_SOUND
 	if (m_apCallback[label] != nullptr)
 	{ // NULLでなければ
 		bPlay = m_apCallback[label]->GetPlay();
 	}
-
+#endif
 	return bPlay;
 }
 
@@ -431,12 +436,12 @@ bool CSound::GetPlay(const LABEL label) const
 HRESULT CSound::GetError(const LABEL label) const
 {
 	HRESULT hr = S_OK;		// エラー
-
+#ifdef ENABLE_SOUND
 	if (m_apCallback[label] != nullptr)
 	{ // NULLでなければ
 		hr = m_apCallback[label]->GetError();
 	}
-
+#endif
 	return hr;
 }
 

@@ -11,6 +11,8 @@
 //**********************************************************************************
 // *** インクルードファイル ***
 //**********************************************************************************
+#define _WINSOCK_DEPRECATED_NO_WARNINGS		// WinSock2の警告対処マクロ
+#include <WinSock2.h>						// ランキング接続に必要
 #include <Windows.h>						// Windowsシステムに必要
 #include <imm.h>							// IME無効化に必要
 #include <assert.h>							// アサーションに必要
@@ -32,7 +34,8 @@
 //**********************************************************************************
 // *** ライブラリのリンク ***
 //**********************************************************************************
-#pragma comment(lib, "winmm.lib")			// システムの時刻取得に必要
+#pragma comment(lib, "ws2_32.lib")			// winsockへのリンカー設定
+#pragma comment(lib, "winmm.lib")			// システムの時刻取得・サーバー接続に必要
 #pragma comment(lib, "imm32.lib")			// IME無効化に必要
 #pragma comment(lib, "d3d9.lib")			// 描画処理に必要
 #pragma comment(lib, "d3dx9.lib")			// d3d9.libの拡張ライブラリ
@@ -46,6 +49,7 @@
 //**********************************************************************************
 using Vector2 = D3DXVECTOR2;
 using Vector3 = D3DXVECTOR3;
+using Vector4 = D3DXVECTOR4;
 using Color = D3DXCOLOR;
 using Quaternion = D3DXQUATERNION;
 using Matrix = D3DXMATRIX;

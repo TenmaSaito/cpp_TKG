@@ -17,6 +17,7 @@
 // *** 定数宣言 ***
 //**********************************************************************************
 constexpr int DEFAULT_OBJ3D_PRIORITY = DEFAULT_OBJ_PRIORITY;	// obj3Dの基本優先順位	
+constexpr bool DEFAULT_OBJ3D_FLAG = false;						// obj3Dの基本フラグ
 inline const Vector3 DEFAULT_OBJ3D_POS = VECTOR3_NULL;				// obj3Dの基本位置
 inline const Vector3 DEFAULT_OBJ3D_ROT = VECTOR3_NULL;				// obj3Dの基本角度
 inline const Vector2 DEFAULT_OBJ3D_SIZE = Vector2(100.0f, 100.0f);	// obj3Dの基本サイズ
@@ -32,11 +33,13 @@ public:
 
 	static CObject3D *Create(const Vector3 &pos = DEFAULT_OBJ3D_POS,
 		const Vector3 &rot = DEFAULT_OBJ3D_ROT,
-		const Vector2 &size = DEFAULT_OBJ3D_SIZE);
+		const Vector2 &size = DEFAULT_OBJ3D_SIZE,
+		const bool bXYPlane = DEFAULT_OBJ3D_FLAG);
 
 	HRESULT Init(const Vector3 &pos, 
 		const Vector3 &rot, 
-		const Vector2 &size);
+		const Vector2 &size,
+		const bool bXYPlane);
 	void Uninit(void) override;
 	void Update(void) override;
 	void Draw(void) override;
@@ -44,7 +47,7 @@ public:
 	void SetPosition(const Vector3 &position);
 	const Vector3 *GetPosition(void) const { return &m_pos; }
 	void SetRotation(const Vector3 &rotation);
-	const Vector3 *SetRotation(void) const { return &m_rot; }
+	const Vector3 *GetRotation(void) const { return &m_rot; }
 	void SetSize(const Vector2 &size);
 	const Vector2 *GetSize(void) const { return &m_size; }
 	void SetColor(const Color &col);
@@ -58,5 +61,6 @@ private:
 	Vector3 m_pos = VECTOR3_NULL;			// 位置
 	Vector3 m_rot = VECTOR3_NULL;			// 角度
 	Vector2 m_size = VECTOR2_NULL;			// サイズ
+	bool m_bXYPlane = false;				// XYポリゴンのフラグ
 };
 #endif

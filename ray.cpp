@@ -16,11 +16,7 @@
 // --- コンストラクタ ---
 //==================================================================================
 CRay::CRay()
-{ // メンバ変数のクリア
-	m_start = VECTOR3_NULL;
-	m_end = VECTOR3_NULL;
-	m_vec = VECTOR3_NULL;
-	m_fLength = 0.0f;
+{
 }
 
 //==================================================================================
@@ -60,9 +56,11 @@ CRay::~CRay()
 // --- レイの描画処理 ---
 //==================================================================================
 void CRay::Draw(const int nFrame)
-{ // フレーム数 + 1で生成 (1のままだと、Updateで減少して即死する)
+{ // フレーム数 + 1で生成し、色を適用 (1のままだと、Updateで減少して即死する)
 #ifdef _DEBUG
-	CObjectLine::Create(m_start, m_end)->SetLife(nFrame + 1);
+	CObjectLine *pLine = CObjectLine::Create(m_start, m_end);
+	pLine->SetLife(nFrame + 1);
+	pLine->SetColor(m_color);
 #endif
 }
 

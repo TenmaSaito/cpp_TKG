@@ -45,8 +45,10 @@ public:
 		TYPE_OBJ_X,			// ObjectX
 		TYPE_OBJ_LINE,		// ObjectLine
 		TYPE_FIELD,			// 床
+		TYPE_WALL,			// 壁
 		TYPE_PLAYER,		// プレイヤー
 		TYPE_SHADOW,		// 影
+		TYPE_ITEM,			// アイテム
 		TYPE_MAX
 	} TYPE;
 

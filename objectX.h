@@ -2,7 +2,6 @@
 // 
 // オブジェクトXクラスのヘッダーファイル [objectX.h]
 // Author : TENMA SAITO
-// Date   : 2026/6/1
 // 
 //==================================================================================
 #ifndef _OBJECTX_H_		// インクルードガード
@@ -29,16 +28,18 @@ public:
 	CObjectX(const int nPriority = DEFAULT_OBJX_PRIORITY);
 	~CObjectX();
 
-	static CObjectX *Create(const char *pFilename,
+	static CObjectX *Create(std::string_view pFilename,
 		const Vector3 &pos = DEFAULT_OBJX_POS,
 		const Vector3 &rot = DEFAULT_OBJX_ROT);
 
-	HRESULT Init(const char *pFilename,
+	HRESULT Init(std::string_view pFilename,
 		const Vector3 &pos,
 		const Vector3 &rot);
 	void Uninit(void) override;
 	void Update(void) override;
 	void Draw(void) override;
+	void Draw(const Matrix &mtx);
+	void DrawShadow(const Matrix &mtxShadow);
 	void SetPosition(const Vector3 &position) { m_pos = position; }
 	const Vector3 *GetPosition(void) const { return &m_pos; }
 	void SetRotation(const Vector3 &rotation) { m_rot = rotation; }
@@ -50,8 +51,11 @@ public:
 	void SetParent(const Matrix *pMtxParent) { m_pMtxParent = pMtxParent; }
 	bool IsHitByRay(const Vector3 &start, const Vector3 &vec, const float fLength);
 
+protected:
+	Matrix *GetMatrixPtr(void) { return &m_mtxWorld; }
+
 private:
-	HRESULT	LoadXFile(const char *pXFilename);
+	HRESULT	LoadXFile(std::string_view pFilename);
 
 	LPD3DXMESH m_pMesh = nullptr;			// メッシュ(頂点情報)へのポインタ
 	LPD3DXBUFFER m_pBuffMat = nullptr;		// マテリアルへのポインタ

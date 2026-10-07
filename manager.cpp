@@ -16,12 +16,15 @@
 #include "sound.h"
 #include "object.h"
 #include "camera.h"
+#include "playerCamera.h"
 #include "light.h"
 #include "texture.h"
 #include "util.h"
 #include "field.h"
 #include "player.h"
-#include "ray.h"
+#include "item.h"
+#include "wall.h"
+#include "mapScriptLoader.h"
 
 //==================================================================================
 // --- マネージャの取得処理 ---
@@ -36,17 +39,7 @@ CManager *CManager::GetInstance(void)
 // --- コンストラクタ ---
 //==================================================================================
 CManager::CManager()
-{ // 各メンバ変数のクリア
-	m_hWnd = nullptr;
-	m_pRenderer = nullptr;
-	m_pInputKeyboard = nullptr;
-	m_pInputMouse = nullptr;
-	m_pJoypad = nullptr;
-	m_pDebugProc = nullptr;
-	m_pSound = nullptr;
-	m_pLight = nullptr;
-	m_nCountFPS = 0;
-	m_nCounterFrame = 0;
+{
 }
 
 //==================================================================================
@@ -194,15 +187,9 @@ HRESULT CManager::Init(const HINSTANCE hInstance, const HWND hWnd, const BOOL bW
 	m_pLight->Init();
 
 #pragma region Objects Create
-	// カメラの作成
-	CCamera::Create(Vector3(0.0f, 200.0f, -200.0f), VECTOR3_NULL);
-
-	// 床の作成
-	CField *pField = CField::Create(VECTOR3_NULL, VECTOR3_NULL, Vector2(500.0f, 500.0f));
-	pField->BindTexture(CTexture::GetInstance()->Register("data/TEXTURE/field000.jpg"));
-
-	// プレイヤーの作成
-	CPlayer::Create("data/MODEL/01_head.x", VECTOR3_NULL, VECTOR3_NULL);
+	// マップ読み込み
+	std::unique_ptr pMapScriptLoader = std::make_unique<CMapScriptLoader>();		// マップ読み込みインスタンス
+	pMapScriptLoader->Load("data/SCRIPT/system.ini");
 #pragma endregion
 
 	// 成功
@@ -262,17 +249,35 @@ void CManager::Update(void)
 	// デバッグ表示の更新処理
 	m_pDebugProc->Update();
 	
+	// デバッグ情報
+	m_pDebugProc->Print("======== デバッグ情報 ========\n");
+	m_pDebugProc->Print("FPS : ({})\n", m_nCountFPS);
+	m_pDebugProc->Print("リロード : ({}) [BackSpace]\n\n", m_nCountReload);
+
 	// ライトの更新処理
 	m_pLight->Update();
-
-	// FPS表示
-	m_pDebugProc->Print("FPS : {}\n", m_nCountFPS);
 
 	// カメラの更新
 	CCamera::UpdateAll();
 
-	// レンダラーの更新
-	m_pRenderer->Update();
+	// ポーズ
+	if (m_pInputKeyboard->GetTrigger(DIK_P)) m_bPause ^= m_bPause;
+
+	if (m_pInputKeyboard->GetTrigger(DIK_BACK))
+	{ // リセット
+		CObject::ReleaseAll();
+		CCamera::ReleaseAll();
+
+		// マップの再読み込み
+		std::unique_ptr pMapScriptLoader = std::make_unique<CMapScriptLoader>();		// マップ読み込みインスタンス
+		pMapScriptLoader->Load("data/SCRIPT/system.ini");
+		m_nCountReload++;
+	}
+
+	if (m_bPause == false)
+	{ // レンダラーの更新
+		m_pRenderer->Update();
+	}
 
 	// フレームカウンターを増加
 	m_nCounterFrame++;
@@ -291,7 +296,7 @@ void CManager::Draw(void)
 //==================================================================================
 void CManager::SetEnablePause(const bool bEnable)
 {
-
+	m_bPause = bEnable;
 }
 
 //==================================================================================

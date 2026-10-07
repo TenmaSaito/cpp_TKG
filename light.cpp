@@ -14,6 +14,7 @@
 #include "input.h"
 #include "joypad.h"
 #include "debugproc.h"
+#include "vec3math.h"
 
 //**********************************************************************************
 // *** マクロ定義 ***
@@ -27,9 +28,6 @@
 //==================================================================================
 CLight::CLight()
 {
-	// メンバ変数をクリア
-	memset(m_aLight, 0, sizeof(m_aLight));
-	m_nIdxLight = 0;
 }
 
 //==================================================================================
@@ -82,6 +80,9 @@ void CLight::Init(void)
 	pDevice->LightEnable(0, TRUE);
 	pDevice->LightEnable(1, TRUE);
 	pDevice->LightEnable(2, TRUE);
+
+	// 操作するライトのインデックスを指定
+	m_nIdxLight = 0;
 }
 
 //==================================================================================
@@ -102,54 +103,37 @@ void CLight::Update(void)
 	auto pProc = CManager::GetInstance()->GetDebugProc();		// デバッグ表示へのポインタ
 	Vector3 vecDir = m_aLight[m_nIdxLight].Direction;	// ライトの向き 
 
-	if (pKeyboard->GetPress(DIK_LSHIFT))
-	{ // 左シフトを押している間ライティングモード
-		pProc->Print("[Light操作中！ 操作中のライト : %d]\n", m_nIdxLight);
-		pProc->Print("[上矢印 : 次のライトを操作 / 下矢印 : 前の矢印を操作\n]");
-		pProc->Print("[QA : X座標 / WS : Y座標 / ED : Z座標 を操作！]\n");
-		pProc->Print("[ライトの向き X:%f Y:%f Z:%f]\n", vecDir.x, vecDir.y, vecDir.z);
-
-		if (pKeyboard->GetTrigger(DIK_UP))
-		{ // ライトインデックスを増加
-			m_nIdxLight = (m_nIdxLight + 1) % DEFAULT_LIGHT_NUM;
-		}
-		else if (pKeyboard->GetTrigger(DIK_DOWN))
-		{ // ライトインデックスを減少
-			m_nIdxLight = (m_nIdxLight + 1) % DEFAULT_LIGHT_NUM;
-		}
-
-		if (pKeyboard->GetPress(DIK_Q))
-		{
-			vecDir.x += 0.01f;
-		}
-		else if (pKeyboard->GetPress(DIK_A))
-		{
-			vecDir.x -= 0.01f;
-		}
-
-		if (pKeyboard->GetPress(DIK_W))
-		{
-			vecDir.y += 0.01f;
-		}
-		else if (pKeyboard->GetPress(DIK_S))
-		{
-			vecDir.y -= 0.01f;
-		}
-
-		if (pKeyboard->GetPress(DIK_E))
-		{
-			vecDir.z += 0.01f;
-		}
-		else if (pKeyboard->GetPress(DIK_D))
-		{
-			vecDir.z -= 0.01f;
-		}
-
-		// 正規化
-		D3DXVec3Normalize(&vecDir, &vecDir);
-		m_aLight[m_nIdxLight].Direction = vecDir;
-
-		// ライトを再設定
-		pDevice->SetLight(m_nIdxLight, &m_aLight[m_nIdxLight]);
+	// 縦回転
+	if (pKeyboard->GetPress(DIK_J))
+	{
+		m_rot.y -= 0.05f;
 	}
+	else if (pKeyboard->GetPress(DIK_L))
+	{
+		m_rot.y += 0.05f;
+	}
+
+	// 横回転
+	if (pKeyboard->GetPress(DIK_I))
+	{
+		m_rot.z += 0.05f;
+	}
+	else if (pKeyboard->GetPress(DIK_K))
+	{
+		m_rot.z -= 0.05f;
+	}
+
+	// ベクトルを求める
+	vecDir = Vec3::Arc(1.0f, m_rot.y, m_rot.z);
+
+	// 正規化
+	D3DXVec3Normalize(&vecDir, &vecDir);
+	m_aLight[m_nIdxLight].Direction = vecDir;
+
+	// ライトを再設定
+	pDevice->SetLight(m_nIdxLight, &m_aLight[m_nIdxLight]);
+
+	pProc->Print("====== ライト ======\n");
+	pProc->Print("垂直回転 ({:.2f}) [I/K]\n", m_rot.z);
+	pProc->Print("水平回転 ({:.2f}) [J/L]\n\n", m_rot.y);
 }

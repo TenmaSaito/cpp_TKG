@@ -20,12 +20,13 @@
 //==================================================================================
 CObject3D *CObject3D::Create(const Vector3 &pos,
 	const Vector3 &rot, 
-	const Vector2 &size)
+	const Vector2 &size,
+	const bool bXYPlane)
 {
 	CObject3D *pObject3D = new CObject3D;		// 生成したオブジェクトへのポインタ
 	if (pObject3D != nullptr)
 	{ // 初期化処理
-		pObject3D->Init(pos, rot, size);
+		pObject3D->Init(pos, rot, size, bXYPlane);
 	}
 
 	return pObject3D;
@@ -51,7 +52,8 @@ CObject3D::~CObject3D()
 //==================================================================================
 HRESULT CObject3D::Init(const Vector3 &pos, 
 	const Vector3 &rot,
-	const Vector2 &size)
+	const Vector2 &size,
+	const bool bXYPlane)
 {
 	CRenderer *pRenderer = CManager::GetInstance()->GetRenderer();			// レンダラーへのポインタ
 	LPDIRECT3DDEVICE9 pDevice = pRenderer->GetDevice();			// デバイスへのポインタ
@@ -75,31 +77,53 @@ HRESULT CObject3D::Init(const Vector3 &pos,
 	m_pos = pos;
 	m_rot = rot;
 	m_size = size;
+	m_bXYPlane = bXYPlane;
 
 	// 頂点バッファをロック
 	m_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
 	// 頂点座標設定
-	pVtx[0].pos.x = m_pos.x - (m_size.x * 0.5f);
-	pVtx[1].pos.x = m_pos.x + (m_size.x * 0.5f);
-	pVtx[2].pos.x = m_pos.x - (m_size.x * 0.5f);
-	pVtx[3].pos.x = m_pos.x + (m_size.x * 0.5f);
+	pVtx[0].pos.x = -m_size.x * 0.5f;
+	pVtx[1].pos.x = m_size.x * 0.5f;
+	pVtx[2].pos.x = -m_size.x * 0.5f;
+	pVtx[3].pos.x = m_size.x * 0.5f;
 	
-	pVtx[0].pos.y = 0.0f;
-	pVtx[1].pos.y = 0.0f;
-	pVtx[2].pos.y = 0.0f;
-	pVtx[3].pos.y = 0.0f;
+	if (bXYPlane == false)
+	{ // XZ平面の場合
+		pVtx[0].pos.y = 0.0f;
+		pVtx[1].pos.y = 0.0f;
+		pVtx[2].pos.y = 0.0f;
+		pVtx[3].pos.y = 0.0f;
 
-	pVtx[0].pos.z = m_pos.z + (m_size.y * 0.5f);
-	pVtx[1].pos.z = m_pos.z + (m_size.y * 0.5f);
-	pVtx[2].pos.z = m_pos.z - (m_size.y * 0.5f);
-	pVtx[3].pos.z = m_pos.z - (m_size.y * 0.5f);
+		pVtx[0].pos.z = m_size.y * 0.5f;
+		pVtx[1].pos.z = m_size.y * 0.5f;
+		pVtx[2].pos.z = -m_size.y * 0.5f;
+		pVtx[3].pos.z = -m_size.y * 0.5f;
 
-	// 法線ベクトル設定
-	pVtx[0].nor = Vector3(0.0f, -1.0f, 0.0f);
-	pVtx[1].nor = Vector3(0.0f, -1.0f, 0.0f);
-	pVtx[2].nor = Vector3(0.0f, -1.0f, 0.0f);
-	pVtx[3].nor = Vector3(0.0f, -1.0f, 0.0f);
+		// 法線ベクトル設定
+		pVtx[0].nor = Vector3(0.0f, -1.0f, 0.0f);
+		pVtx[1].nor = Vector3(0.0f, -1.0f, 0.0f);
+		pVtx[2].nor = Vector3(0.0f, -1.0f, 0.0f);
+		pVtx[3].nor = Vector3(0.0f, -1.0f, 0.0f);
+	}
+	else
+	{ // XY平面の場合
+		pVtx[0].pos.y = m_size.y * 0.5f;
+		pVtx[1].pos.y = m_size.y * 0.5f;
+		pVtx[2].pos.y = -m_size.y * 0.5f;
+		pVtx[3].pos.y = -m_size.y * 0.5f;
+
+		pVtx[0].pos.z = 0.0f;
+		pVtx[1].pos.z = 0.0f;
+		pVtx[2].pos.z = 0.0f;
+		pVtx[3].pos.z = 0.0f;
+
+		// 法線ベクトル設定
+		pVtx[0].nor = Vector3(0.0f, 0.0f, -1.0f);
+		pVtx[1].nor = Vector3(0.0f, 0.0f, -1.0f);
+		pVtx[2].nor = Vector3(0.0f, 0.0f, -1.0f);
+		pVtx[3].nor = Vector3(0.0f, 0.0f, -1.0f);
+	}
 
 	// 頂点カラー設定
 	pVtx[0].col = Color(1.0f, 1.0f, 1.0f, 1.0f);

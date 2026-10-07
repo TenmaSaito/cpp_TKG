@@ -1,40 +1,42 @@
 //==================================================================================
 // 
-// ライトクラスのヘッダーファイル [light.h]
+// 壁クラスのヘッダーファイル [wall.h]
 // Author : TENMA SAITO
-// Date   : 2026/5/8
 // 
 //==================================================================================
-#ifndef _LIGHT_H_		// インクルードガード
-#define _LIGHT_H_
+#ifndef _WALL_H_		// インクルードガード
+#define _WALL_H_
 
 //**********************************************************************************
 // *** インクルードファイル ***
 //**********************************************************************************
-#include "main.h"
+#include "object3D.h"
 
 //**********************************************************************************
 // *** 定数宣言 ***
 //**********************************************************************************
-constexpr int DEFAULT_LIGHT_NUM = 3;	// ライトの基本数
+constexpr int WALL_PRIORITY = DEFAULT_OBJ3D_PRIORITY;		// 壁の優先順位
 
 //**********************************************************************************
-// *** ライトクラス ***
+// *** 壁クラス ***
 //**********************************************************************************
-class CLight
+class CWall : public CObject3D
 {
 public:
-	CLight();
-	~CLight();
+	CWall(const int nPriority = WALL_PRIORITY);
+	~CWall();
 
-	void Init(void);
-	void Uninit(void);
-	void Update(void);
-	const D3DLIGHT9 *GetLight(const int nIdx) const { return &m_aLight[nIdx]; }
+	static CWall *Create(const Vector3 &pos,
+		const Vector3 &rot,
+		const Vector2 &size);
+
+	HRESULT Init(const Vector3 &pos,
+		const Vector3 &rot,
+		const Vector2 &size);
+	void Uninit(void) override;
+	void Update(void) override;
+	void Draw(void) override;
 
 private:
-	D3DLIGHT9 m_aLight[DEFAULT_LIGHT_NUM] = {};		// ライトの情報
-	Vector3 m_rot = VECTOR3_NULL;	// 角度
-	int m_nIdxLight = -1;			// 現在操作しているライト
 };
 #endif
