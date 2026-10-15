@@ -19,9 +19,17 @@
 //**********************************************************************************
 // *** マクロ定義 ***
 //**********************************************************************************
-#define DEFAULT_FOVY		(45.0f)		// 視野角
-#define DEFAULT_ZN			(0.0f)		// 最短距離
-#define DEFAULT_ZF			(10000.0f)	// 最遠距離
+// #define LIGHT_OPERABLE		// 一番ライトを操作可能か
+
+//**********************************************************************************
+// *** 定数宣言 ***
+//**********************************************************************************
+namespace
+{
+	constexpr float DEFAULT_FOVY = 45.0f;	// 視野角
+	constexpr float DEFAULT_ZN = 0.0f;		// 視野角
+	constexpr float DEFAULT_ZF = 10000.0f;	// 視野角
+}
 
 //==================================================================================
 // --- コンストラクタ ---
@@ -59,7 +67,7 @@ void CLight::Init(void)
 	m_aLight[2].Diffuse = Color(0.3f, 0.3f, 0.3f, 1.0f);
 
 	// ライトの方向を設定
-	vecDir[0] = Vector3(0.0f, -0.8f, -0.4f);
+	vecDir[0] = Vector3(0.0f, -0.5f, -0.4f);
 	D3DXVec3Normalize(&vecDir[0], &vecDir[0]);
 	m_aLight[0].Direction = vecDir[0];
 
@@ -98,9 +106,9 @@ void CLight::Uninit(void)
 void CLight::Update(void)
 {
 	CManager *pManager = CManager::GetInstance();			// マネージャーへのポインタ
+#ifdef LIGHT_OPERABLE
 	LPDIRECT3DDEVICE9 pDevice = pManager->GetRenderer()->GetDevice();		// デバイスへのポインタ
 	auto pKeyboard = pManager->GetInputKeyboard();			// キーボードへのポインタ
-	auto pProc = CManager::GetInstance()->GetDebugProc();		// デバッグ表示へのポインタ
 	Vector3 vecDir = m_aLight[m_nIdxLight].Direction;	// ライトの向き 
 
 	// 縦回転
@@ -132,8 +140,12 @@ void CLight::Update(void)
 
 	// ライトを再設定
 	pDevice->SetLight(m_nIdxLight, &m_aLight[m_nIdxLight]);
+#endif
 
+#ifdef _DEBUG
+	auto pProc = CManager::GetInstance()->GetDebugProc();		// デバッグ表示へのポインタ
 	pProc->Print("====== ライト ======\n");
 	pProc->Print("垂直回転 ({:.2f}) [I/K]\n", m_rot.z);
 	pProc->Print("水平回転 ({:.2f}) [J/L]\n\n", m_rot.y);
+#endif
 }

@@ -35,7 +35,7 @@ public:
 
 protected:
 	inline static LPDIRECTINPUT8 m_pInput = nullptr;		// 入力オブジェクト
-	LPDIRECTINPUTDEVICE8 m_pDevice;		// 入力デバイス
+	LPDIRECTINPUTDEVICE8 m_pDevice = nullptr;				// 入力デバイス
 };
 
 //**********************************************************************************
@@ -58,10 +58,10 @@ public:
 		const int nInterval = INPUT_DEFAULT_INTERVAL);
 
 private:
-	BYTE m_aKeyState[NUM_KEY_MAX];				// キーボードのプレス情報
-	BYTE m_aKeyStateTrigger[NUM_KEY_MAX];		// キーボードのトリガー情報
-	BYTE m_aKeyStateRelease[NUM_KEY_MAX];		// キーボードのリリース情報
-	int m_nKeyStateRepeat[NUM_KEY_MAX];			// キーボードのリピート情報
+	BYTE m_aKeyState[NUM_KEY_MAX] = {};				// キーボードのプレス情報
+	BYTE m_aKeyStateTrigger[NUM_KEY_MAX] = {};		// キーボードのトリガー情報
+	BYTE m_aKeyStateRelease[NUM_KEY_MAX] = {};		// キーボードのリリース情報
+	int m_nKeyStateRepeat[NUM_KEY_MAX] = {};		// キーボードのリピート情報
 };
 
 //**********************************************************************************
@@ -94,10 +94,10 @@ public:
 	Vector3 GetPositionInClient(void);
 
 private:
-	DIMOUSESTATE2 m_CurrentMouseState;		// マウスの入力情報
-	DIMOUSESTATE2 m_PrevMouseState;			// マウスの過去の入力情報
-	BYTE m_aMouseState[KEY_MAX];			// マウスのプレス情報
-	BYTE m_aMouseStateTrigger[KEY_MAX];		// マウスのトリガー情報
-	BYTE m_aMouseStateRelease[KEY_MAX];		// マウスのリリース情報
+	DIMOUSESTATE2 m_CurrentMouseState = {};		// マウスの入力情報
+	DIMOUSESTATE2 m_PrevMouseState = {};		// マウスの過去の入力情報
+	BYTE m_aMouseState[KEY_MAX] = {};			// マウスのプレス情報
+	BYTE m_aMouseStateTrigger[KEY_MAX] = {};	// マウスのトリガー情報
+	BYTE m_aMouseStateRelease[KEY_MAX] = {};	// マウスのリリース情報
 };
 #endif

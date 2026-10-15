@@ -27,6 +27,7 @@ namespace Mtx
 	Matrix *CalcRotation(Matrix *pMtx, const Vector3 &rotation);
 	Matrix *CalcRotation(Matrix *pMtx, const Quaternion &quaternion);
 	Matrix *CalcScale(Matrix *pMtx, const Vector3 &scale);
+	Matrix *CalcParent(Matrix *pMtx, const Matrix *pMtxParent);
 
 	Matrix *CalcWorld(Matrix *pMtx, 
 		const Vector3 &position, 

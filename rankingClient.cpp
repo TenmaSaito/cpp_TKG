@@ -63,11 +63,13 @@ int CRankingClient::Send(const int nScore)
 	memcpy(&aStr[1], &nScoreEndian, sizeof(nScoreEndian));		// エンディアン変換後のスコアをバイトデータ化
 
 	// メッセージを送信
-	pClient->Send(aStr, sizeof(aStr));
+	pClient->SendWithSize(aStr, sizeof(aStr));
 	
 	// 順位を受信
+	int nByte = 0;	// サイズ
 	char cRank;		// 順位
-	nResult = pClient->Recv(&cRank, 1);
+	nResult = pClient->RecvAll(&nByte, 1);
+	nResult = pClient->RecvAll(&cRank, 1);
 	if(CLIENT_TCP_FAILED(nResult)) return UNRANKING;	// 順位の受信に失敗
 
 	// インスタンス破棄
@@ -92,17 +94,34 @@ std::array<int, MAX_RANKING> CRankingClient::Get(void)
 
 	// メッセージを送信
 	char cCommand = static_cast<char>(COMMAND_TYPE_GET_RANKING);	// ランキングの取得を指定
-	pClient->Send(&cCommand, 1);
+	pClient->SendWithSize(&cCommand, 1);
 
-	// スコアを受信
-	pClient->Recv(&aScore, 1);
-	if (CLIENT_TCP_FAILED(nResult)) return aScore;	// 順位の受信に失敗
+	// サイズを受信
+	int nByte = 0;				// 受信予定サイズ
+	nResult = pClient->RecvAll(&nByte, 1);
+	if (CLIENT_TCP_FAILED(nResult))
+	{ // サイズの受信に失敗
+		return aScore;
+	}
+
+	// データを受信
+	std::unique_ptr pByte = std::make_unique<char>(nByte);		// 受け取ったバイトデータ
+	nResult = pClient->RecvAll(pByte.get(), nByte);
+	if (CLIENT_TCP_FAILED(nResult))
+	{ // 順位の受信に失敗
+		return aScore;
+	}
 
 	// インスタンス破棄
 	SafeUniqueUninit(pClient);
 
-	// 各スコアをエンディアン変換
-	for (auto &score : aScore) { score = ntohl(score); }
+	// バイトデータをランキングに代入
+	memcpy(&aScore[0], pByte.get(), nByte);
+
+	for (auto &score : aScore)
+	{ // 各スコアをエンディアン変換
+		score = ntohl(score); 
+	}
 
 	// スコアを返す
 	return aScore;

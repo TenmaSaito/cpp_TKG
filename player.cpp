@@ -24,6 +24,8 @@
 #include "field.h"
 #include "wall.h"
 #include "ray.h"
+#include "objectXAfterImage.h"
+#include <bitset>
 
 //**********************************************************************************
 // *** 定数宣言 ***
@@ -34,13 +36,10 @@ namespace
 	constexpr float JUMP_FORCE = 7.0f;				// ジャンプの強さ
 	constexpr float RESIST_POW = 0.25f;				// 摩擦
 	constexpr float ANGLE_DEST_ACCELE = 0.1f;		// 目標角度への移動速度
-	constexpr float GRAVITY = -0.25f;				// 重力
-	constexpr float TERMINAL_VELOCITY = -10.0f;		// 重力の終端速度
 	constexpr float MODEL_RADIUS = 10.0f;			// モデルの半径
-	constexpr float VALUE_ROT = 0.025f;				// 回転速度
-	constexpr float MAX_ROT_VALUE = 0.25f;			// 最大回転速度
-	constexpr float RESIST_ROT = 0.008f;			// 減速速度
-	constexpr float COR_POW = 0.7f;					// 反発係数
+	constexpr float VALUE_ROT = 0.005f;				// 回転速度
+	constexpr float MAX_ROT_VALUE = 0.85f;			// 最大回転速度
+	constexpr float RESIST_ROT = 0.003f;			// 減速速度
 	constexpr float SCALE_VALUE = 1.0f;				// 拡大倍率
 	constexpr float RAY_LENGTH = 50.0f;				// レイの長さ
 	const Vector3 VEC_QUAT = Vector3(1, 0, 0);		// 初期任意軸
@@ -94,9 +93,6 @@ HRESULT CPlayer::Init(const std::string_view pFilename,
 	m_vecAxis = VEC_QUAT;
 	m_fValueRot = 0.0f;
 	m_fRotSpeed = VALUE_ROT;
-	m_fRotResist = RESIST_ROT;
-	m_fJump = JUMP_FORCE;
-	m_fCor = COR_POW;
 	m_fScaling = SCALE_VALUE;
 	Mtx::Identity(&m_mtxRot);
 
@@ -121,8 +117,11 @@ void CPlayer::Update(void)
 		m_pField = static_cast<CField*>(FindAnyObjectByType(FIELD_PRIORITY, TYPE_FIELD));
 	}
 
-	// 入力関連処理
-	CharactorMovable();
+	// 過去の座標を保存
+	m_posOld = *GetPosition();
+
+	// 角度を加算し回転
+	AddForce(m_fAngle + 0.1f, m_fRotSpeed);
 	if (m_fValueRot > MAX_ROT_VALUE)
 	{ // 最大速度を超えていたら、修正
 		m_fValueRot = MAX_ROT_VALUE;
@@ -136,37 +135,26 @@ void CPlayer::Update(void)
 	m_vecAxis.z = m_vecAxis.y;
 	m_vecAxis.y = 0.0f;
 
-	// 重力を適用
-	m_move.y += GRAVITY;
-	if (m_move.y < TERMINAL_VELOCITY)
-	{ // 終端速度になったらそれを維持
-		m_move.y = TERMINAL_VELOCITY;
-	}
-
-	// 移動量を計算
+	// 入力処理を適用する為、移動量を計算
 	float fCircumference = 0.0f;		// 円周の長さ
 	float fPower = 0.0f;				// 移動量
 	fCircumference = DOUBLE_PI * GetRadius();				// 円周の長さを求める
 	fPower = (m_fValueRot / DOUBLE_PI) * fCircumference;	// 移動量を求める
 
-	// 加速度を更新
+	// 移動量を適用する為、加速度を更新
 	Vector2 move = Vec2::Direction(Util::FixedRotation(-GetRotation()->y)) * fPower;
 	m_move.x = move.x;
 	m_move.z = -move.y;
 
-	// 位置を更新
+	// 加速度を適用し、位置を更新
 	SetPosition(*GetPosition() + m_move);
 	if (GetPosition()->y < GetRadius())
-	{ // 地面についていれば、フラグリセット
-		m_bJump = false;
-
-		// 座標を修正
+	{ // 埋まっている為、座標を修正
 		SetPosition(Vector3(GetPosition()->x, GetRadius(), GetPosition()->z));
-		m_move.y *= -m_fCor;		// 下への加速度を反転し跳ね返りを起こす
 	}
 
 	if (m_pField != nullptr)
-	{
+	{ // 床が取得できている場合、床から境界線を計算し、移動を制限
 		Vector4 boader;		// 境界線
 		Vector3 pos = *GetPosition();		// 現在位置
 
@@ -179,7 +167,7 @@ void CPlayer::Update(void)
 		// X軸の判定
 		if (pos.x > boader.x) pos.x = boader.x;
 		else if (pos.x < boader.w) pos.x = boader.w;
-		
+
 		// Z軸の判定
 		if (pos.z > boader.y) pos.z = boader.y;
 		else if (pos.z < boader.z) pos.z = boader.z;
@@ -188,12 +176,20 @@ void CPlayer::Update(void)
 		SetPosition(pos);
 	}
 
+	// 残像生成
+	CObjectXAfterImage::Create(GetFileName(),
+		*GetMatrix(),
+		10,
+		0.85f);
+
+#ifdef _DEBUG
 	// デバッグ用ライン表示
 	CRay vecPlayer;		// プレイヤーの向き
 	Vector2 vec = Vec2::Direction(Util::FixedRotation(-GetRotation()->y));		// プレイヤーの向き
+	Vector3 posCalc = *D3DXVec3TransformCoord(&posCalc, GetPosition(), GetParent());
 
 	// プレイヤーの向きの情報を指定し描画
-	vecPlayer.SetStart(*GetPosition());						
+	vecPlayer.SetStart(posCalc);
 	vecPlayer.SetVector(Vector3(vec.x, 0.0f, -vec.y));		
 	vecPlayer.SetLength(RAY_LENGTH + GetRadius());
 	vecPlayer.SetColor(VEC_PLAYER_RAY_COL);
@@ -216,11 +212,9 @@ void CPlayer::Update(void)
 	pProc->Print("移動量   ({:.2f}/{:.2f}/{:.2f})\n", PRINT_VECTOR3(m_move));
 	pProc->Print("回転軸   ({:.2f}/{:.2f}/{:.2f})\n", PRINT_VECTOR3(m_vecAxis));
 	pProc->Print("回転量   ({:.4f})\n", m_fValueRot);
-	pProc->Print("回転速度 ({:.4f}) [↑/↓]\n", m_fRotSpeed);
-	pProc->Print("減速係数 ({:.4f}) [Y/H]\n", m_fRotResist);
-	pProc->Print("跳躍力   ({:.4f}) [R/F]\n", m_fJump);
-	pProc->Print("反発係数 ({:.4f}) [T/G]\n", m_fCor);
+	pProc->Print("回転速度 ({:.4f})\n", m_fRotSpeed);
 	pProc->Print("半径     ({:.4f}) [1/2]\n", GetRadius());
+#endif
 }
 
 //==================================================================================
@@ -251,7 +245,8 @@ void CPlayer::Draw(void)
 	D3DXMatrixMultiply(&mtxWorld, &mtxWorld, &m_mtxRot);
 
 	// 移動マトリックスを計算
-	Mtx::CalcPosition(&mtxWorld, *GetPosition());
+	Vector3 posCalc = *D3DXVec3TransformCoord(&posCalc, GetPosition(), GetParent());
+	Mtx::CalcPosition(&mtxWorld, posCalc);
 
 	// 法線ベクトルの再正規化を有効化
 	pDevice->SetRenderState(D3DRS_NORMALIZENORMALS, TRUE);
@@ -259,20 +254,24 @@ void CPlayer::Draw(void)
 	// 描画
 	CObjectX::Draw(mtxWorld);
 
+	Vector3 nor = Vector3(0.0f, 1.0f, 0.0f);		// 床の法線
+
+	// 法線を親マトリックスで計算
+	D3DXVec3TransformNormal(&nor, &nor, GetParent());
+
 	// 床のシャドウマトリックスを生成
 	Mtx::CreateShadow(&mtxWorld,
 		Vector3(0.0f, 0.1f, 0.0f),
-		Vector3(0.0f, 1.0f, 0.0f),
+		nor,
 		*pManager->GetLight()->GetLight(0),
 		&mtxShadow);
 
 	// 影を描画
 	CObjectX::DrawShadow(mtxShadow);
-
-	std::deque apWall = FindObjectsByType(CObject::TYPE_WALL);
-	for (auto &wall : apWall)
+#if FALSE
+	std::vector vpWall = FindObjectsByType<CWall>(WALL_PRIORITY);
+	for (auto &pWall : vpWall)
 	{
-		CWall *pWall = static_cast<CWall*>(wall);
 		Vector3 nor = VECTOR3_NULL;
 
 		// 法線を計算
@@ -287,9 +286,13 @@ void CPlayer::Draw(void)
 			*pManager->GetLight()->GetLight(0),
 			&mtxShadow);
 
+		// 親マトリックスと乗算
+		Mtx::CalcParent(&mtxShadow, GetParent());
+
 		// 影を描画
 		CObjectX::DrawShadow(mtxShadow);
 	}
+#endif
 
 	// 法線ベクトルの再正規化を無効化
 	pDevice->SetRenderState(D3DRS_NORMALIZENORMALS, FALSE);
@@ -298,8 +301,47 @@ void CPlayer::Draw(void)
 //==================================================================================
 // --- 通知処理 ---
 //==================================================================================
-void CPlayer::Notified(CObject *pObject, std::string_view message)
+void CPlayer::Notified(CObject *pObject, std::string_view message, const std::any &args)
 {
+}
+
+//==================================================================================
+// --- 回転追加処理 ---
+//==================================================================================
+void CPlayer::AddForce(const float fRotDest, const float fValueRot)
+{ // 回転角が負の値だとアサーション
+	assert(fValueRot >= 0.0f);
+
+	// 角度を保存
+	m_rotDest.y = Util::FixedRotation(fRotDest);
+	m_fAngle = m_rotDest.y;
+
+	if (m_fValueRot <= FLT_MIN && m_fValueRot > -FLT_MIN)
+	{ // 回転速度が0.0f以下の場合、角度を目標角度に強制
+		SetRotation(Vector3(0.0f, Util::FixedRotation(m_rotDest.y), 0.0f));
+	}
+
+	m_fValueRot += fValueRot;
+
+	// 差分を求める
+	float fValue = m_rotDest.y - GetRotation()->y;
+
+	// 差分を正規化して、絶対値に変換
+	fValue = fabsf(Util::FixedRotation(fValue));
+	if (fValue >= D3DX_PI * 0.85f)
+	{ // プレイヤーの向きが前回とπ(+ε)分離れていたら、回転量をマイナスにし、角度即時適用
+		m_fValueRot *= -1;
+
+		// 角度更新
+		SetRotation(Vector3(0.0f, m_rotDest.y, 0.0f));
+	}
+	else
+	{ // 通常の角度更新
+		float fAngle = m_rotDest.y - GetRotation()->y;
+		fAngle = Util::FixedRotation(fAngle);
+
+		SetRotation(Vector3(0.0f, Util::FixedRotation(GetRotation()->y + (fAngle * ANGLE_DEST_ACCELE)), 0.0f));
+	}
 }
 
 //==================================================================================
@@ -411,20 +453,13 @@ void CPlayer::CharactorMovable(void)
 
 		m_fValueRot += m_fRotSpeed;		// 回転速度を更新
 	}
-	else
+	else if (m_fValueRot > 0.0f)
 	{ // 動いていない時は回転角を減少
-		m_fValueRot -= m_fRotResist;
-		if (m_fValueRot <= FLT_MIN)
-		{ // 回転速度が0.0f以下になった場合、0.0fに戻す
+		m_fValueRot -= RESIST_ROT;
+		if (m_fValueRot < 0.0f)
+		{ // 0.0f以下になった場合は、0.0fに戻す
 			m_fValueRot = 0.0f;
 		}
-	}
-
-	if ((pKeyboard->GetTrigger(DIK_SPACE) || pJoypad->GetTrigger(CJoypad::KEY_A))
-		&& m_bJump == false)
-	{ // ジャンプボタンを押したとき
-		m_move.y = m_fJump;		// Y軸の加速度を設定
-		m_bJump = true;			// フラグを立てる
 	}
 
 	// 角度修正
@@ -460,46 +495,6 @@ void CPlayer::StatusChange(void)
 	CInputKeyboard *pKeyboard = pManager->GetInputKeyboard();		// キーボードへのポインタ
 	int nRepeatWait = 5;		// リピートの待機時間
 
-	// 回転速度
-	if (pKeyboard->GetRepeat(DIK_UP, nRepeatWait, 1))
-	{ // ↑を押したとき
-		m_fRotSpeed += 0.001f;
-	}
-	else if (pKeyboard->GetRepeat(DIK_DOWN, nRepeatWait, 1))
-	{ // ↓を押したとき
-		m_fRotSpeed -= 0.001f;
-	}
-
-	// 減速係数
-	if (pKeyboard->GetRepeat(DIK_Y, nRepeatWait, 1))
-	{ // ↑を押したとき
-		m_fRotResist += 0.0001f;
-	}
-	else if (pKeyboard->GetRepeat(DIK_H, nRepeatWait, 1))
-	{ // ↓を押したとき
-		m_fRotResist -= 0.0001f;
-	}
-
-	// 跳躍力
-	if (pKeyboard->GetRepeat(DIK_R, nRepeatWait, 1))
-	{ // ↑を押したとき
-		m_fJump += 0.01f;
-	}
-	else if (pKeyboard->GetRepeat(DIK_F, nRepeatWait, 1))
-	{ // ↓を押したとき
-		m_fJump -= 0.01f;
-	}
-
-	// 反発係数
-	if (pKeyboard->GetRepeat(DIK_T, nRepeatWait, 1))
-	{ // ↑を押したとき
-		m_fCor += 0.01f;
-	}
-	else if (pKeyboard->GetRepeat(DIK_G, nRepeatWait, 1))
-	{ // ↓を押したとき
-		m_fCor -= 0.01f;
-	}
-
 	// 拡大倍率
 	if (pKeyboard->GetRepeat(DIK_1, nRepeatWait, 1))
 	{ // ↑を押したとき
@@ -508,5 +503,15 @@ void CPlayer::StatusChange(void)
 	else if (pKeyboard->GetRepeat(DIK_2, nRepeatWait, 1))
 	{ // ↓を押したとき
 		m_fScaling -= 0.1f;
+	}
+
+	// 回転速度
+	if (pKeyboard->GetRepeat(DIK_Y, nRepeatWait, 1))
+	{ // ↑を押したとき
+		m_fRotSpeed += 0.005f;
+	}
+	else if (pKeyboard->GetRepeat(DIK_N, nRepeatWait, 1))
+	{ // ↓を押したとき
+		m_fRotSpeed -= 0.005f;
 	}
 }

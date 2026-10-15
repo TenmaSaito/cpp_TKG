@@ -19,12 +19,13 @@
 #include "playerCamera.h"
 #include "light.h"
 #include "texture.h"
+#include "xfile.h"
 #include "util.h"
-#include "field.h"
-#include "player.h"
-#include "item.h"
-#include "wall.h"
+#include "matrix.h"
 #include "mapScriptLoader.h"
+#include "player.h"
+#include "vec2math.h"
+#include "vec3math.h"
 
 //==================================================================================
 // --- マネージャの取得処理 ---
@@ -207,6 +208,9 @@ void CManager::Uninit(void)
 	// 全カメラの破棄、終了処理
 	CCamera::ReleaseAll();
 
+	// XFILEの破棄
+	CXFile::GetInstance()->Unload();
+
 	// テクスチャの破棄
 	CTexture::GetInstance()->Unload();
 
@@ -249,10 +253,16 @@ void CManager::Update(void)
 	// デバッグ表示の更新処理
 	m_pDebugProc->Update();
 	
+#ifdef _DEBUG
 	// デバッグ情報
 	m_pDebugProc->Print("======== デバッグ情報 ========\n");
 	m_pDebugProc->Print("FPS : ({})\n", m_nCountFPS);
 	m_pDebugProc->Print("リロード : ({}) [BackSpace]\n\n", m_nCountReload);
+#endif
+	// 操作説明
+	m_pDebugProc->ForcePrint("======== 操作 ========\n");
+	m_pDebugProc->ForcePrint("WASD : 台を傾ける\n");
+	m_pDebugProc->ForcePrint("BACK : リセット\n");
 
 	// ライトの更新処理
 	m_pLight->Update();
@@ -267,6 +277,7 @@ void CManager::Update(void)
 	{ // リセット
 		CObject::ReleaseAll();
 		CCamera::ReleaseAll();
+		m_rot = VECTOR3_NULL;
 
 		// マップの再読み込み
 		std::unique_ptr pMapScriptLoader = std::make_unique<CMapScriptLoader>();		// マップ読み込みインスタンス
@@ -288,6 +299,10 @@ void CManager::Update(void)
 //==================================================================================
 void CManager::Draw(void)
 { // レンダラーの描画
+	Mtx::Identity(&m_mtxWorld);
+
+	Mtx::CalcRotation(&m_mtxWorld, m_rot * QUARTER_PI * 0.5f);
+
 	m_pRenderer->Draw();
 }
 

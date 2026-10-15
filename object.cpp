@@ -12,31 +12,19 @@
 #include "manager.h"
 #include "camera.h"
 
-//**********************************************************************************
-// *** 静的メンバ変数宣言 ***
-//**********************************************************************************
-CObject *CObject::m_apTop[MAX_OBJPRIORITY] = { nullptr };		// 先頭オブジェクトへのポインタ
-CObject *CObject::m_apCur[MAX_OBJPRIORITY] = { nullptr };		// 最後尾オブジェクトへのポインタ
-int CObject::m_nNumAll = 0;						// オブジェクトの総数
-
 //==================================================================================
 // --- コンストラクタ ---
 //==================================================================================
 CObject::CObject(const int nPriority)
-{ // メンバ変数のクリア
-	m_pPrev = nullptr;
-	m_pNext = nullptr;
+{ // 優先順位保存 (範囲外ならアサーション)
+	assert(nPriority >= 0 && nPriority < MAX_OBJPRIORITY);
 	m_nPriority = nPriority;
-	m_bDeath = false;
 	
 	// 自身をリストに追加
 	AddList();
 
 	// 総数増加
 	m_nNumAll++;
-
-	// タイプを設定
-	SetType(TYPE_NONE);
 }
 
 //==================================================================================
@@ -49,15 +37,15 @@ CObject::~CObject()
 //==================================================================================
 // --- 自身の観察者に対しての通知処理 ---
 //==================================================================================
-void CObject::NotifyAll(std::string_view message)
+void CObject::NotifyAll(std::string_view message, const std::any &args)
 {
 	std::vector<CObject*> vpSnapshot = m_vpObserver;	// Notify直前のポインタ配列のコピー
 	for (auto &pObserver : vpSnapshot)
 	{ // nullの場合スキップ
 		if (pObserver == nullptr) continue;
 
-		// 自身が死んだことを通知
-		pObserver->Notified(this, message);
+		// 通知
+		pObserver->Notified(this, message, args);
 	}
 }
 
@@ -96,10 +84,12 @@ void CObject::UpdateAll(void)
 		{ // nullptrになるまで繰り返す
 			CObject *pObjectNext = pObject->m_pNext;	// 次のオブジェクトへのポインタ
 
+#ifdef _DEBUG
 #ifdef DEBUG_ASSERT_TYPE_NONE
 			// オブジェクトのタイプがNONEの場合、アサーション + ブレークポイント
 			assert(pObject->m_type != TYPE_NONE);
 			if (pObject->m_type == TYPE_NONE) __debugbreak();
+#endif
 #endif
 			// オブジェクトの更新
 			pObject->Update();
@@ -184,7 +174,9 @@ CObject *CObject::FindAnyObjectByType(const TYPE type)
 // --- オブジェクトの検索処理 (優先順位, タイプ指定 : 最初に見つかったポインタ) ---
 //==================================================================================
 CObject *CObject::FindAnyObjectByType(const int nPriority, const TYPE type)
-{
+{ // 範囲外ならアサーション
+	assert(nPriority >= 0 && nPriority < MAX_OBJPRIORITY);
+
 	CObject *pObject = m_apTop[nPriority];		// オブジェクトへのポインタ
 
 	while (pObject != nullptr)
@@ -204,13 +196,13 @@ CObject *CObject::FindAnyObjectByType(const int nPriority, const TYPE type)
 //==================================================================================
 // --- オブジェクトの検索処理 (タイプ指定 : 見つかったポインタ全て) ---
 //==================================================================================
-std::deque<CObject*> CObject::FindObjectsByType(const TYPE type)
+std::vector<CObject*> CObject::FindObjectsByType(const TYPE type)
 {
-	std::deque<CObject*> vpObject;				// 見つかったオブジェクトへのポインタ
+	std::vector<CObject*> vpObject;				// 見つかったオブジェクトへのポインタ
 
 	for (int nCntPriority = 0; nCntPriority < MAX_OBJPRIORITY; nCntPriority++)
 	{ // 全プライオリティを検索
-		std::deque<CObject*> vpFind;		// 今回のプライオリティで見つかった配列
+		std::vector<CObject*> vpFind;		// 今回のプライオリティで見つかった配列
 
 		// 検索
 		vpFind = std::move(FindObjectsByType(nCntPriority, type));
@@ -226,10 +218,12 @@ std::deque<CObject*> CObject::FindObjectsByType(const TYPE type)
 //==================================================================================
 // --- オブジェクトの検索処理 (優先順位, タイプ指定 : 見つかったポインタ全て) ---
 //==================================================================================
-std::deque<CObject*> CObject::FindObjectsByType(const int nPriority, const TYPE type)
-{
+std::vector<CObject*> CObject::FindObjectsByType(const int nPriority, const TYPE type)
+{ // 範囲外ならアサーション
+	assert(nPriority >= 0 && nPriority < MAX_OBJPRIORITY);
+
 	CObject *pObject = m_apTop[nPriority];		// オブジェクトへのポインタ
-	std::deque<CObject*> vpObject;				// 見つかったオブジェクトへのポインタ
+	std::vector<CObject*> vpObject;				// 見つかったオブジェクトへのポインタ
 
 	while (pObject != nullptr)
 	{ // オブジェクトへのポインタがnullではない間ループ
@@ -253,7 +247,7 @@ void CObject::Release(void)
 	m_bDeath = true;
 
 	// 死亡したことを通知
-	NofifyAllWhenDeath();
+	NotifyAllWhenDeath();
 }
 
 //==================================================================================
@@ -309,7 +303,7 @@ void CObject::RemoveList(void)
 //==================================================================================
 // --- 自身の死亡を観察者へ通知する処理 ---
 //==================================================================================
-void CObject::NofifyAllWhenDeath(void)
+void CObject::NotifyAllWhenDeath(void)
 { // 自身が死んだことを通知
 	NotifyAll(NOTIFY_WHEN_DEATH);
 }

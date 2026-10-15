@@ -14,22 +14,14 @@
 // --- コンストラクタ ---
 //==================================================================================
 CFileStream::CFileStream() noexcept
-{ // メンバ変数をクリア
-	m_size = 0;
-	m_bBinary = false;
-	m_bInStream = false;
+{
 }
 
 //==================================================================================
 // --- ファイルオープンコンストラクタ ---
 //==================================================================================
 CFileStream::CFileStream(std::string_view sFilename, const bool bBinary)
-{ // メンバ変数をクリア
-	m_size = 0;
-	m_bBinary = false;
-	m_bInStream = false;
-
-	// ファイルオープン
+{// ファイルオープン
 	Open(sFilename, bBinary);
 }
 
@@ -37,12 +29,7 @@ CFileStream::CFileStream(std::string_view sFilename, const bool bBinary)
 // --- ファイル作成コンストラクタ ---
 //==================================================================================
 CFileStream::CFileStream(std::string_view sFilename, const bool bBinary, const FLAG flag)
-{ // メンバ変数をクリア
-	m_size = 0;
-	m_bBinary = false;
-	m_bInStream = false;
-
-	// ファイル作成
+{// ファイル作成
 	Create(sFilename, bBinary, flag);
 }
 

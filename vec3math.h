@@ -29,21 +29,6 @@ namespace Vec3
 		MAX
 	};
 
-	// 範囲チェック用
-	template<Axis axis>
-	concept IsTrueAxis = (axis != Axis::MAX);
-
-	// 変数版
-	template<Axis axis>
-	inline constexpr bool IsTrueAxis_v = IsTrueAxis<axis>;
-
-	// フラグ管理
-	using AxisFlags = std::array<bool, static_cast<std::size_t>(Axis::MAX)>;
-
-	// 定数
-	inline static const Vector3 Zero = VECTOR3_NULL;	// VECTOR3_NULL
-	inline static const Vector3 One = VECTOR3_ONE;		// VECTOR3_ONE
-
 	//******************************************************************************
 	// *** 軸列挙 (複数軸有り) ***
 	//******************************************************************************
@@ -58,17 +43,6 @@ namespace Vec3
 		XYZ,	// XYZ軸
 		MAX
 	};
-
-	// 範囲チェック用
-	template<AxisEx axisEx>
-	concept IsTrueAxisEx = (axisEx != AxisEx::MAX);
-
-	// 変数版
-	template<AxisEx axisEx>
-	inline constexpr bool IsTrueAxisEx_v = IsTrueAxisEx<axisEx>;
-
-	// フラグ管理
-	using AxisExFlags = std::array<bool, static_cast<std::size_t>(AxisEx::MAX)>;
 
 	//******************************************************************************
 	// *** プロトタイプ宣言 ***
@@ -107,7 +81,5 @@ namespace Vec3
 	float GetAxis(Vector3 &vec, const Axis axis);
 	AxisEx ToAxisEx(const Axis axis);
 	Axis ToAxis(const AxisEx axisEx);
-	AxisFlags IsAxis(const Vector3 &vec, const float fEpsilon = FLT_EPSILON);
-	AxisExFlags IsAxisEx(const Vector3 &vec, const float fEpsilon = FLT_EPSILON);
 }
 #endif

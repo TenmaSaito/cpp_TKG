@@ -21,8 +21,6 @@
 //==================================================================================
 CInput::CInput()
 {
-	// メンバ変数のクリア
-	m_pDevice = nullptr;
 }
 
 //==================================================================================
@@ -82,11 +80,6 @@ void CInput::Uninit(void)
 //==================================================================================
 CInputKeyboard::CInputKeyboard()
 {
-	// メンバ変数のクリア
-	memset(&m_aKeyState, 0, sizeof(m_aKeyState));
-	memset(&m_aKeyStateTrigger, 0, sizeof(m_aKeyStateTrigger));
-	memset(&m_aKeyStateRelease, 0, sizeof(m_aKeyStateRelease));
-	memset(&m_nKeyStateRepeat, 0, sizeof(m_nKeyStateRepeat));
 }
 
 //==================================================================================
@@ -242,12 +235,6 @@ bool CInputKeyboard::GetRepeat(const int nKey, const int nWaitPress, const int n
 //==================================================================================
 CInputMouse::CInputMouse()
 {
-	// メンバ変数のクリア
-	memset(&m_CurrentMouseState, 0, sizeof(m_CurrentMouseState));
-	memset(&m_PrevMouseState, 0, sizeof(m_PrevMouseState));
-	memset(&m_aMouseState, 0, sizeof(m_aMouseState));
-	memset(&m_aMouseStateTrigger, 0, sizeof(m_aMouseStateTrigger));
-	memset(&m_aMouseStateRelease, 0, sizeof(m_aMouseStateRelease));
 }
 
 //==================================================================================

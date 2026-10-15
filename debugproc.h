@@ -42,17 +42,28 @@ public:
 	void Update(void);
 	void Draw(void);
 	template<class... Args> void Print(std::_Fmt_string<Args...> format, Args ...args);
+	template<class... Args> void ForcePrint(std::_Fmt_string<Args...> format, Args ...args);
 
 private:
-	LPD3DXFONT m_pFont;			// フォントへのポインタ
+	LPD3DXFONT m_pFont;		// フォントへのポインタ
 	Color m_colFont;		// フォントカラー
-	std::string m_sProc;		// 表示する文字列
+	std::string m_sProc;	// 表示する文字列
 };
 
 //==================================================================================
-// --- デバッグ表示の追加処理 ---
+// --- デバッグ表示の追加処理 (デバッグ時無効) ---
 //==================================================================================
 template<class... Args> void CDebugProc::Print(std::_Fmt_string<Args...> format, Args ...args)
+{
+#ifdef _DEBUG
+	m_sProc += std::format(format, std::forward<Args>(args)...);
+#endif
+}
+
+//==================================================================================
+// --- デバッグ表示の追加処理 (強制表示) ---
+//==================================================================================
+template<class... Args> void CDebugProc::ForcePrint(std::_Fmt_string<Args...> format, Args ...args)
 {
 	m_sProc += std::format(format, std::forward<Args>(args)...);
 }

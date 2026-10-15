@@ -12,6 +12,7 @@
 // *** ƒCƒ“ƒNƒ‹[ƒhƒtƒ@ƒCƒ‹ ***
 //**********************************************************************************
 #include "object.h"
+#include "parentable.h"
 
 //**********************************************************************************
 // *** ’è”éŒ¾ ***
@@ -25,7 +26,7 @@ inline const Vector2 DEFAULT_OBJ3D_SIZE = Vector2(100.0f, 100.0f);	// obj3D‚ÌŠî–
 //**********************************************************************************
 // *** ƒIƒuƒWƒFƒNƒg3DƒNƒ‰ƒX ***
 //**********************************************************************************
-class CObject3D : public CObject
+class CObject3D : public CObject, public IParentable
 {
 public:
 	CObject3D(const int nPriority = DEFAULT_OBJ3D_PRIORITY);
@@ -50,8 +51,10 @@ public:
 	const Vector3 *GetRotation(void) const { return &m_rot; }
 	void SetSize(const Vector2 &size);
 	const Vector2 *GetSize(void) const { return &m_size; }
+	const Matrix *GetMatrix(void) const { return &m_mtxWorld; }
 	void SetColor(const Color &col);
 	void SetParent(const Matrix *pMtxParent) { m_pMtxParent = pMtxParent; }
+	const Matrix *GetParent(void) const { return &m_mtxWorld; }
 
 private:
 	LPDIRECT3DVERTEXBUFFER9 m_pVtxBuff = nullptr;	// ’¸“_ƒoƒbƒtƒ@‚Ö‚Ìƒ|ƒCƒ“ƒ^

@@ -32,6 +32,7 @@ public:
 		TYPE_DOUGHNUT,			// ドーナツ形
 		TYPE_STAR,				// 星形
 		TYPE_NOTE,				// 音符型
+		TYPE_ARROW,				// 矢印型
 		TYPE_MAX
 	} TYPE;
 
@@ -45,7 +46,7 @@ public:
 	static CTexture *GetInstance(void);
 	HRESULT Load(void);
 	void Unload(void);
-	UINT Register(const std::string_view path);
+	UINT Register(std::string_view path);
 	UINT Register(const char *pPath);
 	LPDIRECT3DTEXTURE9 GetAddress(const UINT uIdx);
 
@@ -53,7 +54,7 @@ private:
 	CTexture();
 	~CTexture();
 
-	UINT Load(const std::string_view path);
+	UINT Load(std::string_view path);
 
 	std::vector<BUFFER> m_vTexBuff;			// テクスチャの配列
 };

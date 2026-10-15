@@ -173,8 +173,8 @@ void CModel::Draw(void)
 		m_pMesh->DrawSubset(nCntMat);
 	}
 
-	std::deque apWall = CObject::FindObjectsByType(CObject::TYPE_WALL);
-	for (auto &wall : apWall)
+	std::vector vpWall = CObject::FindObjectsByType(CObject::TYPE_WALL);
+	for (auto &wall : vpWall)
 	{
 		CWall *pWall = static_cast<CWall *>(wall);
 		Vector3 nor = VECTOR3_NULL;

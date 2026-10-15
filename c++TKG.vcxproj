@@ -175,6 +175,7 @@
     <ClCompile Include="object3D.cpp" />
     <ClCompile Include="objectLine.cpp" />
     <ClCompile Include="objectX.cpp" />
+    <ClCompile Include="objectXAfterImage.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -188,14 +189,18 @@
     <ClCompile Include="scene.cpp" />
     <ClCompile Include="shadow.cpp" />
     <ClCompile Include="sound.cpp" />
+    <ClCompile Include="stage.cpp" />
     <ClCompile Include="tcp_client.cpp" />
     <ClCompile Include="texture.cpp" />
     <ClCompile Include="util.cpp" />
     <ClCompile Include="vec2math.cpp" />
     <ClCompile Include="vec3math.cpp" />
     <ClCompile Include="wall.cpp" />
+    <ClCompile Include="xfile.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="parentable.h" />
+    <ClInclude Include="objectXAfterImage.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="color.h" />
     <ClInclude Include="debugproc.h" />
@@ -229,6 +234,7 @@
     <ClInclude Include="shadow.h" />
     <ClInclude Include="shadows.h" />
     <ClInclude Include="sound.h" />
+    <ClInclude Include="stage.h" />
     <ClInclude Include="tcp_client.h" />
     <ClInclude Include="texture.h" />
     <ClInclude Include="util.h" />
@@ -236,6 +242,7 @@
     <ClInclude Include="vec3math.h" />
     <ClInclude Include="vtxManager.h" />
     <ClInclude Include="wall.h" />
+    <ClInclude Include="xfile.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

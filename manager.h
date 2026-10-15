@@ -29,6 +29,7 @@ class CJoypad;
 class CDebugProc;	
 class CSound;		
 class CLight;
+class CObject3D;
 
 //**********************************************************************************
 // *** マネージャクラス ***
@@ -63,6 +64,9 @@ public:
 	static constexpr float RatioToSec(const float fT) { return FrameToSec(1.0f / fT); }
 	static constexpr float SecToRatio(const float fSec) { return 1.0f / SecToFrame(fSec); }
 
+	Matrix m_mtxWorld;
+	Vector3 m_rot = VECTOR3_NULL;
+
 private:
 	CManager();
 	~CManager();
@@ -74,10 +78,13 @@ private:
 	std::unique_ptr<CDebugProc> m_pDebugProc;			// デバッグ表示オブジェクトへのポインタ
 	std::unique_ptr<CSound> m_pSound;					// サウンドオブジェクトへのポインタ
 	std::unique_ptr<CLight> m_pLight;					// ライトオブジェクトへのポインタ
+	CObject3D *m_pArrow = nullptr;		// 矢印ポリゴン
 	HWND m_hWnd = nullptr;		// ウィンドウハンドル
 	int m_nCountFPS = 0;		// FPSカウント
 	int m_nCounterFrame = 0;	// フレームカウンター
 	int m_nCountReload = 0;		// リロードカウント
+	float m_fAngle = 0.0f;		// 角度
+	float m_fPush = 0.0f;		// 押した長さ
 	bool m_bPause = false;		// ポーズ状態
 };
 #endif

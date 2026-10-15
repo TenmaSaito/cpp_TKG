@@ -120,6 +120,6 @@ private:
 		int nCounterVibration;						// バイブレーションの時間
 	} XINPUT_INFO;
 
-	XINPUT_INFO m_aJoypad[MAX_JOYPAD];			// ジョイパッドの情報
+	XINPUT_INFO m_aJoypad[MAX_JOYPAD] = {};			// ジョイパッドの情報
 };
 #endif

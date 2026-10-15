@@ -14,6 +14,7 @@
 #include "main.h"
 #include <iostream>
 #include <sstream>
+#include <type_traits>
 
 //**********************************************************************************
 // *** ユーティリティ関数関連名前空間 ***
@@ -39,7 +40,7 @@ namespace Util
 		return nNumValue;
 	}
 
-	template<class E> E AddEnum(const E &num, const int nValue)
+	template<class E> requires std::is_enum_v<E> constexpr E AddEnum(const E &num, const int nValue)
 	{ // 列挙型の加減演算処理
 		int nValueWork = static_cast<int>(num);
 		nValueWork += nValue;

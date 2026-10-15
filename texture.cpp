@@ -13,22 +13,26 @@
 #include "renderer.h"
 
 //**********************************************************************************
-// *** マクロ定義 ***
+// *** 定数宣言 ***
 //**********************************************************************************
-#define DEFAULT_CAPACITY		(64)		// インスタンス生成時確保するTEX_BUFFERの初期サイズ
+namespace
+{
+	constexpr int DEFAULT_CAPACITY = 64;		// インスタンス生成時確保するTEX_BUFFERの初期サイズ
+}
 
 //**********************************************************************************
 // *** 図形のファイル名 ***
 //**********************************************************************************
 namespace
 {
-	constexpr std::string_view c_sPrimitivePath[CTexture::TYPE_MAX] =	// 図形テクスチャのパス
+	constexpr std::string_view c_asPrimitivePath[CTexture::TYPE_MAX] =	// 図形テクスチャのパス
 	{
 		"data/TEXTURE/base/triangle.png",	// 三角形
 		"data/TEXTURE/base/circle.png",		// 円形
 		"data/TEXTURE/base/doughnut.png",	// ドーナツ形
 		"data/TEXTURE/base/star.png",		// 星型
 		"data/TEXTURE/base/note.png",		// 音符型
+		"data/TEXTURE/base/arrow.png",		// 矢印型
 	};
 }
 
@@ -45,7 +49,7 @@ CTexture *CTexture::GetInstance(void)
 // --- コンストラクタ ---
 //==================================================================================
 CTexture::CTexture()
-{ // メンバ変数のクリア + バッファの事前確保
+{ // バッファの事前確保
 	m_vTexBuff.reserve(DEFAULT_CAPACITY);
 }
 
@@ -61,7 +65,7 @@ CTexture::~CTexture()
 //==================================================================================
 HRESULT CTexture::Load(void)
 {
-	for (const auto &path : c_sPrimitivePath)
+	for (const auto &path : c_asPrimitivePath)
 	{ // 事前に用意されたテクスチャを読み込み
 		Register(path);
 	}
@@ -93,7 +97,7 @@ void CTexture::Unload(void)
 //==================================================================================
 // --- テクスチャの登録処理 ---
 //==================================================================================
-UINT CTexture::Register(const std::string_view path)
+UINT CTexture::Register(std::string_view path)
 { // ファイル名がnullもしくはインデックスが無効値手前の場合失敗
 	if (path.empty()) return INVALID_TEX_ID;
 	if (m_vTexBuff.size() == INVALID_TEX_ID - 1U) return INVALID_TEX_ID;
@@ -101,7 +105,7 @@ UINT CTexture::Register(const std::string_view path)
 	// 既に読み込んでいないかを確認
 	for (UINT uCntTexture = 0; uCntTexture < m_vTexBuff.size(); uCntTexture++)
 	{
-		if (m_vTexBuff.at(uCntTexture).sFilename == path)
+		if (m_vTexBuff[uCntTexture].sFilename == path)
 		{ // 既に読み込み済みのテクスチャなら、そのインデックスを返す
 			return uCntTexture;
 		}
@@ -130,13 +134,13 @@ LPDIRECT3DTEXTURE9 CTexture::GetAddress(const UINT uIdx)
 	if (uIdx >= m_vTexBuff.size() || uIdx == INVALID_TEX_ID) return nullptr;
 
 	// テクスチャへのポインタを返す
-	return m_vTexBuff.at(uIdx).pTexture;
+	return m_vTexBuff[uIdx].pTexture;
 }
 
 //==================================================================================
 // --- テクスチャの読み込み処理 ---
 //==================================================================================
-UINT CTexture::Load(const std::string_view path)
+UINT CTexture::Load(std::string_view path)
 {
 	LPDIRECT3DDEVICE9 pDevice = CManager::GetInstance()->GetRenderer()->GetDevice();	// テクスチャの読み込み
 	UINT uIdxTex = m_vTexBuff.size();		// テクスチャのインデックス
@@ -148,7 +152,7 @@ UINT CTexture::Load(const std::string_view path)
 		path.data(),
 		&texbuf.pTexture);
 	if (FAILED(hr))
-	{
+	{ // 読み込み失敗時、無効値を返す
 		return INVALID_TEX_ID;
 	}
 	

@@ -1,11 +1,11 @@
 //==================================================================================
 // 
-// TCP送受信クラスのヘッダーファイル [tcp_server.h]
+// TCP送受信クラスのヘッダーファイル [tcp_client.h]
 // Author : TENMA SAITO
 // 
 //==================================================================================
-#ifndef _TCP_SERVER_H_
-#define _TCP_SERVER_H_
+#ifndef _TCP_CLIENT_H_
+#define _TCP_CLIENT_H_
 
 //**********************************************************************************
 // *** インクルードファイル ***
@@ -44,8 +44,10 @@ public:
 	void Uninit(void);
 	struct sockaddr_in GetClientAddr(void) const { return m_addr; }
 	template<class T> int Send(const T *pData, const int num);
+	template<class T> int SendWithSize(const T *pData, const int num);
 	template<class T> int Recv(T *pOut, const int num);
-	template<class T> int RecvWithTimeout(T *pOut, const int num, const long nSeconds, const long nMill = 0);
+	template<class T> int RecvAll(T *pOut, const int num);
+	template<class T> int Recv(T *pOut, const int num, const long nSeconds, const long nMill = 0);
 
 private:
 	void CloseSocket(void);
@@ -94,6 +96,20 @@ template<class T> int CTcpClient::Send(const T *pData, const int num)
 
 	// 送信成功
 	return nSentByte;
+}
+
+//==================================================================================
+// --- データ送信処理 (サイズ自動送信) ---
+//==================================================================================
+template<class T> int CTcpClient::SendWithSize(const T *pData, const int num)
+{
+	int nByte = sizeof(T) * num;		// 処理するバイト数
+	
+	// 送信するデータのバイト数を先に送信
+	Send(&nByte, 1);
+
+	// データを送信
+	return Send(pData, num);
 }
 
 //==================================================================================
@@ -152,7 +168,33 @@ template<class T> int CTcpClient::Recv(T *pOut, const int num)
 //==================================================================================
 // --- データ受信処理 (エンディアン変換は外部で行う) ---
 //==================================================================================
-template<class T> int CTcpClient::RecvWithTimeout(T *pOut, const int num, const long nSeconds, const long nMill)
+template<class T> int CTcpClient::RecvAll(T *pOut, const int num)
+{
+	int nTotal = 0;			// 合計で受け取ったバイト数
+	int nByteSize = sizeof(T) * num;	// 受け取るデータのバイト数
+	char *pByte = new char[nByteSize];	// 受け取ったデータ
+
+	while (nTotal < nByteSize)
+	{ // 受け取ったバイト数が指定のバイト数未満の間受け取り続ける
+		int nRecvByte = Recv(&pByte[nTotal], nByteSize - nTotal);
+		if (nRecvByte <= 0) return nRecvByte;		// 受信失敗
+
+		nTotal += nRecvByte;		// 受け取ったバイト数を加算
+	}
+
+	// データをコピー
+	memcpy(pOut, pByte, nTotal);
+
+	// バッファ破棄
+	delete pByte;
+	pByte = nullptr;
+	return nTotal;
+}
+
+//==================================================================================
+// --- データ受信処理 (時間指定) ---
+//==================================================================================
+template<class T> int CTcpClient::Recv(T *pOut, const int num, const long nSeconds, const long nMill)
 {
 	if (m_sock == INVALID_SOCKET)
 	{ // ソケットが無効なら失敗

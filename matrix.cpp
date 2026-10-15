@@ -96,6 +96,21 @@ Matrix *Mtx::CalcScale(Matrix *pMtx, const Vector3 &scale)
 }
 
 //==================================================================================
+// --- 親マトリックスによる乗算処理 ---
+//==================================================================================
+Matrix *Mtx::CalcParent(Matrix *pMtx, const Matrix *pMtxParent)
+{
+	// 出力先がnullptrならnullptrを返す
+	if (pMtx == nullptr) return nullptr;
+	else if (pMtxParent == nullptr) return pMtx;		// 親マトリックスがnullならそのまま返す
+
+	// マトリックスを掛け合わせる
+	D3DXMatrixMultiply(pMtx, pMtx, pMtxParent);
+
+	return pMtx;
+}
+
+//==================================================================================
 // --- ワールドマトリックスの計算処理 ---
 //==================================================================================
 Matrix *Mtx::CalcWorld(Matrix *pMtx, const Vector3 &position, const Vector3 &rotation)

@@ -96,9 +96,9 @@ private:
 	std::ifstream m_Infile;		// ファイル入力ストリーム
 	std::ofstream m_Outfile;	// ファイル出力ストリーム
 	std::string m_filename;		// 開いているファイル名
-	uintmax_t m_size;			// ファイルのサイズ
-	bool m_bBinary;				// バイナリかどうか
-	bool m_bInStream;			// ファイル入力かどうか
+	uintmax_t m_size = 0U;		// ファイルのサイズ
+	bool m_bBinary = false;		// バイナリかどうか
+	bool m_bInStream = false;	// ファイル入力かどうか
 };
 
 //==================================================================================

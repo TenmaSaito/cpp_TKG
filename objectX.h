@@ -11,6 +11,7 @@
 // *** インクルードファイル ***
 //**********************************************************************************
 #include "object.h"
+#include "parentable.h"
 
 //**********************************************************************************
 // *** 定数宣言 ***
@@ -22,7 +23,7 @@ inline const Vector3 DEFAULT_OBJX_ROT = VECTOR3_NULL;			// objXの基本角度
 //**********************************************************************************
 // *** オブジェクトXクラス ***
 //**********************************************************************************
-class CObjectX : public CObject
+class CObjectX : public CObject, public IParentable
 {
 public:
 	CObjectX(const int nPriority = DEFAULT_OBJX_PRIORITY);
@@ -49,6 +50,7 @@ public:
 	const Vector3 *GetVtxMax(void) const { return &m_vtxMax; }
 	std::string_view GetFileName(void) const { return m_sFilename; }
 	void SetParent(const Matrix *pMtxParent) { m_pMtxParent = pMtxParent; }
+	const Matrix *GetParent(void) const { return m_pMtxParent; }
 	bool IsHitByRay(const Vector3 &start, const Vector3 &vec, const float fLength);
 
 protected:

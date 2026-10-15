@@ -26,14 +26,16 @@ public:
 	CPlayerCamera();
 	~CPlayerCamera();
 
-	static CPlayerCamera *Create(const CPlayer *pPlayer);
+	static CPlayerCamera *Create(CPlayer *pPlayer);
 
-	void Init(const CPlayer *pPlayer);
+	void Init(CPlayer *pPlayer);
 	void Uninit(void) override;
 	void Update(void) override;
 	void SetCamera(void) override;
 
 private:
-	const CPlayer *m_pPlayer = nullptr;		// プレイヤーへのポインタ
+	CPlayer *m_pPlayer = nullptr;		// プレイヤーへのポインタ
+	float m_fTheta = 0.0f;		// 上方向ベクトルの角度1
+	float m_fPhi = 0.0f;		// 上方向ベクトルの角度2
 };
 #endif

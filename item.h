@@ -11,6 +11,7 @@
 // *** インクルードファイル ***
 //**********************************************************************************
 #include "object.h"
+#include "parentable.h"
 
 //**********************************************************************************
 // *** 前方宣言 ***
@@ -26,7 +27,7 @@ constexpr int ITEM_PRIORITY = DEFAULT_OBJ_PRIORITY;		// アイテムの優先順位
 //**********************************************************************************
 // *** アイテムクラス ***
 //**********************************************************************************
-class CItem : public CObject
+class CItem : public CObject, public IParentable
 {
 public:
 	CItem(const int nPriority = ITEM_PRIORITY);
@@ -42,9 +43,12 @@ public:
 	void Uninit(void) override;
 	void Update(void) override;
 	void Draw(void) override;
+	void SetParent(const Matrix *pMtxParent) { m_pMtxParent = pMtxParent; }
+	const Matrix *GetParent(void) const { return m_pMtxParent; }
 
 private:
 	std::unique_ptr<CModel> m_pModel;		// モデルへのポインタ
+	const Matrix *m_pMtxParent = nullptr;	// 親マトリックスへのポインタ
 	CPlayer *m_pPlayer = nullptr;	// プレイヤーへのポインタ
 	Vector3 m_move = VECTOR3_NULL;	// 加速度
 	float m_fRadius = 0.0f;			// モデルの半径

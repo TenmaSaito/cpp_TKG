@@ -41,7 +41,9 @@ public:
 	void Uninit(void) override;
 	void Update(void) override;
 	void Draw(void) override;
-	void Notified(CObject *pObject, std::string_view message) override;
+	void Notified(CObject *pObject, std::string_view message, const std::any &args) override;
+	void AddForce(const float fRotDest, const float fValueRot);
+	const Vector3 *GetPositionOld(void) const { return &m_posOld; }
 	float GetRadius(void) const { return m_fRadius * m_fScaling; }
 
 private:
@@ -49,6 +51,7 @@ private:
 	void StatusChange(void);
 
 	CField *m_pField = nullptr;			// 床へのポインタ
+	Vector3 m_posOld = VECTOR3_NULL;	// 過去の位置
 	Vector3 m_move = VECTOR3_NULL;		// 移動量
 	Vector3 m_rotDest = VECTOR3_NULL;	// 目標角度
 	Vector3 m_scl = VECTOR3_ONE;		// スケーリング倍率
@@ -56,12 +59,9 @@ private:
 	Quaternion m_quat;					// クォータニオン
 	Vector3 m_vecAxis = VECTOR3_NULL;	// 回転軸
 	float m_fValueRot = 0.0f;			// 回転角
+	float m_fAngle = 0.0f;				// 転がる角度
 	float m_fRotSpeed = 0.0f;			// 回転速度
-	float m_fRotResist = 0.0f;			// 減速係数
 	float m_fRadius = 0.0f;				// 半径
-	float m_fJump = 0.0f;				// 跳躍力
-	float m_fCor = 0.0f;				// 反発係数
 	float m_fScaling = 0.0f;			// 拡大倍率
-	bool m_bJump = false;				// ジャンプフラグ
 };
 #endif

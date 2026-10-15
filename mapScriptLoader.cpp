@@ -9,10 +9,11 @@
 //**********************************************************************************
 #include "mapScriptLoader.h"
 #include "filestream.h"
+#include "manager.h"
 #include "texture.h"
 #include "player.h"
 #include "item.h"
-#include "field.h"
+#include "stage.h"
 #include "wall.h"
 #include "playerCamera.h"
 
@@ -37,8 +38,11 @@ HRESULT CMapScriptLoader::Load(std::string_view path)
 {
 	HRESULT hr = S_OK;		// 読み込み結果
 	std::string line;		// 読み込んだ文字列
+	CManager *pManager = CManager::GetInstance();			// マネージャへのポインタ
 	CTexture *pTexture = CTexture::GetInstance();			// テクスチャへのポインタ
 	std::unique_ptr pFile = std::make_unique<CFileStream>();		// ファイルストリームへのポインタ
+	std::vector<IParentable*> vpParentable;		// 親マトリックスの設定可能なオブジェクト
+	CStage *pStage = nullptr;				// ステージへのポインタ
 
 	if (pFile->Open(path, false) == false)
 	{ // ファイルオープン失敗時
@@ -107,6 +111,7 @@ HRESULT CMapScriptLoader::Load(std::string_view path)
 				if (pFile->FindString(line, "END_PLAYERSET"))
 				{ // プレイヤーの情報が終了した場合、設置
 					CPlayer *pPlayer = CPlayer::Create(sModelPath.c_str(), pos, fRadius);
+					vpParentable.push_back(pPlayer);
 
 					// プレイヤーカメラも設置
 					CPlayerCamera::Create(pPlayer);
@@ -164,7 +169,8 @@ HRESULT CMapScriptLoader::Load(std::string_view path)
 
 				if (pFile->FindString(line, "END_ITEMSET"))
 				{ // アイテムの情報が終了した場合、設置
-					CItem::Create(sModelPath, pos, fRadius);
+					CItem *pItem = CItem::Create(sModelPath, pos, fRadius);
+					vpParentable.push_back(pItem);
 					break;
 				}
 				else if (pFile->FindString(line, "POS = ", &find, true))
@@ -219,8 +225,8 @@ HRESULT CMapScriptLoader::Load(std::string_view path)
 
 				if (pFile->FindString(line, "END_FIELDSET"))
 				{ // 床の情報が終了した場合、設置
-					CField *pField = CField::Create(pos, VECTOR3_NULL, size);
-					pField->BindTexture(pTexture->Register(sTexturePath));
+					pStage = CStage::Create(pos, VECTOR3_NULL, size);
+					pStage->BindTexture(pTexture->Register(sTexturePath));
 					break;
 				}
 				else if (pFile->FindString(line, "POS = ", &find, true))
@@ -278,6 +284,7 @@ HRESULT CMapScriptLoader::Load(std::string_view path)
 				{ // 壁の情報が終了した場合、設置
 					CWall *pWall = CWall::Create(pos, rot, size);
 					pWall->BindTexture(pTexture->Register(sTexturePath));
+					vpParentable.push_back(pWall);
 					break;
 				}
 				else if (pFile->FindString(line, "POS = ", &find, true))
@@ -298,6 +305,14 @@ HRESULT CMapScriptLoader::Load(std::string_view path)
 					sTexturePath = filename;		// テクスチャのパスを保存
 				}
 			}
+		}
+	}
+
+	if (pStage != nullptr)
+	{ // ステージがnullでなければ、各オブジェクトの親に設定
+		for (auto &pParentable : vpParentable)
+		{
+			pParentable->SetParent(pStage->GetMatrix());
 		}
 	}
 
