@@ -24,6 +24,7 @@
 #include "matrix.h"
 #include "mapScriptLoader.h"
 #include "player.h"
+#include "timer.h"
 #include "vec2math.h"
 #include "vec3math.h"
 
@@ -187,6 +188,10 @@ HRESULT CManager::Init(const HINSTANCE hInstance, const HWND hWnd, const BOOL bW
 	m_pLight = std::make_unique<CLight>();
 	m_pLight->Init();
 
+	CTimer *pTimer = CTimer::Create(Vector3(640.0f - 75.0f, 50.0f, 0.0f), Vector2(150.0f, 200.0f), 3);
+	pTimer->SetTimer(100);
+	pTimer->SetUpdate(true);
+
 #pragma region Objects Create
 	// マップ読み込み
 	std::unique_ptr pMapScriptLoader = std::make_unique<CMapScriptLoader>();		// マップ読み込みインスタンス
@@ -283,6 +288,11 @@ void CManager::Update(void)
 		std::unique_ptr pMapScriptLoader = std::make_unique<CMapScriptLoader>();		// マップ読み込みインスタンス
 		pMapScriptLoader->Load("data/SCRIPT/system.ini");
 		m_nCountReload++;
+
+		// タイマー設置
+		CTimer *pTimer = CTimer::Create(Vector3(640.0f - 75.0f, 50.0f, 0.0f), Vector2(150.0f, 200.0f), 3);
+		pTimer->SetTimer(100);
+		pTimer->SetUpdate(true);
 	}
 
 	if (m_bPause == false)

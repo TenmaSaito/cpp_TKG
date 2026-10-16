@@ -107,7 +107,7 @@ void CObjectX::Draw(void)
 	D3DXMatrixIdentity(&m_mtxWorld);
 
 	// ワールドマトリックスの設定
-	Mtx::CalcWorld(&m_mtxWorld, m_pos, m_rot);
+	Mtx::CalcWorld(&m_mtxWorld, m_pMtxParent, m_pos, m_rot);
 
 	//  ワールドマトリックスの設定
 	pDevice->SetTransform(D3DTS_WORLD, &m_mtxWorld);

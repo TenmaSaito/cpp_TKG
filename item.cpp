@@ -11,18 +11,24 @@
 #include "model.h"
 #include "player.h"
 #include "vec3math.h"
+#include "matrix.h"
+#include "manager.h"
+#include "light.h"
+#include "particle.h"
+#include "texture.h"
 
 //==================================================================================
 // --- アイテムの生成処理 ---
 //==================================================================================
 CItem *CItem::Create(std::string_view path,
 	const Vector3 &pos,
-	const float fRadius)
+	const float fRadius,
+	const int nLife)
 {
 	CItem *pItem = new CItem;		// 生成したオブジェクトへのポインタ
 	if (pItem != nullptr)
 	{ // 生成出来ていれば初期化
-		pItem->Init(path, pos, fRadius);
+		pItem->Init(path, pos, fRadius, nLife);
 	}
 
 	return pItem;
@@ -31,7 +37,7 @@ CItem *CItem::Create(std::string_view path,
 //==================================================================================
 // --- コンストラクタ ---
 //==================================================================================
-CItem::CItem(const int nPriority) : CObject(nPriority)
+CItem::CItem(const int nPriority) : CObjectX(nPriority)
 { // タイプ指定
 	SetType(TYPE_ITEM);
 }
@@ -48,10 +54,13 @@ CItem::~CItem()
 //==================================================================================
 HRESULT CItem::Init(std::string_view path,
 	const Vector3 &pos,
-	const float fRadius)
+	const float fRadius,
+	const int nLife)
 { // モデル生成
-	m_pModel.reset(CModel::Create(path.data(), pos, VECTOR3_NULL));
+	CObjectX::Init(path, pos, VECTOR3_NULL);
+
 	m_fRadius = fRadius;		// 半径保存
+	m_nLife = nLife;			// 体力保存
 	return S_OK;
 }
 
@@ -59,11 +68,15 @@ HRESULT CItem::Init(std::string_view path,
 // --- 終了処理 ---
 //==================================================================================
 void CItem::Uninit(void)
-{ // モデルの破棄
-	SafeUniqueUninit(m_pModel);
+{ 
+	if (m_pParticle != nullptr)
+	{ // パーティクルを破棄
+		m_pParticle->Uninit();
+		m_pParticle = nullptr;
+	}
 
 	// 親クラスの終了
-	CObject::Release();
+	CObjectX::Release();
 }
 
 //==================================================================================
@@ -73,15 +86,7 @@ void CItem::Update(void)
 {
 	if (m_pPlayer == nullptr)
 	{ // プレイヤーへのポインタが取得出来ていない場合、プレイヤーを検索
-		m_pPlayer = static_cast<CPlayer*>(CObject::FindAnyObjectByType(PLAYER_PRIORITY, CObject::TYPE_PLAYER));
-	}
-
-	if (m_pModel->GetPosition()->y < m_fRadius)
-	{ // 地面についていれば、フラグリセット
-		m_bLand = true;
-
-		// 座標を修正
-		m_pModel->SetPosition(Vector3(m_pModel->GetPosition()->x, m_fRadius, m_pModel->GetPosition()->z));
+		m_pPlayer = CObject::FindAnyObjectByType<CPlayer>(PLAYER_PRIORITY);
 	}
 
 	if (m_pPlayer == nullptr)
@@ -89,10 +94,37 @@ void CItem::Update(void)
 		return;
 	}
 
-	float fRadiusAll = m_pPlayer->GetRadius() + m_fRadius;		// 半径の総合値
-	if (Vec3::Length(*m_pPlayer->GetPosition(), *m_pModel->GetPosition()) < fRadiusAll)
-	{ // プレイヤーの位置と自身の位置の距離がそれぞれの半径の総合値よりも小さかった場合
-		// 終了
+	float fLength = Vec3::Length(*m_pPlayer->GetPosition(), *GetPosition());
+	if (fLength <= m_fRadius)
+	{ // 獲得半径内にいるなら、獲得ゲージを減らすため体力減少
+		m_nLife--;
+		
+		if (m_pParticle == nullptr)
+		{ // パーティクルを生成していないなら、新規生成
+			CParticle::Setting setting = {};
+			setting.pos = *GetPosition();
+			setting.move = Vector3(0.1f, 0.1f, 0.1f);
+			setting.scale = Vector2(50.0f, 50.0f);
+			setting.color = Color(1.0f, 1.0f, 1.0f, 0.5f);
+			setting.nLife = INT_MAX;
+			setting.nNumEffectFrame = 3;
+			setting.moveVariation = Vector3(5.0f, 5.0f, 5.0f);
+			setting.bEnableAlphaBlending = true;
+
+			m_pParticle = CParticle::Create(setting);
+			m_pParticle->BindTexture(CTexture::GetInstance()->Register("data/TEXTURE/effect000.jpg"));
+		}
+
+		// パーティクルを有効化
+		m_pParticle->SetEnable(true);
+	}
+	else if (m_pParticle != nullptr)
+	{ // パーティクルを無効化
+		m_pParticle->SetEnable(false);
+	}
+
+	if (m_nLife <= 0)
+	{ // 体力が尽きたら死亡
 		Uninit();
 	}
 }
@@ -101,6 +133,25 @@ void CItem::Update(void)
 // --- 描画処理 ---
 //==================================================================================
 void CItem::Draw(void)
-{ // 描画
-	m_pModel->Draw();
+{ 
+	CManager *pManager = CManager::GetInstance();			// マネージャーへのポインタ
+	Matrix mtxShadow;		// シャドウマトリックス
+	
+	// 描画
+	CObjectX::Draw();
+
+	Vector3 nor = Vector3(0.0f, 1.0f, 0.0f);		// 床の法線
+
+	// 法線を親マトリックスで計算
+	D3DXVec3TransformNormal(&nor, &nor, GetParent());
+
+	// 床のシャドウマトリックスを生成
+	Mtx::CreateShadow(GetMatrix(),
+		Vector3(0.0f, 0.1f, 0.0f),
+		nor,
+		*pManager->GetLight()->GetLight(0),
+		&mtxShadow);
+
+	// 影を描画
+	CObjectX::DrawShadow(mtxShadow);
 }

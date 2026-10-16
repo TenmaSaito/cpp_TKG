@@ -198,6 +198,21 @@
     <ClCompile Include="stage.cpp">
       <Filter>ソース ファイル\Object</Filter>
     </ClCompile>
+    <ClCompile Include="number.cpp">
+      <Filter>ソース ファイル\Other</Filter>
+    </ClCompile>
+    <ClCompile Include="timer.cpp">
+      <Filter>ソース ファイル\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="particle.cpp">
+      <Filter>ソース ファイル\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="objectBillboard3D.cpp">
+      <Filter>ソース ファイル\Object\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="objectBillboard3DScaling.cpp">
+      <Filter>ソース ファイル\Object\Base</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="directX.h">
@@ -331,6 +346,21 @@
     </ClInclude>
     <ClInclude Include="parentable.h">
       <Filter>ヘッダー ファイル\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="number.h">
+      <Filter>ヘッダー ファイル\Other</Filter>
+    </ClInclude>
+    <ClInclude Include="timer.h">
+      <Filter>ヘッダー ファイル\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="particle.h">
+      <Filter>ヘッダー ファイル\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="objectBillboard3D.h">
+      <Filter>ヘッダー ファイル\Object\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="objectBillboard3DScaling.h">
+      <Filter>ヘッダー ファイル\Object\Base</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

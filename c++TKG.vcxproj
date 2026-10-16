@@ -171,11 +171,15 @@
     <ClCompile Include="matrix.cpp" />
     <ClCompile Include="memdbg.cpp" />
     <ClCompile Include="model.cpp" />
+    <ClCompile Include="number.cpp" />
     <ClCompile Include="object.cpp" />
     <ClCompile Include="object3D.cpp" />
+    <ClCompile Include="objectBillboard3D.cpp" />
+    <ClCompile Include="objectBillboard3DScaling.cpp" />
     <ClCompile Include="objectLine.cpp" />
     <ClCompile Include="objectX.cpp" />
     <ClCompile Include="objectXAfterImage.cpp" />
+    <ClCompile Include="particle.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -192,6 +196,7 @@
     <ClCompile Include="stage.cpp" />
     <ClCompile Include="tcp_client.cpp" />
     <ClCompile Include="texture.cpp" />
+    <ClCompile Include="timer.cpp" />
     <ClCompile Include="util.cpp" />
     <ClCompile Include="vec2math.cpp" />
     <ClCompile Include="vec3math.cpp" />
@@ -199,6 +204,9 @@
     <ClCompile Include="xfile.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="number.h" />
+    <ClInclude Include="objectBillboard3D.h" />
+    <ClInclude Include="objectBillboard3DScaling.h" />
     <ClInclude Include="parentable.h" />
     <ClInclude Include="objectXAfterImage.h" />
     <ClInclude Include="camera.h" />
@@ -222,6 +230,7 @@
     <ClInclude Include="object3D.h" />
     <ClInclude Include="objectLine.h" />
     <ClInclude Include="objectX.h" />
+    <ClInclude Include="particle.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="player.h" />
     <ClInclude Include="playerCamera.h" />
@@ -237,6 +246,7 @@
     <ClInclude Include="stage.h" />
     <ClInclude Include="tcp_client.h" />
     <ClInclude Include="texture.h" />
+    <ClInclude Include="timer.h" />
     <ClInclude Include="util.h" />
     <ClInclude Include="vec2math.h" />
     <ClInclude Include="vec3math.h" />

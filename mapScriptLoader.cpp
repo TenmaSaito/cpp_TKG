@@ -11,6 +11,7 @@
 #include "filestream.h"
 #include "manager.h"
 #include "texture.h"
+#include "timer.h"
 #include "player.h"
 #include "item.h"
 #include "stage.h"
@@ -72,6 +73,66 @@ HRESULT CMapScriptLoader::Load(std::string_view path)
 		if (pFile->FindString(line, "END_SCRIPT") || pFile->IsEoF())
 		{ // 読み込み終了
 			break;
+		}
+		else if (pFile->FindString(line, "TIMERSET"))
+		{ // タイマーの設置キーワードの場合
+			std::string sTexturePath;		// テクスチャのパス
+			Vector3 pos = VECTOR3_NULL;		// 位置
+			Vector2 size = VECTOR2_NULL;	// サイズ
+			int nTime = 0;					// 制限時間
+#if 0
+			while (1)
+			{ // プレイヤーの設置に必要な各情報を読み込み
+				size_t find = 0U;		// 見つけた文字列の位置
+				std::string_view after;	// コメント・タブスペース消去後の文字列
+
+				// 文字列を一列読み込み
+				pFile->ReadString(line);
+				after = line;		// 文字列の参照を取得
+
+				// コメント消去
+				auto comment = line.find_last_of('#');
+				if (comment != std::string_view::npos)
+				{ // コメントが見つかった場合、そこを切り捨て
+					line = line.substr(0U, comment);
+				}
+
+				while (1)
+				{// タブスペース消去
+					auto tab = std::ranges::find(line, '\t');
+					if (tab != line.end())
+					{ // タブスペースが見つかった場合、そこを切り捨て
+						line.erase(tab);
+					}
+					else
+					{ // 見つからなくなったら終了
+						break;
+					}
+				}
+
+				if (pFile->FindString(line, "END_TIMERSET"))
+				{ // プレイヤーの情報が終了した場合、設置
+					CTimer::Create()
+
+					// プレイヤーカメラも設置
+					CPlayerCamera::Create(pPlayer);
+					break;
+				}
+				else if (pFile->FindString(line, "POS = ", &find, true))
+				{ // 位置の情報だった場合、読み込み
+					pos = pFile->ToVector3(&line[find]);
+				}
+				else if (pFile->FindString(line, "RADIUS = ", &find, true))
+				{ // 位置の情報だった場合、読み込み
+					fRadius = pFile->ToFloat(&line[find]);
+				}
+				else if (pFile->FindString(line, "MODEL_FILENAME = ", &find, true))
+				{ // モデルパス情報だった場合、コメント消去後読み込み
+					std::string_view filename = &line[find];		// 見つかった文字列
+					sModelPath = filename;		// モデルのパスを保存
+				}
+			}
+#endif
 		}
 		else if (pFile->FindString(line, "PLAYERSET"))
 		{ // プレイヤーの設置キーワードの場合
@@ -137,6 +198,7 @@ HRESULT CMapScriptLoader::Load(std::string_view path)
 			std::string sModelPath;			// モデルのパス
 			Vector3 pos = VECTOR3_NULL;		// 位置
 			float fRadius = 0.0f;			// 半径
+			int nLife = 0;					// 体力
 
 			while (1)
 			{ // アイテムの設置に必要な各情報を読み込み
@@ -169,7 +231,7 @@ HRESULT CMapScriptLoader::Load(std::string_view path)
 
 				if (pFile->FindString(line, "END_ITEMSET"))
 				{ // アイテムの情報が終了した場合、設置
-					CItem *pItem = CItem::Create(sModelPath, pos, fRadius);
+					CItem *pItem = CItem::Create(sModelPath, pos, fRadius, nLife);
 					vpParentable.push_back(pItem);
 					break;
 				}
@@ -178,8 +240,12 @@ HRESULT CMapScriptLoader::Load(std::string_view path)
 					pos = pFile->ToVector3(&line[find]);
 				}
 				else if (pFile->FindString(line, "RADIUS = ", &find, true))
-				{ // 位置の情報だった場合、読み込み
+				{ // 半径の情報だった場合、読み込み
 					fRadius = pFile->ToFloat(&line[find]);
+				}
+				else if (pFile->FindString(line, "LIFE = ", &find, true))
+				{ // 体力の情報だった場合、読み込み
+					nLife = pFile->ToInt(&line[find]);
 				}
 				else if (pFile->FindString(line, "MODEL_FILENAME = ", &find, true))
 				{ // モデルパス情報だった場合、コメント消去後読み込み

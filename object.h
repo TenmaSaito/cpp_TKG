@@ -42,6 +42,7 @@ public:
 	{
 		TYPE_NONE = 0,		// 指定無し (アサーション対象)
 		TYPE_OBJ_3D,		// Object3D
+		TYPE_OBJ_BILLBOARD_3D,	// Object3D[Billboard]
 		TYPE_OBJ_X,			// ObjectX
 		TYPE_OBJ_X_AFTERIMAGE,	// ObjectXの残像
 		TYPE_OBJ_LINE,		// ObjectLine
@@ -51,6 +52,8 @@ public:
 		TYPE_SHADOW,		// 影
 		TYPE_ITEM,			// アイテム
 		TYPE_STAGE,			// ステージ
+		TYPE_TIMER,			// タイマー
+		TYPE_PARTICLE,		// パーティクル
 		TYPE_MAX
 	} TYPE;
 

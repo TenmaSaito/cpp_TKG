@@ -179,7 +179,7 @@ void CPlayer::Update(void)
 	// écëúê∂ê¨
 	CObjectXAfterImage::Create(GetFileName(),
 		*GetMatrix(),
-		10,
+		15,
 		0.85f);
 
 #ifdef _DEBUG

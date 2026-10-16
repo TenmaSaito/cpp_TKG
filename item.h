@@ -10,14 +10,13 @@
 //**********************************************************************************
 // *** インクルードファイル ***
 //**********************************************************************************
-#include "object.h"
-#include "parentable.h"
+#include "objectX.h"
 
 //**********************************************************************************
 // *** 前方宣言 ***
 //**********************************************************************************
-class CModel;
 class CPlayer;
+class CParticle;
 
 //**********************************************************************************
 // *** 定数宣言 ***
@@ -27,7 +26,7 @@ constexpr int ITEM_PRIORITY = DEFAULT_OBJ_PRIORITY;		// アイテムの優先順位
 //**********************************************************************************
 // *** アイテムクラス ***
 //**********************************************************************************
-class CItem : public CObject, public IParentable
+class CItem : public CObjectX
 {
 public:
 	CItem(const int nPriority = ITEM_PRIORITY);
@@ -35,23 +34,22 @@ public:
 
 	static CItem *Create(std::string_view path,
 		const Vector3 &pos,
-		const float fRadius);
+		const float fRadius,
+		const int nLife);
 
 	HRESULT Init(std::string_view path,
 		const Vector3 &pos,
-		const float fRadius);
+		const float fRadius,
+		const int nLife);
 	void Uninit(void) override;
 	void Update(void) override;
 	void Draw(void) override;
-	void SetParent(const Matrix *pMtxParent) { m_pMtxParent = pMtxParent; }
-	const Matrix *GetParent(void) const { return m_pMtxParent; }
 
 private:
-	std::unique_ptr<CModel> m_pModel;		// モデルへのポインタ
-	const Matrix *m_pMtxParent = nullptr;	// 親マトリックスへのポインタ
-	CPlayer *m_pPlayer = nullptr;	// プレイヤーへのポインタ
+	CPlayer *m_pPlayer = nullptr;		// プレイヤーへのポインタ
+	CParticle *m_pParticle = nullptr;	// パーティクルへのポインタ
 	Vector3 m_move = VECTOR3_NULL;	// 加速度
-	float m_fRadius = 0.0f;			// モデルの半径
-	bool m_bLand = false;			// 着地フラグ
+	float m_fRadius = 0.0f;			// モデルの獲得半径
+	int m_nLife = 0;				// 体力
 };
 #endif
