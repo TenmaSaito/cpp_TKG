@@ -29,12 +29,15 @@
 //==================================================================================
 // --- 生成処理 ---
 //==================================================================================
-CTimer *CTimer::Create(const Vector3 &pos, const Vector2 &size, const int nNumNumber)
+CTimer *CTimer::Create(const Vector3 &pos, 
+	const Vector2 &size,
+	const int nNumNumber,
+	const int nIdxTexture)
 {
 	CTimer *pTimer = new CTimer;		// 生成したタイマーへのポインタ
 	if (pTimer != nullptr)
 	{ // タイマーを初期化
-		pTimer->Init(pos, size, nNumNumber);
+		pTimer->Init(pos, size, nNumNumber, nIdxTexture);
 	}
 
 	return pTimer;
@@ -43,12 +46,16 @@ CTimer *CTimer::Create(const Vector3 &pos, const Vector2 &size, const int nNumNu
 //==================================================================================
 // --- 生成処理 ---
 //==================================================================================
-CTimer *CTimer::Create(const Vector3 &pos, const Vector2 &size, const int nNumNumber, const int nTime)
+CTimer *CTimer::Create(const Vector3 &pos,
+	const Vector2 &size, 
+	const int nNumNumber,
+	const int nTime,
+	const int nIdxTexture)
 {
 	CTimer *pTimer = new CTimer;		// 生成したタイマーへのポインタ
 	if (pTimer != nullptr)
 	{ // タイマーを初期化
-		pTimer->Init(pos, size, nNumNumber, nTime);
+		pTimer->Init(pos, size, nNumNumber, nTime, nIdxTexture);
 	}
 
 	return pTimer;
@@ -78,49 +85,10 @@ CTimer::~CTimer()
 //==================================================================================
 // --- 初期化処理 ---
 //==================================================================================
-HRESULT CTimer::Init(void)
-{
-	Vector2 numSize;			// 数値1個当たりのサイズ
-	Vector3 pos = INIT_POS;		// 初期位置
-
-	// 変数を初期化
-	m_nTime = INIT_TIME;
-	m_nNumTime = INIT_NUM;
-
-	if (m_nNumTime > MAX_TIMERNUM)
-	{ // タイマーの最大桁数以上の場合
-		// 桁数を最大値に変更
-		m_nNumTime = MAX_TIMERNUM;
-	}
-
-	// 数値のサイズを計算
-	numSize = INIT_SIZE / static_cast<float>(m_nNumTime);
-
-	// 数値オブジェクトを作成
-	for (UINT uCntNumber = 0; uCntNumber < m_nNumTime; uCntNumber++)
-	{
-		CNumber *pNumber = nullptr;			// 生成した数値オブジェクトへのポインタ
-		Vector3 posCreate = pos;			// 生成位置
-
-		// 生成位置(X座標)を修正
-		posCreate.x = pos.x + ((numSize.x + NUMBER_MARGIN) * uCntNumber);
-
-		pNumber = CNumber::Create(TIMER_TEXTYPE, posCreate, numSize, 0);
-		if (pNumber != NULL)
-		{ // 生成成功時
-			// 生成したポインタを保存
-			m_apNumber.at(uCntNumber).reset(pNumber);
-		}
-	}
-
-	// 初期化結果を返す
-	return S_OK;
-}
-
-//==================================================================================
-// --- 初期化処理 ---
-//==================================================================================
-HRESULT CTimer::Init(const Vector3 &pos, const Vector2 &size, const int nNumNumber)
+HRESULT CTimer::Init(const Vector3 &pos,
+	const Vector2 &size,
+	const int nNumNumber,
+	const int nIdxTexture)
 {
 	Vector2 numSize;	// 数値1個当たりのサイズ
 
@@ -135,7 +103,8 @@ HRESULT CTimer::Init(const Vector3 &pos, const Vector2 &size, const int nNumNumb
 	}
 
 	// 数値のサイズを計算
-	numSize = size / static_cast<float>(nNumNumber);
+	numSize.x = size.x / static_cast<float>(m_nNumTime);
+	numSize.y = size.y;
 
 	// 数値オブジェクトを作成
 	for (int nCntNumber = 0; nCntNumber < m_nNumTime; nCntNumber++)
@@ -148,9 +117,12 @@ HRESULT CTimer::Init(const Vector3 &pos, const Vector2 &size, const int nNumNumb
 		posCreate.y = pos.y + (numSize.y * 0.5f);
 
 		// 数値オブジェクトを生成
-		pNumber = CNumber::Create(TIMER_TEXTYPE, posCreate, numSize, 0);
+		pNumber = CNumber::Create(posCreate, numSize, 0);
 		if (pNumber != NULL)
 		{ // 生成成功時
+			// テクスチャ割り当て
+			pNumber->BindTexture(nIdxTexture);
+
 			// 生成したポインタを保存
 			m_apNumber.at(nCntNumber).reset(pNumber);
 		}
@@ -167,7 +139,11 @@ HRESULT CTimer::Init(const Vector3 &pos, const Vector2 &size, const int nNumNumb
 //==================================================================================
 // --- 初期化処理 ---
 //==================================================================================
-HRESULT CTimer::Init(const Vector3 &pos, const Vector2 &size, const int nNumNumber, const int nTime)
+HRESULT CTimer::Init(const Vector3 &pos, 
+	const Vector2 &size, 
+	const int nNumNumber, 
+	const int nTime,
+	const int nIdxTexture)
 {
 	Vector2 numSize;	// 数値1個当たりのサイズ
 	std::vector<int> vNumValue;		// 各桁の数値
@@ -205,11 +181,18 @@ HRESULT CTimer::Init(const Vector3 &pos, const Vector2 &size, const int nNumNumb
 		posCreate.y = pos.y + (numSize.y * 0.5f);
 
 		// 数値オブジェクトを生成
-		pNumber = CNumber::Create(TIMER_TEXTYPE, posCreate, numSize, vNumValue.at(nCntNumber));
+		pNumber = CNumber::Create(posCreate, numSize, vNumValue.at(nCntNumber));
 		if (pNumber != NULL)
 		{ // 生成成功時
+			// テクスチャ割り当て
+			pNumber->BindTexture(nIdxTexture);
+
 			// 生成したポインタを保存
 			m_apNumber.at(nCntNumber).reset(pNumber);
+		}
+		else
+		{ // 生成失敗
+			return S_FALSE;
 		}
 	}
 
@@ -224,11 +207,7 @@ void CTimer::Uninit(void)
 {
 	for (auto &pNumber : m_apNumber)
 	{ // タイマーが生成した数値オブジェクトを破棄
-		if (pNumber != nullptr)
-		{ // NULLではなかった場合、破棄 + 終了処理
-			pNumber->Uninit();
-			pNumber.reset();
-		}
+		SafeUniqueUninit(pNumber);
 	}
 
 	// 親クラスの終了処理

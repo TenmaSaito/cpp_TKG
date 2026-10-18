@@ -19,23 +19,14 @@
 class CNumber
 {
 public:
-	// デフォルトの数字テクスチャの種類
-	typedef enum
-	{
-		TYPE_VOLTNUM_000 = 0,	// 白文字に黄色のインライン
-		TYPE_MAX
-	} TYPE;
-
 	CNumber();
 	~CNumber();
 
-	static CNumber *Create(const TYPE type,
-		const Vector3 &pos,
+	static CNumber *Create(const Vector3 &pos,
 		const Vector2 &size,
 		const int nValue);
 
-	HRESULT Init(const TYPE type, 
-		const Vector3 &pos,
+	HRESULT Init(const Vector3 &pos,
 		const Vector2 &size,
 		const int nValue);
 	void Uninit(void);

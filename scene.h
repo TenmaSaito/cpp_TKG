@@ -24,6 +24,7 @@ public:
 	typedef enum
 	{
 		MODE_NONE = 0,		// 無し
+		MODE_TITLE,			// タイトルシーン
 		MODE_GAME,			// ゲームシーン
 		MODE_MAX
 	} MODE;

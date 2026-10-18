@@ -17,6 +17,7 @@
 #include "stage.h"
 #include "wall.h"
 #include "playerCamera.h"
+#include "util.h"
 
 //==================================================================================
 // --- コンストラクタ ---
@@ -80,7 +81,8 @@ HRESULT CMapScriptLoader::Load(std::string_view path)
 			Vector3 pos = VECTOR3_NULL;		// 位置
 			Vector2 size = VECTOR2_NULL;	// サイズ
 			int nTime = 0;					// 制限時間
-#if 0
+			int nIdxTexture = INVALID_TEX_ID;	// テクスチャ無効値
+
 			while (1)
 			{ // プレイヤーの設置に必要な各情報を読み込み
 				size_t find = 0U;		// 見つけた文字列の位置
@@ -111,28 +113,28 @@ HRESULT CMapScriptLoader::Load(std::string_view path)
 				}
 
 				if (pFile->FindString(line, "END_TIMERSET"))
-				{ // プレイヤーの情報が終了した場合、設置
-					CTimer::Create()
-
-					// プレイヤーカメラも設置
-					CPlayerCamera::Create(pPlayer);
+				{ // タイマーの情報が終了した場合、設置
+					CTimer::Create(pos, size, Util::GetNumInt(nTime), nTime, pTexture->Register(sTexturePath));
 					break;
 				}
 				else if (pFile->FindString(line, "POS = ", &find, true))
 				{ // 位置の情報だった場合、読み込み
 					pos = pFile->ToVector3(&line[find]);
 				}
-				else if (pFile->FindString(line, "RADIUS = ", &find, true))
+				else if (pFile->FindString(line, "SIZE = ", &find, true))
 				{ // 位置の情報だった場合、読み込み
-					fRadius = pFile->ToFloat(&line[find]);
+					size = pFile->ToVector2(&line[find]);
 				}
-				else if (pFile->FindString(line, "MODEL_FILENAME = ", &find, true))
-				{ // モデルパス情報だった場合、コメント消去後読み込み
+				else if (pFile->FindString(line, "TIME = ", &find, true))
+				{ // 制限時間の情報だった場合、読み込み
+					nTime = pFile->ToInt(&line[find]);
+				}
+				else if (pFile->FindString(line, "TEXTURE_FILENAME = ", &find, true))
+				{ // テクスチャパス情報だった場合、コメント消去後読み込み
 					std::string_view filename = &line[find];		// 見つかった文字列
-					sModelPath = filename;		// モデルのパスを保存
+					sTexturePath = filename;		// モデルのパスを保存
 				}
 			}
-#endif
 		}
 		else if (pFile->FindString(line, "PLAYERSET"))
 		{ // プレイヤーの設置キーワードの場合

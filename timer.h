@@ -22,8 +22,8 @@ class CNumber;
 //**********************************************************************************
 // *** マクロ定義 ***
 //**********************************************************************************
-#define MAX_TIMERNUM				(8)						// タイマーの最大桁数
-#define DEFAULT_TIMER_PRIORITY		(DEFAULT_UI_PRIORITY)	// タイマーの基本優先順位
+constexpr int MAX_TIMERNUM = 8;								// タイマーの最大桁数
+constexpr int DEFAULT_TIMER_PRIORITY = DEFAULT_UI_PRIORITY;	// タイマーの基本優先順位
 
 //**********************************************************************************
 // *** タイマークラス ***
@@ -34,12 +34,26 @@ public:
 	CTimer(const int nPriority = DEFAULT_TIMER_PRIORITY);
 	~CTimer();
 
-	static CTimer *Create(const Vector3 &pos, const Vector2 &size, const int nNumNumber);
-	static CTimer *Create(const Vector3 &pos, const Vector2 &size, const int nNumNumber, const int nScore);
+	static CTimer *Create(const Vector3 &pos,
+		const Vector2 &size,
+		const int nNumNumber,
+		const int nIdxTexture);
 
-	HRESULT Init(void);
-	HRESULT Init(const Vector3 &pos, const Vector2 &size, const int nNumNumber);
-	HRESULT Init(const Vector3 &pos, const Vector2 &size, const int nNumNumber, const int nScore);
+	static CTimer *Create(const Vector3 &pos,
+		const Vector2 &size,
+		const int nNumNumber,
+		const int nScore,
+		const int nIdxTexture);
+
+	HRESULT Init(const Vector3 &pos,
+		const Vector2 &size,
+		const int nNumNumber,
+		const int nIdxTexture);
+	HRESULT Init(const Vector3 &pos,
+		const Vector2 &size,
+		const int nNumNumber, 
+		const int nScore,
+		const int nIdxTexture);
 	void Uninit(void);
 	void Update(void);
 	void Draw(void);

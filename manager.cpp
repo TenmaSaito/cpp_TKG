@@ -22,7 +22,6 @@
 #include "xfile.h"
 #include "util.h"
 #include "matrix.h"
-#include "mapScriptLoader.h"
 #include "player.h"
 #include "timer.h"
 #include "vec2math.h"
@@ -188,15 +187,8 @@ HRESULT CManager::Init(const HINSTANCE hInstance, const HWND hWnd, const BOOL bW
 	m_pLight = std::make_unique<CLight>();
 	m_pLight->Init();
 
-	CTimer *pTimer = CTimer::Create(Vector3(640.0f - 75.0f, 50.0f, 0.0f), Vector2(150.0f, 200.0f), 3);
-	pTimer->SetTimer(100);
-	pTimer->SetUpdate(true);
-
-#pragma region Objects Create
-	// マップ読み込み
-	std::unique_ptr pMapScriptLoader = std::make_unique<CMapScriptLoader>();		// マップ読み込みインスタンス
-	pMapScriptLoader->Load("data/SCRIPT/system.ini");
-#pragma endregion
+	// モード作成
+	SetMode(CScene::MODE_GAME);
 
 	// 成功
 	return S_OK;
@@ -276,23 +268,12 @@ void CManager::Update(void)
 	CCamera::UpdateAll();
 
 	// ポーズ
-	if (m_pInputKeyboard->GetTrigger(DIK_P)) m_bPause ^= m_bPause;
+	if (m_pInputKeyboard->GetTrigger(DIK_P)) m_bPause = m_bPause ^ true;
 
 	if (m_pInputKeyboard->GetTrigger(DIK_BACK))
 	{ // リセット
-		CObject::ReleaseAll();
-		CCamera::ReleaseAll();
-		m_rot = VECTOR3_NULL;
-
-		// マップの再読み込み
-		std::unique_ptr pMapScriptLoader = std::make_unique<CMapScriptLoader>();		// マップ読み込みインスタンス
-		pMapScriptLoader->Load("data/SCRIPT/system.ini");
+		SetMode(CScene::MODE_GAME);
 		m_nCountReload++;
-
-		// タイマー設置
-		CTimer *pTimer = CTimer::Create(Vector3(640.0f - 75.0f, 50.0f, 0.0f), Vector2(150.0f, 200.0f), 3);
-		pTimer->SetTimer(100);
-		pTimer->SetUpdate(true);
 	}
 
 	if (m_bPause == false)
@@ -309,10 +290,6 @@ void CManager::Update(void)
 //==================================================================================
 void CManager::Draw(void)
 { // レンダラーの描画
-	Mtx::Identity(&m_mtxWorld);
-
-	Mtx::CalcRotation(&m_mtxWorld, m_rot * QUARTER_PI * 0.5f);
-
 	m_pRenderer->Draw();
 }
 
@@ -330,4 +307,32 @@ void CManager::SetEnablePause(const bool bEnable)
 bool CManager::GetEnablePause(void)
 {
 	return false;
+}
+
+//==================================================================================
+// --- モード変更処理 ---
+//==================================================================================
+HRESULT CManager::SetMode(const CScene::MODE modeNext)
+{
+	// 全音源の再生の停止
+	m_pSound->Stop();
+
+	if (m_pScene != nullptr)
+	{ // シーンが生成されていれば終了処理
+		m_pScene->Uninit();
+		m_pScene.reset();
+	}
+
+	// 全オブジェクトの破棄
+	CObject::ReleaseAll();
+
+	// カメラの破棄
+	CCamera::ReleaseAll();
+
+	// ポーズの解除
+	m_bPause = false;
+
+	// シーンの生成
+	CScene::Create(modeNext, m_pScene);
+	return (m_pScene == nullptr) ? E_FAIL : S_OK;
 }

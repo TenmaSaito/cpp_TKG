@@ -21,22 +21,10 @@
 #define INIT_HEIGHT		(100)		// 初期の高さ
 #define TEX_PATH		"data/TEXTURE/Anim/voltNumber000.png"		// 数値のテクスチャ
 
-//**********************************************************************************
-// *** 定数宣言 ***
-//**********************************************************************************
-namespace
-{
-	constexpr std::string_view c_asNumberPath[CNumber::TYPE_MAX] =	// 数字テクスチャのパス
-	{
-		"data/TEXTURE/voltNumber003.png",		// 白文字に黄色のインライン
-	};
-}
-
 //==================================================================================
 // --- 数値オブジェクトの生成処理 (位置、サイズ、値指定) ---
 //==================================================================================
-CNumber *CNumber::Create(const TYPE type,
-	const Vector3 &pos,
+CNumber *CNumber::Create(const Vector3 &pos,
 	const Vector2 &size,
 	const int nValue)
 {
@@ -50,7 +38,7 @@ CNumber *CNumber::Create(const TYPE type,
 	}
 
 	// 初期化処理
-	pNumber->Init(type, pos, size, nValue);
+	pNumber->Init(pos, size, nValue);
 
 	return pNumber;
 }
@@ -72,8 +60,7 @@ CNumber::~CNumber()
 //==================================================================================
 // --- 初期化処理 ---
 //==================================================================================
-HRESULT CNumber::Init(const TYPE type,
-	const Vector3 &pos,
+HRESULT CNumber::Init(const Vector3 &pos,
 	const Vector2 &size,
 	const int nNumber)
 {
@@ -100,9 +87,6 @@ HRESULT CNumber::Init(const TYPE type,
 	{ // 頂点バッファの生成に失敗した場合、エラーを返す
 		return hr;
 	}
-
-	// TEXTUREをロード
-	m_nIdxTexture = CTexture::GetInstance()->Register(c_asNumberPath[type]);
 
 	// 対角線の長さと角度を求める
 	m_fLength = sqrtf(powf(size.x, 2) + powf(size.y, 2)) * 0.5f;

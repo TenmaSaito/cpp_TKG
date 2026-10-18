@@ -213,6 +213,9 @@
     <ClCompile Include="objectBillboard3DScaling.cpp">
       <Filter>ソース ファイル\Object\Base</Filter>
     </ClCompile>
+    <ClCompile Include="title.cpp">
+      <Filter>ソース ファイル\Scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="directX.h">
@@ -361,6 +364,9 @@
     </ClInclude>
     <ClInclude Include="objectBillboard3DScaling.h">
       <Filter>ヘッダー ファイル\Object\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="title.h">
+      <Filter>ヘッダー ファイル\Scene</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

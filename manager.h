@@ -12,6 +12,7 @@
 // *** ƒCƒ“ƒNƒ‹[ƒhƒtƒ@ƒCƒ‹ ***
 //**********************************************************************************
 #include "main.h"
+#include "scene.h"
 
 //**********************************************************************************
 // *** ’è”éŒ¾ ***
@@ -25,11 +26,11 @@ constexpr int DEFAULT_APPLICATION_DRAW_PER_SECOND = 60;			// ˆê•bŠÔ‚ÉDraw‚·‚é‰ñ
 class CRenderer;
 class CInputKeyboard;
 class CInputMouse;	
-class CJoypad;		
+class CJoypad;
 class CDebugProc;	
 class CSound;		
 class CLight;
-class CObject3D;
+class CScene;
 
 //**********************************************************************************
 // *** ƒ}ƒl[ƒWƒƒƒNƒ‰ƒX ***
@@ -55,6 +56,9 @@ public:
 	CSound *GetSound(void) const { return m_pSound.get(); }
 	CLight *GetLight(void) const { return m_pLight.get(); }
 	HWND GetWindowHandle(void) const { return m_hWnd; }
+	HRESULT SetMode(const CScene::MODE modeNext);
+	CScene::MODE GetMode(void) const { return m_pScene->GetMode(); }
+	template<IsScene T> T *GetScene(void) const;
 
 	static CManager *GetInstance(void);
 	static constexpr int SecToFrame(const int nSeconds) { return nSeconds * DEFAULT_APPLICATION_UPDATE_PER_SECOND; }
@@ -63,9 +67,6 @@ public:
 	static constexpr float FrameToSec(const float fFrame) { return fFrame / static_cast<float>(DEFAULT_APPLICATION_UPDATE_PER_SECOND); }
 	static constexpr float RatioToSec(const float fT) { return FrameToSec(1.0f / fT); }
 	static constexpr float SecToRatio(const float fSec) { return 1.0f / SecToFrame(fSec); }
-
-	Matrix m_mtxWorld;
-	Vector3 m_rot = VECTOR3_NULL;
 
 private:
 	CManager();
@@ -78,13 +79,25 @@ private:
 	std::unique_ptr<CDebugProc> m_pDebugProc;			// ƒfƒoƒbƒO•\¦ƒIƒuƒWƒFƒNƒg‚Ö‚Ìƒ|ƒCƒ“ƒ^
 	std::unique_ptr<CSound> m_pSound;					// ƒTƒEƒ“ƒhƒIƒuƒWƒFƒNƒg‚Ö‚Ìƒ|ƒCƒ“ƒ^
 	std::unique_ptr<CLight> m_pLight;					// ƒ‰ƒCƒgƒIƒuƒWƒFƒNƒg‚Ö‚Ìƒ|ƒCƒ“ƒ^
-	CObject3D *m_pArrow = nullptr;		// –îˆóƒ|ƒŠƒSƒ“
+	std::unique_ptr<CScene> m_pScene;					// ƒV[ƒ“‚Ö‚Ìƒ|ƒCƒ“ƒ^
 	HWND m_hWnd = nullptr;		// ƒEƒBƒ“ƒhƒEƒnƒ“ƒhƒ‹
 	int m_nCountFPS = 0;		// FPSƒJƒEƒ“ƒg
 	int m_nCounterFrame = 0;	// ƒtƒŒ[ƒ€ƒJƒEƒ“ƒ^[
 	int m_nCountReload = 0;		// ƒŠƒ[ƒhƒJƒEƒ“ƒg
-	float m_fAngle = 0.0f;		// Šp“x
-	float m_fPush = 0.0f;		// ‰Ÿ‚µ‚½’·‚³
 	bool m_bPause = false;		// ƒ|[ƒYó‘Ô
 };
+
+//==================================================================================
+// --- ƒLƒƒƒXƒgŒãƒV[ƒ“æ“¾ˆ— ---
+//==================================================================================
+template<IsScene T> T *CManager::GetScene(void) const
+{
+	if (m_pScene->GetMode() != T::GetOwnMode())
+	{ // æ“¾‚µ‚æ‚¤‚Æ‚µ‚½ƒ‚[ƒh‚ÆŒ»İ‚Ìƒ‚[ƒh‚ªˆÙ‚È‚éê‡
+		return nullptr;
+	}
+
+	// ƒV[ƒ“‚Ìƒ|ƒCƒ“ƒ^‚ğƒLƒƒƒXƒg
+	return static_cast<T*>(m_pScene.get());
+}
 #endif
