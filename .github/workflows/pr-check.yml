@@ -1,4 +1,5 @@
-name: PR quality checks
+name: PR 自動品質チェック
+run-name: "PR #${{ github.event.pull_request.number }} の自動検査"
 
 on:
   pull_request:
@@ -9,7 +10,7 @@ permissions:
 
 jobs:
   naming:
-    name: Naming conventions
+    name: 命名規則チェック
     runs-on: ubuntu-latest
     env:
       BASE_SHA: ${{ github.event.pull_request.base.sha }}
@@ -17,26 +18,26 @@ jobs:
       STRICT_NAMING: ${{ vars.STRICT_NAMING }}
     steps:
       # PRのマージ結果。ここにはSecretsを渡さない
-      - name: Checkout PR (files to inspect)
+      - name: PRのソースコードを取得
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
           persist-credentials: false
 
       # チェッカーと規則はPR内で変更されたものを使わず、ベース側のものを使う
-      - name: Checkout base (trusted checker and policy)
+      - name: ベースブランチから検査ツールと命名規則を取得
         uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.base.sha }}
           path: .prguard-base
           persist-credentials: false
 
-      - name: Set up Python on GitHub runner
+      - name: GitHub上にPythonを準備
         uses: actions/setup-python@v6
         with:
           python-version: '3.12'
 
-      - name: Run filename checker
+      - name: ファイル名の命名規則を検査
         id: filenames
         continue-on-error: true
         run: >-
@@ -44,7 +45,7 @@ jobs:
           --base "$BASE_SHA" --head "$HEAD_SHA"
           --policy .prguard-base/naming_policy.json
 
-      - name: Run identifier checker
+      - name: C++変数名・定数名の命名規則を検査
         id: identifiers
         continue-on-error: true
         run: |
@@ -58,7 +59,7 @@ jobs:
               --policy .prguard-base/naming_policy.json --no-fail
           fi
 
-      - name: Create PR metadata for Slack
+      - name: Discord通知用のPR情報を作成
         if: always()
         env:
           PR_NUMBER: ${{ github.event.pull_request.number }}
@@ -73,11 +74,11 @@ jobs:
               encoding='utf-8')
           PYMETA
 
-      - name: Add GitHub Actions summary
+      - name: 検査結果をGitHubの概要に表示
         if: always()
         run: python .prguard-base/tools/ci_summary.py
 
-      - name: Upload JSON findings
+      - name: 検査レポートを保存
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -86,69 +87,73 @@ jobs:
           if-no-files-found: warn
           retention-days: 7
 
-      - name: Set PR result
+      - name: 命名チェックの合否を判定
         if: always()
         env:
           FILE_RESULT: ${{ steps.filenames.outcome }}
           IDENT_RESULT: ${{ steps.identifiers.outcome }}
         run: |
           if [ "$FILE_RESULT" != "success" ]; then
-            echo 'Filename check failed. See annotations and uploaded report.'
+            echo 'ファイル名の命名規則チェックに失敗しました。注釈とレポートを確認してください。'
             exit 1
           fi
           if [ "$IDENT_RESULT" != "success" ]; then
-            echo 'Identifier checker failed (or STRICT_NAMING=true and naming violations detected).'
+            echo 'C++識別子の命名規則チェックに失敗しました（厳格モードの違反を含む）。'
             exit 1
           fi
 
   build-vs2019:
-    name: Build (Visual Studio solution)
+    name: ビルド確認（Visual Studio 2019）
     if: ${{ vars.BUILD_SYSTEM == 'vs2019' }}
     runs-on: windows-2022
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v6
+      - name: ソースコードを取得
+        uses: actions/checkout@v6
         with:
           persist-credentials: false
-      - uses: microsoft/setup-msbuild@v2
-      - name: Build solution with MSBuild (v142)
+      - name: MSBuildを準備
+        uses: microsoft/setup-msbuild@v2
+      - name: Visual Studioソリューションをビルド（v142）
         shell: pwsh
         env:
           SOLUTION: ${{ vars.VS_SOLUTION }}
         run: |
-          if (-not $env:SOLUTION) { throw 'Set Actions variable VS_SOLUTION to e.g. Game.sln' }
+          if (-not $env:SOLUTION) { throw 'ActionsのVariablesにVS_SOLUTION（例: Game.sln）を登録してください' }
           msbuild "$env:SOLUTION" /m /p:Configuration=Release /p:Platform=Win32 /p:PlatformToolset=v142
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
   build-cmake:
-    name: Build (CMake)
+    name: ビルド確認（CMake）
     if: ${{ vars.BUILD_SYSTEM == 'cmake' }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - name: ソースコードを取得
+        uses: actions/checkout@v6
         with:
           persist-credentials: false
-      - name: Configure
+      - name: CMake構成を生成
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-      - name: Build
+      - name: CMakeでビルド
         run: cmake --build build --parallel 2
-      - name: CTest (if present)
+      - name: CTestでテストを実行
         run: ctest --test-dir build --output-on-failure --no-tests=ignore
 
   build-emscripten:
-    name: Build (Emscripten / VS Code)
+    name: ビルド確認（Emscripten / VS Code）
     if: ${{ vars.BUILD_SYSTEM == 'emscripten' }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - name: ソースコードを取得
+        uses: actions/checkout@v6
         with:
           persist-credentials: false
-      - name: Set up Emscripten
+      - name: Emscriptenを準備
         uses: emscripten-core/setup-emsdk@v15
         with:
           version: ${{ vars.EMSDK_VERSION || '4.0.10' }}
-      - name: Configure browser build
+      - name: ブラウザ向けCMake構成を生成
         run: emcmake cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-      - name: Build
+      - name: ビルドを実行
         run: cmake --build build --parallel 2

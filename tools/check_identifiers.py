@@ -126,11 +126,11 @@ def main():
         print(f"::{level} file={x['file']},line={x['line']}::{escaped}")
     Path('reports').mkdir(exist_ok=True)
     Path('reports/identifiers.json').write_text(json.dumps({'check':'identifiers','mode':'conservative-declaration-pattern','scanned_lines':scanned,'issues':issues},ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-    print(f'Identifier scan: {scanned} changed lines, {len(issues)} findings (conservative syntax coverage)')
+    print(f'変更された宣言の検査: {scanned} 行 / 指摘: {len(issues)} 件（簡易構文検査）')
     return int(not args.no_fail and any(x['severity']=='error' for x in issues))
 
 if __name__=='__main__':
     try: raise SystemExit(main())
     except (OSError, subprocess.CalledProcessError, ValueError) as exc:
-        print('::error::identifier checker failed:',exc)
+        print('::error::識別子チェック中にエラーが発生しました:',exc)
         raise SystemExit(2)

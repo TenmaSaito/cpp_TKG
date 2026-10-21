@@ -70,7 +70,7 @@ def main() -> int:
     report_dir = Path("reports")
     report_dir.mkdir(exist_ok=True)
     (report_dir / "file_names.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print(f"Checked {scanned} added/renamed C/C++ filenames; violations: {len(issues)}")
+    print(f"新規追加・改名したC/C++ファイル: {scanned} 件 / 違反: {len(issues)} 件")
     return 1 if issues else 0
 
 
@@ -78,5 +78,5 @@ if __name__ == "__main__":
     try:
         sys.exit(main())
     except (subprocess.CalledProcessError, OSError, ValueError, KeyError) as exc:
-        print(f"::error::Filename checker failed: {exc}")
+        print(f"::error::ファイル名の検査中にエラーが発生しました: {exc}")
         sys.exit(2)
