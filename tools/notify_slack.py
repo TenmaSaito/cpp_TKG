@@ -52,7 +52,7 @@ def report_for(run: dict) -> dict | None:
 def slack_post(message: str) -> None:
     url = os.environ.get("SLACK_WEBHOOK_URL", "")
     if not url:
-        print("SLACK_WEBHOOK_URL secret is unset; Slack notification skipped.")
+        print("Slack通知用のSLACK_WEBHOOK_URLが未設定のため通知を省略しました。")
         return
     data = json.dumps({"text": message}, ensure_ascii=False).encode("utf-8")
     request = urllib.request.Request(url, data=data, headers={"Content-Type": "application/json"}, method="POST")
@@ -74,10 +74,11 @@ def main() -> None:
     elif kind == "completed":
         run = event["workflow_run"]
         result = run.get("conclusion") or "unknown"
+        status = {"success": "成功", "failure": "失敗", "cancelled": "キャンセル", "skipped": "スキップ"}.get(result, result)
         prs = run.get("pull_requests") or []
         pr_desc = f"PR #{prs[0]['number']}" if prs else "PR"
         icon = ":white_check_mark:" if result == "success" else ":warning:"
-        msg = f"{icon} *{pr_desc} チェック完了: {esc(result)}*\n<{run['html_url']}|GitHub Actionsの結果>"
+        msg = f"{icon} *{pr_desc} チェック完了: {esc(status)}*\n<{run['html_url']}|GitHub Actionsの結果>"
         try:
             report = report_for(run)
             if report is not None:
@@ -87,7 +88,8 @@ def main() -> None:
                             pr_desc = f"PR #{detail['pr_number']}"
                         continue
                     items = detail.get("issues", [])
-                    msg += f"\n*{esc(detail.get('check', 'check'))}*: {len(items)} 件"
+                    label = {'filename': 'ファイル名', 'identifiers': 'C++識別子'}.get(detail.get('check'), 'その他の検査')
+                    msg += f"\n*{esc(label)}*: {len(items)} 件"
                     for item in items[:12]:
                         msg += f"\n• `{esc(item.get('file', '?'))}:{item.get('line', 1)}` {esc(item.get('rule', item.get('message', '')))} → `{esc(item.get('suggestion', '?'))}`"
                     if len(items) > 12:
@@ -98,7 +100,7 @@ def main() -> None:
                 msg += "\n詳細レポートなし（ワークフローの失敗など）"
         except Exception as exc:
             # Still deliver the run result; never treat artifact data as executable code.
-            print("Could not fetch report:", exc)
+            print("レポート取得に失敗しました:", exc)
             msg += "\n詳細レポートの取得に失敗"
     else:
         raise SystemExit("Usage: notify_slack.py opened|completed")
