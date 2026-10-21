@@ -106,6 +106,9 @@ jobs:
     name: ビルド確認（Visual Studio 2019）
     if: ${{ vars.BUILD_SYSTEM == 'vs2019' }}
     runs-on: windows-2022
+    env:
+      PYTHONIOENCODING: 'utf-8'
+      PYTHONUTF8: '1'
     permissions:
       contents: read
     steps:

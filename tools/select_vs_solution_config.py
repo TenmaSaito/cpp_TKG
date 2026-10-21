@@ -77,6 +77,11 @@ def main() -> int:
 
 
 if __name__ == '__main__':
+    # WindowsのGitHub Actionsランナーでは標準出力がcp1252の場合がある。
+    # PYTHONIOENCODINGの設定が漏れても日本語ログで落ちないようにする。
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, 'reconfigure'):
+            stream.reconfigure(encoding='utf-8')
     try:
         raise SystemExit(main())
     except (OSError, SelectionError) as exc:
