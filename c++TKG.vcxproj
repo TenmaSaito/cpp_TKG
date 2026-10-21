@@ -163,6 +163,7 @@
     <ClCompile Include="game.cpp" />
     <ClCompile Include="input.cpp" />
     <ClCompile Include="item.cpp" />
+    <ClCompile Include="itemGenerator.cpp" />
     <ClCompile Include="joypad.cpp" />
     <ClCompile Include="light.cpp" />
     <ClCompile Include="main.cpp" />
@@ -205,6 +206,7 @@
     <ClCompile Include="xfile.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="itemGenerator.h" />
     <ClInclude Include="number.h" />
     <ClInclude Include="objectBillboard3D.h" />
     <ClInclude Include="objectBillboard3DScaling.h" />

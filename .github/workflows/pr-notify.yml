@@ -1,0 +1,30 @@
+name: PR quality Slack notification
+on:
+  pull_request_target:
+    types: [opened, reopened]
+  workflow_run:
+    workflows: ["PR quality checks"]
+    types: [completed]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  notify-opened:
+    if: github.event_name == 'pull_request_target'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Notify opened
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: python3 tools/notify_slack.py opened
+  notify-results:
+    if: github.event_name == 'workflow_run'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Notify finished
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: python3 tools/notify_slack.py completed

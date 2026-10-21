@@ -21,7 +21,7 @@
 #include "util.h"
 #include "texture.h"
 #include "camera.h"
-#include "field.h"
+#include "stage.h"
 #include "wall.h"
 #include "ray.h"
 #include "objectXAfterImage.h"
@@ -112,16 +112,22 @@ void CPlayer::Uninit(void)
 //==================================================================================
 void CPlayer::Update(void)
 {
-	if (m_pField == nullptr)
-	{ // 床を取得していなかったら取得
-		m_pField = static_cast<CField*>(FindAnyObjectByType(FIELD_PRIORITY, TYPE_FIELD));
+	if (m_pStage == nullptr)
+	{ // ステージを取得していなかったら取得
+		m_pStage = FindAnyObjectByType<CStage>(STAGE_PRIORITY);
+
+		// ステージの取得に失敗した場合はスキップ
+		if (m_pStage == nullptr) return;
 	}
+
+	// 傾き入力時は自動回転を行わない
+	m_bAutoRotating = !m_pStage->IsLeanInput();
 
 	// 過去の座標を保存
 	m_posOld = *GetPosition();
 
-	// 角度を加算し回転
-	AddForce(m_fAngle + 0.1f, m_fRotSpeed);
+	// 自動回転フラグが立っていれば、傾いていないため角度を加算し回転
+	if(m_bAutoRotating == true) AddForce(m_fAngle + 0.1f, m_fRotSpeed);
 	if (m_fValueRot > MAX_ROT_VALUE)
 	{ // 最大速度を超えていたら、修正
 		m_fValueRot = MAX_ROT_VALUE;
@@ -153,34 +159,32 @@ void CPlayer::Update(void)
 		SetPosition(Vector3(GetPosition()->x, GetRadius(), GetPosition()->z));
 	}
 
-	if (m_pField != nullptr)
-	{ // 床が取得できている場合、床から境界線を計算し、移動を制限
-		Vector4 boader;		// 境界線
-		Vector3 pos = *GetPosition();		// 現在位置
+	// ステージから境界線を計算し、移動を制限
+	Vector4 boader;		// 境界線
+	Vector3 pos = *GetPosition();		// 現在位置
 
-		// 境界線を計算
-		boader.x = m_pField->GetPosition()->x + (m_pField->GetSize()->x * 0.5f) - GetRadius();		// 右端
-		boader.y = m_pField->GetPosition()->y + (m_pField->GetSize()->x * 0.5f) - GetRadius();		// 上端
-		boader.z = m_pField->GetPosition()->y - (m_pField->GetSize()->x * 0.5f) + GetRadius();		// 下端
-		boader.w = m_pField->GetPosition()->x - (m_pField->GetSize()->x * 0.5f) + GetRadius();		// 左端
+	// 境界線を計算
+	boader.x = m_pStage->GetPosition()->x + (m_pStage->GetSize()->x * 0.5f) - GetRadius();		// 右端
+	boader.y = m_pStage->GetPosition()->y + (m_pStage->GetSize()->x * 0.5f) - GetRadius();		// 上端
+	boader.z = m_pStage->GetPosition()->y - (m_pStage->GetSize()->x * 0.5f) + GetRadius();		// 下端
+	boader.w = m_pStage->GetPosition()->x - (m_pStage->GetSize()->x * 0.5f) + GetRadius();		// 左端
 
-		// X軸の判定
-		if (pos.x > boader.x) pos.x = boader.x;
-		else if (pos.x < boader.w) pos.x = boader.w;
+	// X軸の判定
+	if (pos.x > boader.x) pos.x = boader.x;
+	else if (pos.x < boader.w) pos.x = boader.w;
 
-		// Z軸の判定
-		if (pos.z > boader.y) pos.z = boader.y;
-		else if (pos.z < boader.z) pos.z = boader.z;
+	// Z軸の判定
+	if (pos.z > boader.y) pos.z = boader.y;
+	else if (pos.z < boader.z) pos.z = boader.z;
 
-		// 強制後の位置を反映
-		SetPosition(pos);
-	}
+	// 強制後の位置を反映
+	SetPosition(pos);
 
 	// 残像生成
 	CObjectXAfterImage::Create(GetFileName(),
 		*GetMatrix(),
 		15,
-		0.85f);
+		0.5f);
 
 #ifdef _DEBUG
 	// デバッグ用ライン表示
@@ -190,7 +194,7 @@ void CPlayer::Update(void)
 
 	// プレイヤーの向きの情報を指定し描画
 	vecPlayer.SetStart(posCalc);
-	vecPlayer.SetVector(Vector3(vec.x, 0.0f, -vec.y));		
+	vecPlayer.SetVector(Vector3(vec.x, 0.0f, -vec.y));
 	vecPlayer.SetLength(RAY_LENGTH + GetRadius());
 	vecPlayer.SetColor(VEC_PLAYER_RAY_COL);
 	vecPlayer.Draw();

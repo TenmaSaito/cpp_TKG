@@ -95,8 +95,8 @@ void CItem::Update(void)
 	}
 
 	float fLength = Vec3::Length(*m_pPlayer->GetPosition(), *GetPosition());
-	if (fLength <= m_fRadius)
-	{ // 獲得半径内にいるなら、獲得ゲージを減らすため体力減少
+	if (fLength <= m_fRadius && m_pPlayer->IsAutoRotating())
+	{ // 獲得半径内にいるかつプレイヤーが回転していれば、獲得ゲージを減らすため体力減少
 		m_nLife--;
 		
 		if (m_pParticle == nullptr)

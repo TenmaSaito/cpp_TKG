@@ -108,6 +108,7 @@ void CObjectX::Draw(void)
 
 	// ワールドマトリックスの設定
 	Mtx::CalcWorld(&m_mtxWorld, m_pMtxParent, m_pos, m_rot);
+	m_bMtxInitialize = true;		// マトリックスの計算フラグを立てる
 
 	//  ワールドマトリックスの設定
 	pDevice->SetTransform(D3DTS_WORLD, &m_mtxWorld);
@@ -147,7 +148,8 @@ void CObjectX::Draw(const Matrix &mtx)
 	D3DMATERIAL9 matDef;				// 現在のマテリアル保存用
 	D3DXMATERIAL *pMat = nullptr;		// マテリアルデータへのポインタ
 
-	m_mtxWorld = mtx;		// ワールドマトリックスの代入
+	m_mtxWorld = mtx;			// ワールドマトリックスの代入
+	m_bMtxInitialize = true;	// マトリックスの計算フラグを立てる
 
 	//  ワールドマトリックスの設定
 	pDevice->SetTransform(D3DTS_WORLD, &m_mtxWorld);
@@ -214,6 +216,20 @@ void CObjectX::DrawShadow(const Matrix &mtxShadow)
 
 	// 保存していたマテリアルを戻す
 	pDevice->SetMaterial(&matDef);
+}
+
+//==================================================================================
+// --- マトリックスの計算後取得処理 ---
+//==================================================================================
+const Matrix *CObjectX::GetMatrix(void)
+{
+	if (m_bMtxInitialize == false)
+	{ // マトリックスの計算がされていなければ、計算
+		Mtx::CalcWorld(&m_mtxWorld, m_pMtxParent, m_pos, m_rot);
+		m_bMtxInitialize = true;	// マトリックスの計算フラグを立てる
+	}
+
+	return &m_mtxWorld;
 }
 
 //==================================================================================

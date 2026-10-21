@@ -100,8 +100,8 @@ void CStage::Update(void)
 	}
 
 	// ŒX‚«“ü—Íˆ—
-	bPush = LeanInput(&rot);
-	if (bPush == true)
+	m_bLeanInput = LeanInput(&rot);
+	if (m_bLeanInput == true)
 	{ // ŒX‚¯‚½ê‡A‚»‚ÌŒü‚«‚ÉƒvƒŒƒCƒ„[‚ğ“]‚ª‚·
 		float fAngle = Vec2::Direction(Vector2(rot.z / LEAN_MAX, -rot.x / LEAN_MAX), VECTOR2_NULL);	// ŒX‚¯‚½Œü‚«
 		float fForce = Vec2::Length(Vector2(rot.z / LEAN_MAX, rot.x / LEAN_MAX)) * ROLL_FORCE;		// “]‚ª‚·‹­‚³

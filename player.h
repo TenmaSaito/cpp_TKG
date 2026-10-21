@@ -15,7 +15,7 @@
 //**********************************************************************************
 // *** 前方宣言 ***
 //**********************************************************************************
-class CField;
+class CStage;
 
 //**********************************************************************************
 // *** 定数宣言 ***
@@ -45,12 +45,13 @@ public:
 	void AddForce(const float fRotDest, const float fValueRot);
 	const Vector3 *GetPositionOld(void) const { return &m_posOld; }
 	float GetRadius(void) const { return m_fRadius * m_fScaling; }
+	bool IsAutoRotating(void) const { return m_bAutoRotating; }
 
 private:
 	void CharactorMovable(void);
 	void StatusChange(void);
 
-	CField *m_pField = nullptr;			// 床へのポインタ
+	CStage *m_pStage = nullptr;			// ステージへのポインタ
 	Vector3 m_posOld = VECTOR3_NULL;	// 過去の位置
 	Vector3 m_move = VECTOR3_NULL;		// 移動量
 	Vector3 m_rotDest = VECTOR3_NULL;	// 目標角度
@@ -63,5 +64,6 @@ private:
 	float m_fRotSpeed = 0.0f;			// 回転速度
 	float m_fRadius = 0.0f;				// 半径
 	float m_fScaling = 0.0f;			// 拡大倍率
+	bool m_bAutoRotating = true;		// 自動回転中か
 };
 #endif

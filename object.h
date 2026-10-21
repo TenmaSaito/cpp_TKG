@@ -54,6 +54,7 @@ public:
 		TYPE_STAGE,			// ステージ
 		TYPE_TIMER,			// タイマー
 		TYPE_PARTICLE,		// パーティクル
+		TYPE_ITEM_GENERATOR,	// アイテム生成機
 		TYPE_MAX
 	} TYPE;
 

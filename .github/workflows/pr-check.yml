@@ -1,0 +1,154 @@
+name: PR quality checks
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+
+jobs:
+  naming:
+    name: Naming conventions
+    runs-on: ubuntu-latest
+    env:
+      BASE_SHA: ${{ github.event.pull_request.base.sha }}
+      HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      STRICT_NAMING: ${{ vars.STRICT_NAMING }}
+    steps:
+      # PRのマージ結果。ここにはSecretsを渡さない
+      - name: Checkout PR (files to inspect)
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      # チェッカーと規則はPR内で変更されたものを使わず、ベース側のものを使う
+      - name: Checkout base (trusted checker and policy)
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: .prguard-base
+          persist-credentials: false
+
+      - name: Set up Python on GitHub runner
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Run filename checker
+        id: filenames
+        continue-on-error: true
+        run: >-
+          python .prguard-base/tools/check_filenames.py
+          --base "$BASE_SHA" --head "$HEAD_SHA"
+          --policy .prguard-base/naming_policy.json
+
+      - name: Run identifier checker
+        id: identifiers
+        continue-on-error: true
+        run: |
+          if [ "${STRICT_NAMING,,}" = "true" ]; then
+            python .prguard-base/tools/check_identifiers.py \
+              --base "$BASE_SHA" --head "$HEAD_SHA" \
+              --policy .prguard-base/naming_policy.json
+          else
+            python .prguard-base/tools/check_identifiers.py \
+              --base "$BASE_SHA" --head "$HEAD_SHA" \
+              --policy .prguard-base/naming_policy.json --no-fail
+          fi
+
+      - name: Create PR metadata for Slack
+        if: always()
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          python - <<'PYMETA'
+          import json, os
+          from pathlib import Path
+          Path('reports').mkdir(exist_ok=True)
+          Path('reports/pr_metadata.json').write_text(
+              json.dumps({'pr_number': int(os.environ['PR_NUMBER']),
+                          'head_sha': os.environ['HEAD_SHA']}, ensure_ascii=False),
+              encoding='utf-8')
+          PYMETA
+
+      - name: Add GitHub Actions summary
+        if: always()
+        run: python .prguard-base/tools/ci_summary.py
+
+      - name: Upload JSON findings
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr-quality-report
+          path: reports/*.json
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Set PR result
+        if: always()
+        env:
+          FILE_RESULT: ${{ steps.filenames.outcome }}
+          IDENT_RESULT: ${{ steps.identifiers.outcome }}
+        run: |
+          if [ "$FILE_RESULT" != "success" ]; then
+            echo 'Filename check failed. See annotations and uploaded report.'
+            exit 1
+          fi
+          if [ "$IDENT_RESULT" != "success" ]; then
+            echo 'Identifier checker failed (or STRICT_NAMING=true and naming violations detected).'
+            exit 1
+          fi
+
+  build-vs2019:
+    name: Build (Visual Studio solution)
+    if: ${{ vars.BUILD_SYSTEM == 'vs2019' }}
+    runs-on: windows-2022
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: microsoft/setup-msbuild@v2
+      - name: Build solution with MSBuild (v142)
+        shell: pwsh
+        env:
+          SOLUTION: ${{ vars.VS_SOLUTION }}
+        run: |
+          if (-not $env:SOLUTION) { throw 'Set Actions variable VS_SOLUTION to e.g. Game.sln' }
+          msbuild "$env:SOLUTION" /m /p:Configuration=Release /p:Platform=Win32 /p:PlatformToolset=v142
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+  build-cmake:
+    name: Build (CMake)
+    if: ${{ vars.BUILD_SYSTEM == 'cmake' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: cmake --build build --parallel 2
+      - name: CTest (if present)
+        run: ctest --test-dir build --output-on-failure --no-tests=ignore
+
+  build-emscripten:
+    name: Build (Emscripten / VS Code)
+    if: ${{ vars.BUILD_SYSTEM == 'emscripten' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Set up Emscripten
+        uses: emscripten-core/setup-emsdk@v15
+        with:
+          version: ${{ vars.EMSDK_VERSION || '4.0.10' }}
+      - name: Configure browser build
+        run: emcmake cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: cmake --build build --parallel 2

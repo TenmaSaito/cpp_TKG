@@ -10,6 +10,8 @@
 //**********************************************************************************
 #include "game.h"
 #include "mapScriptLoader.h"
+#include "itemGenerator.h"
+#include "rankingClient.h"
 
 //==================================================================================
 // --- コンストラクタ ---
@@ -64,4 +66,14 @@ void CGame::Start(void)
 { // マップ読み込み
 	std::unique_ptr pMapScriptLoader = std::make_unique<CMapScriptLoader>();		// マップ読み込みインスタンス
 	pMapScriptLoader->Load("data/SCRIPT/system.ini");
+
+	new CItemGenerator;
+
+	auto pRanking = std::make_unique<CRankingClient>();
+	pRanking->Init("127.0.0.1", 22333);
+
+	int nRank = pRanking->Send(100);
+	auto aRanking = pRanking->Get();
+
+	auto &a = aRanking;
 }

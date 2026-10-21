@@ -33,6 +33,13 @@ HRESULT CRankingClient::Init(std::string_view sIPAddress, const u_short nPortID)
 	m_sIPAddress = sIPAddress;
 	m_nPortID = nPortID;
 
+	// WSA初期化
+	WSADATA wsaData = {};		// WSAデータ
+	if (WSAStartup(WINSOCK_VERSION, &wsaData) != 0)
+	{ // 初期化失敗
+		return E_FAIL;
+	}
+
 	return S_OK;
 }
 
@@ -40,7 +47,8 @@ HRESULT CRankingClient::Init(std::string_view sIPAddress, const u_short nPortID)
 // --- 終了処理 ---
 //==================================================================================
 void CRankingClient::Uninit(void)
-{ 
+{ // WSA終了
+	WSACleanup();
 }
 
 //==================================================================================
@@ -70,7 +78,11 @@ int CRankingClient::Send(const int nScore)
 	char cRank;		// 順位
 	nResult = pClient->RecvAll(&nByte, 1);
 	nResult = pClient->RecvAll(&cRank, 1);
-	if(CLIENT_TCP_FAILED(nResult)) return UNRANKING;	// 順位の受信に失敗
+	if (CLIENT_TCP_FAILED(nResult))
+	{ // インスタンス破棄
+		SafeUniqueUninit(pClient);
+		return UNRANKING;	// 順位の受信に失敗
+	}
 
 	// インスタンス破棄
 	SafeUniqueUninit(pClient);
@@ -101,14 +113,18 @@ std::array<int, MAX_RANKING> CRankingClient::Get(void)
 	nResult = pClient->RecvAll(&nByte, 1);
 	if (CLIENT_TCP_FAILED(nResult))
 	{ // サイズの受信に失敗
+		// インスタンス破棄
+		SafeUniqueUninit(pClient);
 		return aScore;
 	}
 
 	// データを受信
-	std::unique_ptr pByte = std::make_unique<char>(nByte);		// 受け取ったバイトデータ
+	std::unique_ptr pByte = std::make_unique<char[]>(nByte);		// 受け取ったバイトデータ
 	nResult = pClient->RecvAll(pByte.get(), nByte);
 	if (CLIENT_TCP_FAILED(nResult))
 	{ // 順位の受信に失敗
+		// インスタンス破棄
+		SafeUniqueUninit(pClient);
 		return aScore;
 	}
 

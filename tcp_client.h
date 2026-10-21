@@ -77,22 +77,8 @@ template<class T> int CTcpClient::Send(const T *pData, const int num)
 	int nByte = sizeof(T) * num;		// 処理するバイト数
 	int nSentByte = 0;					// 送信されたデータサイズ
 
-	// バイトデータ用の変数を確保
-	unsigned char *pByte = new unsigned char[nByte];
-	if (pByte == NULL)
-	{ // 動的確保失敗
-		return CLIENT_E_ALLOCATE;
-	}
-
-	// バイトデータ化する
-	memcpy(pByte, pData, nByte);
-
 	// unsigned char*に変換し、データを送信
-	nSentByte = send(m_sock, reinterpret_cast<const char*>(&pByte[0]), nByte, 0);
-	
-	// メモリを解放
-	delete[] pByte;
-	pByte = NULL;
+	nSentByte = send(m_sock, reinterpret_cast<const char*>(pData), nByte, 0);
 
 	// 送信成功
 	return nSentByte;
@@ -132,34 +118,16 @@ template<class T> int CTcpClient::Recv(T *pOut, const int num)
 
 	int nByte = sizeof(T) * num;		// 処理するバイト数
 
-	// バイトデータ用の変数を確保
-	char *pByte = new char[nByte];
-	if (pByte == NULL)
-	{ // 動的確保失敗
-		return CLIENT_E_ALLOCATE;
-	}
-
 	// データを受信する
-	int nRecvSize = recv(m_sock, pByte, nByte, 0);
+	int nRecvSize = recv(m_sock, reinterpret_cast<char*>(pOut), nByte, 0);
 	if (nRecvSize <= 0)
 	{ // 受信失敗時
 		// ソケットを閉じる
 		CloseSocket();
 
-		// メモリを解放
-		delete[] pByte;
-		pByte = NULL;
-
 		// 失敗
 		return CLIENT_E_CONNECTION;
 	}
-
-	// データを書き出し
-	memcpy(pOut, pByte, nByte);
-
-	// メモリを解放
-	delete[] pByte;
-	pByte = NULL;
 
 	// サイズを返す
 	return nRecvSize;
@@ -172,7 +140,7 @@ template<class T> int CTcpClient::RecvAll(T *pOut, const int num)
 {
 	int nTotal = 0;			// 合計で受け取ったバイト数
 	int nByteSize = sizeof(T) * num;	// 受け取るデータのバイト数
-	char *pByte = new char[nByteSize];	// 受け取ったデータ
+	char *pByte = reinterpret_cast<char*>(pOut);	// 受け取ったデータ
 
 	while (nTotal < nByteSize)
 	{ // 受け取ったバイト数が指定のバイト数未満の間受け取り続ける
@@ -182,12 +150,6 @@ template<class T> int CTcpClient::RecvAll(T *pOut, const int num)
 		nTotal += nRecvByte;		// 受け取ったバイト数を加算
 	}
 
-	// データをコピー
-	memcpy(pOut, pByte, nTotal);
-
-	// バッファ破棄
-	delete pByte;
-	pByte = nullptr;
 	return nTotal;
 }
 
@@ -231,34 +193,16 @@ template<class T> int CTcpClient::Recv(T *pOut, const int num, const long nSecon
 
 	int nByte = sizeof(T) * num;		// 処理するバイト数
 
-	// バイトデータ用の変数を確保
-	char *pByte = new char[nByte];
-	if (pByte == NULL)
-	{ // 動的確保失敗
-		return CLIENT_E_ALLOCATE;
-	}
-
 	// データを受信する
-	int nRecvSize = recv(m_sock, pByte, nByte, 0);
+	int nRecvSize = recv(m_sock, reinterpret_cast<char *>(pOut), nByte, 0);
 	if (nRecvSize <= 0)
 	{ // 受信失敗時
 		// ソケットを閉じる
 		CloseSocket();
 
-		// メモリを解放
-		delete[] pByte;
-		pByte = NULL;
-
 		// 失敗
 		return CLIENT_E_CONNECTION;
 	}
-
-	// データを書き出し
-	memcpy(pOut, pByte, nByte);
-
-	// メモリを解放
-	delete[] pByte;
-	pByte = NULL;
 
 	// サイズを返す
 	return nRecvSize;

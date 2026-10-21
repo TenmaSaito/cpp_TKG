@@ -21,7 +21,7 @@
 //**********************************************************************************
 namespace
 {
-	constexpr float LENGTH_PLAYER = 1000.0f;		// カメラとプレイヤーの距離
+	constexpr float LENGTH_PLAYER = 700.0f;		// カメラとプレイヤーの距離
 	constexpr float ROTATE_SPD = 0.04f;			// カメラの回転速度
 	constexpr float POSITION_DEST_ACCELE = 0.03f;	// カメラの目標位置への移動速度
 }
@@ -77,8 +77,9 @@ void CPlayerCamera::Init(CPlayer *pPlayer)
 	// 角度を調整
 	rot.z = -0.4f;
 
-	// プレイヤーの座標を注視点に設定
-	posR = *m_pPlayer->GetPosition();
+	// プレイヤーの絶対座標を注視点に設定
+	Vector3 posWorld;
+	posR = *D3DXVec3TransformCoord(&posWorld, m_pPlayer->GetPosition(), m_pPlayer->GetMatrix());
 
 	// 視点座標を注視点座標から求める
 	posV.x = posR.x + (sinf(rot.z) * sinf(rot.y) * LENGTH_PLAYER);
@@ -136,8 +137,8 @@ void CPlayerCamera::Update(void)
 	// プレイヤーへのポインタが存在するなら
 	if (m_pPlayer != nullptr)
 	{ // プレイヤーへ滑らかに追従するために、過去の位置と現在位置で補間
-		Vector3 playerPosOld = *m_pPlayer->GetPosition();	// プレイヤーの過去の位置
-		Vector3 posDiff = playerPosOld - posR;				// 現在位置と予定位置の差分
+		Vector3 posWorld = *D3DXVec3TransformCoord(&posWorld, m_pPlayer->GetPosition(), m_pPlayer->GetMatrix());
+		Vector3 posDiff = *m_pPlayer->GetPosition() - posR;				// 現在位置と予定位置の差分
 
 		posR = posR + (posDiff * POSITION_DEST_ACCELE);		// 次の注視点座標を計算
 	}
