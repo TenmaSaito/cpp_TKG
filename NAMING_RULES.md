@@ -67,7 +67,7 @@ std::vector<CPlayer> vPlayers;    // OK
 1. GitHub Actions でPRの変更ファイルを取得。
 2. `.clang-tidy` で単純な命名（関数、定数、マクロ、列挙子）をチェック。
 3. `clang AST` / `libTooling` で型・const/constexpr・参照・コンテナを判別して `naming_policy.json` に照らし合わせる。型情報が必要なので正規表現だけで完結させない。
-4. `git diff` から新規/変更宣言だけ集約し、診断と安全な修正候補をSlackへ送信。
+4. `git diff` から新規/変更宣言だけ集約し、診断と安全な修正候補をDiscordへ送信。
 5. 既存の違反を一括修正せず、導入直後は警告。安定後に新規違反を必須チェックとする。
 
 > 注意: まだ実装済みの完全な検査器ではありません。`.clang-tidy` の設定はclang-tidyを実行できるC++コンパイル環境で検証する必要があります。

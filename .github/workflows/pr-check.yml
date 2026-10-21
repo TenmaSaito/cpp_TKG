@@ -59,7 +59,7 @@ jobs:
               --policy .prguard-base/naming_policy.json --no-fail
           fi
 
-      - name: Slack通知用のPR情報を作成
+      - name: Discord通知用のPR情報を作成
         if: always()
         env:
           PR_NUMBER: ${{ github.event.pull_request.number }}
@@ -155,5 +155,5 @@ jobs:
           version: ${{ vars.EMSDK_VERSION || '4.0.10' }}
       - name: ブラウザ向けCMake構成を生成
         run: emcmake cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-      - name: Build
+      - name: ビルドを実行
         run: cmake --build build --parallel 2

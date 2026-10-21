@@ -1,4 +1,4 @@
-name: PR チェック結果のSlack通知
+name: PR チェック結果のDiscord通知
 on:
   pull_request_target:
     types: [opened, reopened]
@@ -10,7 +10,7 @@ permissions:
   actions: read
 jobs:
   notify-opened:
-    name: PR作成をSlackへ通知
+    name: PR作成をDiscordへ通知
     if: github.event_name == 'pull_request_target'
     runs-on: ubuntu-latest
     steps:
@@ -18,10 +18,10 @@ jobs:
         uses: actions/checkout@v6
       - name: PR作成メッセージを送信
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        run: python3 tools/notify_slack.py opened
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: python3 tools/notify_discord.py opened
   notify-results:
-    name: 検査結果をSlackへ通知
+    name: 検査結果をDiscordへ通知
     if: github.event_name == 'workflow_run'
     runs-on: ubuntu-latest
     steps:
@@ -30,5 +30,5 @@ jobs:
       - name: 検査結果メッセージを送信
         env:
           GH_TOKEN: ${{ github.token }}
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        run: python3 tools/notify_slack.py completed
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: python3 tools/notify_discord.py completed
