@@ -35,6 +35,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hInstancePrev, LPSTR lpCmdLine
 #endif
 
 	int count = 0;
+	char bat = 'c';
 	HWND hWnd;					// ウィンドウハンドル
 	MSG msg = {};				// メッセージを格納する変数
 	RECT rect = { 0,0,SCREEN_WIDTH,SCREEN_HEIGHT };	// ウィンドウサイズ
