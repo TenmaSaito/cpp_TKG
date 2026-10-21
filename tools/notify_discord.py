@@ -16,6 +16,9 @@ from urllib.parse import urlparse
 
 MAX_REPORT_BYTES = 100_000
 MAX_MESSAGE_LENGTH = 1900
+# Discord message flag: SUPPRESS_EMBEDS (1 << 2).
+# Links remain clickable, but GitHub preview cards will not be shown.
+SUPPRESS_EMBEDS = 4
 REPORT_FILENAMES = ('file_names.json', 'identifiers.json', 'pr_metadata.json')
 
 
@@ -90,6 +93,7 @@ def discord_post(message: str) -> None:
             'username': 'PR Review Bot',
             'content': part,
             'allowed_mentions': {'parse': []},
+            'flags': SUPPRESS_EMBEDS,  # suppress GitHub link preview cards
         }, ensure_ascii=False).encode('utf-8')
         request = urllib.request.Request(
             url, data=payload,
