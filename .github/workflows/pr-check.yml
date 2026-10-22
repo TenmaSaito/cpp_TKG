@@ -185,26 +185,24 @@ jobs:
           Write-Host "D3DX9 Include: $includeDir"
           Write-Host "D3DX9 Library: $libDir"
 
-          # 3. CI専用のMSBuild設定を生成
+         # 3. CI専用のMSBuild設定を生成
           $targets = Join-Path $env:RUNNER_TEMP "D3DX9.CI.targets"
 
-          <ClCompile>
-            <AdditionalIncludeDirectories>$includeDir;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-            <AdditionalOptions>/source-charset:.932 /execution-charset:.932 %(AdditionalOptions)</AdditionalOptions>
-          </ClCompile>
+          $xmlLines = @(
+            '<Project>'
+            '  <ItemDefinitionGroup>'
+            '    <ClCompile>'
+            "      <AdditionalIncludeDirectories>$includeDir;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>"
+            '      <AdditionalOptions>/source-charset:.932 /execution-charset:.932 %(AdditionalOptions)</AdditionalOptions>'
+            '    </ClCompile>'
+            '    <Link>'
+            "      <AdditionalLibraryDirectories>$libDir;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>"
+            '    </Link>'
+            '  </ItemDefinitionGroup>'
+            '</Project>'
+          )
 
-          @"
-          <Project>
-            <ItemDefinitionGroup>
-              <ClCompile>
-                <AdditionalIncludeDirectories>$includeDir;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-              </ClCompile>
-              <Link>
-                <AdditionalLibraryDirectories>$libDir;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-              </Link>
-            </ItemDefinitionGroup>
-          </Project>
-          "@ | Set-Content -Path $targets -Encoding utf8
+          Set-Content -Path $targets -Value $xmlLines -Encoding utf8
 
           # 4. Visual Studioビルド
           msbuild "$env:SOLUTION" /m `
