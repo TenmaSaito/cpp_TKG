@@ -132,15 +132,84 @@ jobs:
         run: |
           python tools/select_vs_solution_config.py --solution "$env:SOLUTION" --configuration "$env:VS_CONFIGURATION" --platform "$env:VS_PLATFORM"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Visual Studioソリューションをビルド（既定のツールセット）
+      - name: Visual Studio ビルド確認（DirectX 9対応）
         shell: pwsh
         env:
           SOLUTION: ${{ vars.VS_SOLUTION }}
           BUILD_CONFIGURATION: ${{ steps.solution-config.outputs.configuration }}
           BUILD_PLATFORM: ${{ steps.solution-config.outputs.platform }}
         run: |
-          msbuild "$env:SOLUTION" /m "/p:Configuration=$env:BUILD_CONFIGURATION" "/p:Platform=$env:BUILD_PLATFORM"
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $ErrorActionPreference = "Stop"
+
+          # 1. D3DX9をNuGetから取得
+          $packageDir = Join-Path $env:RUNNER_TEMP "dxsdk"
+
+          nuget install Microsoft.DXSDK.D3DX `
+            -Version 9.29.952.8 `
+            -OutputDirectory "$packageDir" `
+            -Source "https://api.nuget.org/v3/index.json" `
+            -NonInteractive
+
+          if ($LASTEXITCODE -ne 0) {
+            throw "D3DX9の取得に失敗しました"
+          }
+
+          # 2. ヘッダーとライブラリを検索
+          $header = Get-ChildItem $packageDir -Recurse `
+            -Filter "d3dx9.h" -File |
+            Select-Object -First 1
+
+          $arch = $env:BUILD_PLATFORM
+          if ($arch -eq "Win32") { $arch = "x86" }
+
+          if ($arch -notin @("x86", "x64")) {
+            throw "未対応のプラットフォーム: $arch"
+          }
+
+          $buildFlavor = if ($env:BUILD_CONFIGURATION -eq "Debug") {
+            "debug"
+          } else {
+            "release"
+          }
+          
+          $library = Get-ChildItem $packageDir -Recurse `
+            -Filter "d3dx9.lib" -File |
+            Where-Object {
+              $_.FullName -match "[\\/]$buildFlavor[\\/]lib[\\/]$arch[\\/]"
+            } |
+            Select-Object -First 1
+
+          $includeDir = $header.DirectoryName
+          $libDir = $library.DirectoryName
+
+          Write-Host "D3DX9 Include: $includeDir"
+          Write-Host "D3DX9 Library: $libDir"
+
+          # 3. CI専用のMSBuild設定を生成
+          $targets = Join-Path $env:RUNNER_TEMP "D3DX9.CI.targets"
+
+          @"
+          <Project>
+            <ItemDefinitionGroup>
+              <ClCompile>
+                <AdditionalIncludeDirectories>$includeDir;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+              </ClCompile>
+              <Link>
+                <AdditionalLibraryDirectories>$libDir;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+              </Link>
+            </ItemDefinitionGroup>
+          </Project>
+          "@ | Set-Content -Path $targets -Encoding utf8
+
+          # 4. Visual Studioビルド
+          msbuild "$env:SOLUTION" /m `
+            "/p:Configuration=$env:BUILD_CONFIGURATION" `
+            "/p:Platform=$env:BUILD_PLATFORM" `
+            "/p:ForceImportAfterCppTargets=$targets"
+
+          if ($LASTEXITCODE -ne 0) {
+            throw "Visual Studioビルドに失敗しました"
+          }
 
   build-cmake:
     name: ビルド確認（CMake）
