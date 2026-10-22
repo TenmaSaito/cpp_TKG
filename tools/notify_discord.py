@@ -156,7 +156,13 @@ def build_completed_message(run: dict) -> tuple[str, bool]:
                 lineno = plain(item.get('line', 1))
                 reason = plain(item.get('rule', item.get('message', '')))
                 suggestion = plain(item.get('suggestion', '?'))
-                lines.append(f'• `{filename}:{lineno}` {reason} → `{suggestion}`')
+                # Identifier reports contain the original identifier in "symbol".
+                # File-name reports have only "file", so use its basename instead.
+                original = item.get('symbol')
+                if not isinstance(original, str) or not original.strip():
+                    original = Path(filename).name if detail.get('check') == 'filename' else '?'
+                original = plain(original)
+                lines.append(f'• `{filename}:{lineno}` `{original}` → `{suggestion}` （{reason}）')
             if len(items) > 12:
                 lines.append('残りの違反はGitHub Actionsのレポートを参照')
         if count == 0:
