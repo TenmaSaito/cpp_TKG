@@ -94,6 +94,7 @@ HRESULT CPlayer::Init(const std::string_view pFilename,
 	m_fValueRot = 0.0f;
 	m_fRotSpeed = VALUE_ROT;
 	m_fScaling = SCALE_VALUE;
+	m_fAngleAdd = 0.1f;
 	Mtx::Identity(&m_mtxRot);
 
 	return S_OK;
@@ -126,8 +127,13 @@ void CPlayer::Update(void)
 	// 過去の座標を保存
 	m_posOld = *GetPosition();
 
+	if (CManager::GetInstance()->GetInputKeyboard()->GetTrigger(DIK_R))
+	{
+		m_fAngleAdd *= -1;
+	}
+
 	// 自動回転フラグが立っていれば、傾いていないため角度を加算し回転
-	if(m_bAutoRotating == true) AddForce(m_fAngle + 0.1f, m_fRotSpeed);
+	if(m_bAutoRotating == true) AddForce(m_fAngle + m_fAngleAdd, m_fRotSpeed);
 	if (m_fValueRot > MAX_ROT_VALUE)
 	{ // 最大速度を超えていたら、修正
 		m_fValueRot = MAX_ROT_VALUE;

@@ -61,6 +61,7 @@ private:
 	Vector3 m_vecAxis = VECTOR3_NULL;	// ‰ñ“]²
 	float m_fValueRot = 0.0f;			// ‰ñ“]Šp
 	float m_fAngle = 0.0f;				// “]‚ª‚éŠp“x
+	float m_fAngleAdd = 0.0f;			// Šp“x‚Ì‘‰Á’l
 	float m_fRotSpeed = 0.0f;			// ‰ñ“]‘¬“x
 	float m_fRadius = 0.0f;				// ”¼Œa
 	float m_fScaling = 0.0f;			// Šg‘å”{—¦
