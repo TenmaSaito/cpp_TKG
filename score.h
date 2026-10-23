@@ -23,7 +23,7 @@ class CNumber;		// 数値表示クラス
 // *** マクロ定義 ***
 //**********************************************************************************
 #define MAX_SCORENUM				(8)						// スコアの最大桁数
-#define DEFAULT_SCORE_PRIORITY		(DEFAULT_UI_PRIORITY)	// スコアの基本優先順位
+#define SCORE_PRIORITY		(DEFAULT_UI_PRIORITY)	// スコアの基本優先順位
 
 //**********************************************************************************
 // *** スコアクラス ***
@@ -31,15 +31,14 @@ class CNumber;		// 数値表示クラス
 class CScore : public CObject
 {
 public:
-	CScore(const int nPriority = DEFAULT_SCORE_PRIORITY);
+	CScore(const int nPriority = SCORE_PRIORITY);
 	~CScore();
 
-	static CScore *Create(const D3DXVECTOR3 &pos, const D3DXVECTOR2 &size, const int nNumNumber);
-	static CScore *Create(const D3DXVECTOR3 &pos, const D3DXVECTOR2 &size, const int nNumNumber, const int nScore);
+	static CScore *Create(const int nIdxTexture, const D3DXVECTOR3 &pos, const D3DXVECTOR2 &size, const int nNumNumber);
+	static CScore *Create(const int nIdxTexture, const D3DXVECTOR3 &pos, const D3DXVECTOR2 &size, const int nNumNumber, const int nScore);
 
-	HRESULT Init(void);
-	HRESULT Init(const D3DXVECTOR3 &pos, const D3DXVECTOR2 &size, const int nNumNumber);
-	HRESULT Init(const D3DXVECTOR3 &pos, const D3DXVECTOR2 &size, const int nNumNumber, const int nScore);
+	HRESULT Init(const int nIdxTexture, const D3DXVECTOR3 &pos, const D3DXVECTOR2 &size, const int nNumNumber);
+	HRESULT Init(const int nIdxTexture, const D3DXVECTOR3 &pos, const D3DXVECTOR2 &size, const int nNumNumber, const int nScore);
 	void Uninit(void);
 	void Update(void);
 	void Draw(void);

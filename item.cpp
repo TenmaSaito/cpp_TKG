@@ -16,6 +16,13 @@
 #include "light.h"
 #include "particle.h"
 #include "texture.h"
+#include "score.h"
+
+// 定数宣言
+namespace
+{
+	constexpr int ADD_SCORE = 10;		// スコアの加算値
+}
 
 //==================================================================================
 // --- アイテムの生成処理 ---
@@ -85,11 +92,16 @@ void CItem::Uninit(void)
 void CItem::Update(void)
 {
 	if (m_pPlayer == nullptr)
-	{ // プレイヤーへのポインタが取得出来ていない場合、プレイヤーを検索
+	{ // プレイヤーへのポインタが未取得の場合、取得
 		m_pPlayer = CObject::FindAnyObjectByType<CPlayer>(PLAYER_PRIORITY);
 	}
 
-	if (m_pPlayer == nullptr)
+	if (m_pScore == nullptr)
+	{ // スコア表示へのポインタが未取得の場合、取得
+		m_pScore = CObject::FindAnyObjectByType<CScore>(SCORE_PRIORITY);
+	}
+
+	if (m_pPlayer == nullptr || m_pScore == nullptr)
 	{ // プレイヤーがnullの場合スキップ
 		return;
 	}
@@ -98,6 +110,7 @@ void CItem::Update(void)
 	if (fLength <= m_fRadius && m_pPlayer->IsAutoRotating())
 	{ // 獲得半径内にいるかつプレイヤーが回転していれば、獲得ゲージを減らすため体力減少
 		m_nLife--;
+		m_pScore->AddScore(ADD_SCORE);
 		
 		if (m_pParticle == nullptr)
 		{ // パーティクルを生成していないなら、新規生成

@@ -31,6 +31,8 @@ class CDebugProc;
 class CSound;		
 class CLight;
 class CScene;
+class CSceneTransition;
+class CPause;
 
 //**********************************************************************************
 // *** マネージャクラス ***
@@ -55,9 +57,13 @@ public:
 	CDebugProc *GetDebugProc(void) const { return m_pDebugProc.get(); }
 	CSound *GetSound(void) const { return m_pSound.get(); }
 	CLight *GetLight(void) const { return m_pLight.get(); }
+	CSceneTransition *GetTransition(void) const { return m_pTransition.get(); }
+	CPause *GetPause(void) const { return m_pPause.get(); }
 	HWND GetWindowHandle(void) const { return m_hWnd; }
 	HRESULT SetMode(const CScene::MODE modeNext);
 	CScene::MODE GetMode(void) const { return m_pScene->GetMode(); }
+	void SetTransition(const CScene::MODE modeNext);
+	bool IsTransition(void) const;
 	template<IsScene T> T *GetScene(void) const;
 
 	static CManager *GetInstance(void);
@@ -80,6 +86,8 @@ private:
 	std::unique_ptr<CSound> m_pSound;					// サウンドオブジェクトへのポインタ
 	std::unique_ptr<CLight> m_pLight;					// ライトオブジェクトへのポインタ
 	std::unique_ptr<CScene> m_pScene;					// シーンへのポインタ
+	std::unique_ptr<CSceneTransition> m_pTransition;	// 遷移演出へのポインタ
+	std::unique_ptr<CPause> m_pPause;					// ポーズへのポインタ
 	HWND m_hWnd = nullptr;		// ウィンドウハンドル
 	int m_nCountFPS = 0;		// FPSカウント
 	int m_nCounterFrame = 0;	// フレームカウンター

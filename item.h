@@ -17,6 +17,7 @@
 //**********************************************************************************
 class CPlayer;
 class CParticle;
+class CScore;
 
 //**********************************************************************************
 // *** 定数宣言 ***
@@ -48,6 +49,7 @@ public:
 private:
 	CPlayer *m_pPlayer = nullptr;		// プレイヤーへのポインタ
 	CParticle *m_pParticle = nullptr;	// パーティクルへのポインタ
+	CScore *m_pScore = nullptr;			// スコア表示へのポインタ
 	Vector3 m_move = VECTOR3_NULL;	// 加速度
 	float m_fRadius = 0.0f;			// モデルの獲得半径
 	int m_nLife = 0;				// 体力

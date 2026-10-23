@@ -70,6 +70,12 @@ HRESULT CFadeTransition::Init(void)
 	pVtx[2].pos = Vector3(0.0f, SCREEN_HEIGHT, 0.0f);
 	pVtx[3].pos = Vector3(SCREEN_WIDTH, SCREEN_HEIGHT, 0.0f);
 
+	// rhw設定
+	pVtx[0].rhw = 1.0f;
+	pVtx[1].rhw = 1.0f;
+	pVtx[2].rhw = 1.0f;
+	pVtx[3].rhw = 1.0f;
+
 	// 色設定
 	pVtx[0].col = Color(0.0f, 0.0f, 0.0f, 0.0f);
 	pVtx[1].col = Color(0.0f, 0.0f, 0.0f, 0.0f);
@@ -92,8 +98,8 @@ HRESULT CFadeTransition::Init(void)
 // --- 終了処理 ---
 //==================================================================================
 void CFadeTransition::Uninit(void)
-{
-	
+{ // バッファ破棄
+	SafeRelease(m_pVtxBuff);
 }
 
 //==================================================================================
@@ -176,6 +182,8 @@ void CFadeTransition::UpdateTransitionIn(void)
 
 	if (m_fAlpha >= 1.0f)
 	{ // α値が1.0fになったら、画面が隠れるため遷移
+		m_fAlphaAdd *= -1;			// α値を下げるため、符号逆転
+		SetState(STATE_OUT);
 		CManager::GetInstance()->SetMode(GetNextMode());
 		return;
 	}
@@ -193,6 +201,7 @@ void CFadeTransition::UpdateTransitionOut(void)
 
 	if (m_fAlpha <= 0.0f)
 	{ // α値が0.0fになったら、画面が全て現れるため、終了
+		m_fAlphaAdd *= -1;			// α値を上げるため、符号逆転
 		SetState(STATE_STAY);
 	}
 }

@@ -13,6 +13,8 @@
 #include "debugproc.h"
 #include "object.h"
 #include "camera.h"
+#include "sceneTransition.h"
+#include "pause.h"
 
 //**********************************************************************************
 // *** マクロ定義 ***
@@ -319,6 +321,7 @@ void CRenderer::Draw(void)
 {
 	CManager *pManager = CManager::GetInstance();		// マネージャへのポインタ
 	CDebugProc *pDebugProc = pManager->GetDebugProc();	// デバッグ表示へのポインタ
+	CSceneTransition *pTransition = pManager->GetTransition();		// 遷移演出
 
 	// 画面クリア(バックバッファとZバッファのクリア)
 	m_pD3DDevice->Clear(0, NULL,
@@ -358,6 +361,12 @@ void CRenderer::Draw(void)
 
 		// スクリーン用ポリゴンの描画
 		DrawScreen();
+
+		// ポーズ画面の描画
+		pManager->GetPause()->Draw();
+
+		// 遷移演出の描画
+		pTransition->Draw();
 
 		// デバッグ表示の描画
 		pDebugProc->Draw();

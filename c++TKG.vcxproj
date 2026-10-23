@@ -175,6 +175,7 @@
     <ClCompile Include="model.cpp" />
     <ClCompile Include="number.cpp" />
     <ClCompile Include="object.cpp" />
+    <ClCompile Include="object2D.cpp" />
     <ClCompile Include="object3D.cpp" />
     <ClCompile Include="objectBillboard3D.cpp" />
     <ClCompile Include="objectBillboard3DScaling.cpp" />
@@ -182,12 +183,14 @@
     <ClCompile Include="objectX.cpp" />
     <ClCompile Include="objectXAfterImage.cpp" />
     <ClCompile Include="particle.cpp" />
+    <ClCompile Include="pause.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="player.cpp" />
     <ClCompile Include="playerCamera.cpp" />
+    <ClCompile Include="polygon2D.cpp" />
     <ClCompile Include="rand.cpp" />
     <ClCompile Include="rankingClient.cpp" />
     <ClCompile Include="ray.cpp" />
@@ -212,6 +215,7 @@
     <ClInclude Include="itemGenerator.h" />
     <ClInclude Include="fadeTransition.h" />
     <ClInclude Include="number.h" />
+    <ClInclude Include="object2D.h" />
     <ClInclude Include="objectBillboard3D.h" />
     <ClInclude Include="objectBillboard3DScaling.h" />
     <ClInclude Include="parentable.h" />
@@ -238,9 +242,11 @@
     <ClInclude Include="objectLine.h" />
     <ClInclude Include="objectX.h" />
     <ClInclude Include="particle.h" />
+    <ClInclude Include="pause.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="player.h" />
     <ClInclude Include="playerCamera.h" />
+    <ClInclude Include="polygon2D.h" />
     <ClInclude Include="protocol_ranking.h" />
     <ClInclude Include="rand.h" />
     <ClInclude Include="rankingClient.h" />

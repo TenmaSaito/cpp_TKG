@@ -24,7 +24,7 @@
 //==================================================================================
 // --- 生成処理 ---
 //==================================================================================
-CScore *CScore::Create(const D3DXVECTOR3 &pos, const D3DXVECTOR2 &size, const int nNumNumber)
+CScore *CScore::Create(const int nIdxTexture, const D3DXVECTOR3 &pos, const D3DXVECTOR2 &size, const int nNumNumber)
 {
 	CScore *pScore;		// 生成したスコアへのポインタ
 	// スコアを生成
@@ -35,7 +35,7 @@ CScore *CScore::Create(const D3DXVECTOR3 &pos, const D3DXVECTOR2 &size, const in
 	}
 
 	// スコアを初期化
-	pScore->Init(pos, size, nNumNumber);
+	pScore->Init(nIdxTexture, pos, size, nNumNumber);
 
 	return pScore;
 }
@@ -43,7 +43,7 @@ CScore *CScore::Create(const D3DXVECTOR3 &pos, const D3DXVECTOR2 &size, const in
 //==================================================================================
 // --- 生成処理 ---
 //==================================================================================
-CScore *CScore::Create(const D3DXVECTOR3 &pos, const D3DXVECTOR2 &size, const int nNumNumber, const int nScore)
+CScore *CScore::Create(const int nIdxTexture, const D3DXVECTOR3 &pos, const D3DXVECTOR2 &size, const int nNumNumber, const int nScore)
 {
 	CScore *pScore;		// 生成したスコアへのポインタ
 
@@ -55,7 +55,7 @@ CScore *CScore::Create(const D3DXVECTOR3 &pos, const D3DXVECTOR2 &size, const in
 	}
 
 	// スコアを初期化
-	pScore->Init(pos, size, nNumNumber, nScore);
+	pScore->Init(nIdxTexture, pos, size, nNumNumber, nScore);
 
 	return pScore;
 }
@@ -64,11 +64,12 @@ CScore *CScore::Create(const D3DXVECTOR3 &pos, const D3DXVECTOR2 &size, const in
 // --- コンストラクタ ---
 //==================================================================================
 CScore::CScore(const int nPriority) : CObject(nPriority)
-{
-	// メンバ変数をクリア
+{ // メンバ変数をクリア
 	memset(m_apNumber, 0, sizeof(m_apNumber));
 	m_nScore = 0;
 	m_nNumScore = 0;
+
+	SetType(TYPE_SCORE);
 }
 
 //==================================================================================
@@ -81,50 +82,7 @@ CScore::~CScore()
 //==================================================================================
 // --- 初期化処理 ---
 //==================================================================================
-HRESULT CScore::Init(void)
-{
-	D3DXVECTOR2 numSize;			// 数値1個当たりのサイズ
-	D3DXVECTOR3 pos = INIT_POS;		// 初期位置
-
-	// 変数を初期化
-	m_nScore = INIT_SCORE;
-	m_nNumScore = INIT_NUM;
-
-	if (m_nNumScore > MAX_SCORENUM)
-	{ // スコアの最大桁数以上の場合
-		// 桁数を最大値に変更
-		m_nNumScore = MAX_SCORENUM;
-	}
-
-	// 数値のサイズを計算
-	numSize = INIT_SIZE / static_cast<float>(m_nNumScore);
-
-	// 数値オブジェクトを作成
-	for (int nCntNumber = 0; nCntNumber < m_nNumScore; nCntNumber++)
-	{
-		CNumber* pNumber = nullptr;			// 生成した数値オブジェクトへのポインタ
-		D3DXVECTOR3 posCreate = pos;	// 生成位置
-
-		// 生成位置(X座標)を修正
-		posCreate.x = pos.x + (numSize.x * nCntNumber);
-
-		// 数値オブジェクトを生成
-		pNumber = CNumber::Create(posCreate, numSize, 0);
-		if (pNumber != NULL)
-		{ // 生成成功時
-			// 生成したポインタを保存 (CObjectによって解放されるためdeleteは禁止)
-			m_apNumber[nCntNumber] = pNumber;
-		}
-	}
-
-	// 初期化結果を返す
-	return S_OK;
-}
-
-//==================================================================================
-// --- 初期化処理 ---
-//==================================================================================
-HRESULT CScore::Init(const D3DXVECTOR3 &pos, const D3DXVECTOR2 &size, const int nNumNumber)
+HRESULT CScore::Init(const int nIdxTexture, const D3DXVECTOR3 &pos, const D3DXVECTOR2 &size, const int nNumNumber)
 {
 	D3DXVECTOR2 numSize;	// 数値1個当たりのサイズ
 
@@ -139,7 +97,8 @@ HRESULT CScore::Init(const D3DXVECTOR3 &pos, const D3DXVECTOR2 &size, const int 
 	}
 
 	// 数値のサイズを計算
-	numSize = size / static_cast<float>(nNumNumber);
+	numSize.x = size.x / static_cast<float>(nNumNumber);
+	numSize.y = size.y;
 
 	// 数値オブジェクトを作成
 	for (int nCntNumber = 0; nCntNumber < m_nNumScore; nCntNumber++)
@@ -155,6 +114,9 @@ HRESULT CScore::Init(const D3DXVECTOR3 &pos, const D3DXVECTOR2 &size, const int 
 		pNumber = CNumber::Create(posCreate, numSize, 0);
 		if (pNumber != NULL)
 		{ // 生成成功時
+			// テクスチャ割り当て
+			pNumber->BindTexture(nIdxTexture);
+
 			// 生成したポインタを保存 (CObjectによって解放されるためdeleteは禁止)
 			m_apNumber[nCntNumber] = pNumber;
 		}
@@ -171,7 +133,7 @@ HRESULT CScore::Init(const D3DXVECTOR3 &pos, const D3DXVECTOR2 &size, const int 
 //==================================================================================
 // --- 初期化処理 ---
 //==================================================================================
-HRESULT CScore::Init(const D3DXVECTOR3 &pos, const D3DXVECTOR2 &size, const int nNumNumber, const int nScore)
+HRESULT CScore::Init(const int nIdxTexture, const D3DXVECTOR3 &pos, const D3DXVECTOR2 &size, const int nNumNumber, const int nScore)
 {
 	D3DXVECTOR2 numSize;	// 数値1個当たりのサイズ
 	int *pNumValue;			// 各桁の数値
@@ -187,7 +149,7 @@ HRESULT CScore::Init(const D3DXVECTOR3 &pos, const D3DXVECTOR2 &size, const int 
 	}
 
 	// 数値のサイズを計算
-	numSize.x = size.x / m_nNumScore;
+	numSize.x = size.x / static_cast<float>(nNumNumber);
 	numSize.y = size.y;
 
 	// 桁数分だけメモリを確保
@@ -212,6 +174,9 @@ HRESULT CScore::Init(const D3DXVECTOR3 &pos, const D3DXVECTOR2 &size, const int 
 		pNumber = CNumber::Create(posCreate, numSize, pNumValue[nCntNumber]);
 		if (pNumber != NULL)
 		{ // 生成成功時
+			// テクスチャ割り当て
+			pNumber->BindTexture(nIdxTexture);
+
 			// 生成したポインタを保存 (CObjectによって解放されるためdeleteは禁止)
 			m_apNumber[nCntNumber] = pNumber;
 		}

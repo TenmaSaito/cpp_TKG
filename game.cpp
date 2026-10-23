@@ -12,6 +12,10 @@
 #include "mapScriptLoader.h"
 #include "itemGenerator.h"
 #include "rankingClient.h"
+#include "score.h"
+#include "texture.h"
+#include "manager.h"
+#include "input.h"
 
 //==================================================================================
 // --- コンストラクタ ---
@@ -49,7 +53,13 @@ void CGame::Uninit(void)
 //==================================================================================
 void CGame::Update(void)
 {
-	
+	CManager *pManager = CManager::GetInstance();
+	CInputKeyboard *pKeyboard = pManager->GetInputKeyboard();
+
+	if (pKeyboard->GetTrigger(DIK_P) && pManager->IsTransition() == false)
+	{
+		pManager->SetEnablePause(!pManager->GetEnablePause());
+	}
 }
 
 //==================================================================================
@@ -67,13 +77,11 @@ void CGame::Start(void)
 	std::unique_ptr pMapScriptLoader = std::make_unique<CMapScriptLoader>();		// マップ読み込みインスタンス
 	pMapScriptLoader->Load("data/SCRIPT/system.ini");
 
+	// アイテム生成器起動
 	new CItemGenerator;
 
-	auto pRanking = std::make_unique<CRankingClient>();
-	pRanking->Init("127.0.0.1", 22333);
-
-	int nRank = pRanking->Send(100);
-	auto aRanking = pRanking->Get();
-
-	auto &a = aRanking;
+	CScore::Create(CTexture::GetInstance()->Register("data/TEXTURE/voltNumber003.png"),
+		Vector3(SCREEN_MIDDLE.x * 1.35f, 30.0f, 0.0f),
+		Vector2(350.0f, 70.0f),
+		8);
 }

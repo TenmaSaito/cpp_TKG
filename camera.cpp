@@ -333,7 +333,8 @@ CCamera *CCamera::Begin(const int nIdx)
 // --- カメラの設置終了処理 ---
 //==================================================================================
 void CCamera::End(void)
-{
+{ // nullの場合スキップ
+	if (m_apCamera[m_currentType] == nullptr) return;
 	LPDIRECT3DDEVICE9 pDevice = CManager::GetInstance()->GetRenderer()->GetDevice();	// デバイスへのポインタ
 
 	// ビューポートを元に戻す
