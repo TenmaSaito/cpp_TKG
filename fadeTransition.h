@@ -1,12 +1,11 @@
 //==================================================================================
 // 
-// 線拡大の遷移クラスのヘッダーファイル [lineScaleUpTransition.h]
+// 暗転フェードの遷移クラスのヘッダーファイル [fadeTransition.h]
 // Author : TENMA SAITO
-// Date   : 2026/7/22
 // 
 //==================================================================================
-#ifndef _LINE_SCALE_UP_TRANSITION_H_
-#define _LINE_SCALE_UP_TRANSITION_H_
+#ifndef _FADE_TRANSITION_H_
+#define _FADE_TRANSITION_H_
 
 //**********************************************************************************
 // *** インクルードファイル ***
@@ -14,23 +13,13 @@
 #include "sceneTransition.h"
 
 //**********************************************************************************
-// *** マクロ定義 ***
+// *** 暗転フェードの遷移クラス ***
 //**********************************************************************************
-
-//**********************************************************************************
-// *** 前方宣言 ***
-//**********************************************************************************
-class CPolygon2D;
-class CMeshOrbit2D;
-
-//**********************************************************************************
-// *** 線拡大の遷移クラス ***
-//**********************************************************************************
-class CLineScaleUpTransition : public CSceneTransition
+class CFadeTransition : public CSceneTransition
 {
 public:
-	CLineScaleUpTransition();
-	~CLineScaleUpTransition();
+	CFadeTransition();
+	~CFadeTransition();
 
 	HRESULT Init(void);
 	void Uninit(void);
@@ -44,10 +33,9 @@ private:
 	void UpdateTransitionOut(void);
 	void UpdateVertex(void);
 
-	std::unique_ptr<CPolygon2D> m_pLine;		// 電線用ポリゴンへのポインタ
-	std::unique_ptr<CPolygon2D> m_pLineOutLine;	// 電線用ポリゴンへのポインタ
-	std::unique_ptr<CPolygon2D> m_pVolt;		// 電流用ポリゴンへのポインタ
-	CMeshOrbit2D *m_pVoltOrbit2D;		// 電流オービットへのポインタ
-	int m_nTransitionTime;		// 次の画面へ遷移するまでに待機するフレーム (即時終了防止)
+	LPDIRECT3DVERTEXBUFFER9 m_pVtxBuff = nullptr;		// 頂点バッファへのポインタ
+	int m_nTransitionTime = 0;		// 次の画面へ遷移するまでにかかるフレーム
+	float m_fAlpha = 0.0f;			// α値
+	float m_fAlphaAdd = 0.0f;		// α値の加算値
 };
 #endif

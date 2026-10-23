@@ -166,6 +166,7 @@
     <ClCompile Include="itemGenerator.cpp" />
     <ClCompile Include="joypad.cpp" />
     <ClCompile Include="light.cpp" />
+    <ClCompile Include="fadeTransition.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="manager.cpp" />
     <ClCompile Include="mapScriptLoader.cpp" />
@@ -209,6 +210,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="itemGenerator.h" />
+    <ClInclude Include="fadeTransition.h" />
     <ClInclude Include="number.h" />
     <ClInclude Include="objectBillboard3D.h" />
     <ClInclude Include="objectBillboard3DScaling.h" />

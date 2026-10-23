@@ -9,6 +9,7 @@
 // *** インクルードファイル ***
 //**********************************************************************************
 #include "sceneTransition.h"
+#include "fadeTransition.h"
 
 //==================================================================================
 // --- トランジションの作成 ---
@@ -19,8 +20,8 @@ CSceneTransition *CSceneTransition::Create(const TYPE type)
 
 	switch (type)
 	{
-	case TYPE_FADE:				// 円状遷移演出
-		pTransition = new ;
+	case TYPE_FADE:				// 暗転フェード
+		pTransition = new CFadeTransition;
 		break;
 
 	default:

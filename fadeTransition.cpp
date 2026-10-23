@@ -1,16 +1,13 @@
 //==================================================================================
 // 
-// 線拡大の遷移クラスのソースファイル [lineScaleUpTransition.cpp]
+// 暗転フェードの遷移クラスのソースファイル [fadeTransition.cpp]
 // Author : TENMA SAITO
-// Date   : 2026/7/22
 // 
 //==================================================================================
 //**********************************************************************************
 // *** インクルードファイル ***
 //**********************************************************************************
-#include "lineScaleUpTransition.h"
-#include "polygon2D.h"
-#include "meshOrbit2D.h"
+#include "fadeTransition.h"
 #include "manager.h"
 #include "renderer.h"
 #include "sound.h"
@@ -35,91 +32,74 @@
 //==================================================================================
 // --- コンストラクタ ---
 //==================================================================================
-CLineScaleUpTransition::CLineScaleUpTransition()
-{ // メンバ変数をクリア
-	m_nTransitionTime = 0;
-	m_pVoltOrbit2D = nullptr;
+CFadeTransition::CFadeTransition()
+{
 }
 
 //==================================================================================
 // --- デストラクタ ---
 //==================================================================================
-CLineScaleUpTransition::~CLineScaleUpTransition()
+CFadeTransition::~CFadeTransition()
 {
 }
 
 //==================================================================================
 // --- 初期化処理 ---
 //==================================================================================
-HRESULT CLineScaleUpTransition::Init(void)
+HRESULT CFadeTransition::Init(void)
 { // ポリゴン生成
-	CPolygon2D *pLine = nullptr;		// 電線用ポリゴンへのポインタ
-	CPolygon2D *pLineOutLine = nullptr;	// 電線アウトライン用ポリゴンへのポインタ
-	CPolygon2D *pVolt = nullptr;		// 電流用ポリゴンへのポインタ
+	CManager *pManager = CManager::GetInstance();	// マネージャー
+	LPDIRECT3DDEVICE9 pDevice = pManager->GetRenderer()->GetDevice();		// デバイス
 
-	// 電線ポリゴンの生成
-	pLine = CPolygon2D::Create(FIRST_POSITION,
-		VECTOR3_NULL,
-		FIRST_LINESIZE);
+	// 頂点バッファ作成
+	pDevice->CreateVertexBuffer(sizeof(VERTEX_2D) * 4,
+		D3DUSAGE_WRITEONLY,
+		FVF_VERTEX_2D,
+		D3DPOOL_MANAGED,
+		&m_pVtxBuff,
+		nullptr);
 
-	// 灰色に設定
-	pLine->SetColor(Colors::GetColor(Colors::C_GRAY));
+	VERTEX_2D *pVtx = nullptr;		// 頂点情報へのポインタ
 
-	// ポインタを登録
-	m_pLine.reset(pLine);
+	// 頂点をロック
+	m_pVtxBuff->Lock(0, 0, reinterpret_cast<void**>(&pVtx), 0);
 
-	// アウトラインポリゴンの生成
-	pLineOutLine = CPolygon2D::Create(FIRST_POSITION,
-		VECTOR3_NULL,
-		FIRST_OUTLINESIZE);
+	// 座標設定
+	pVtx[0].pos = Vector3(0.0f, 0.0f, 0.0f);
+	pVtx[1].pos = Vector3(SCREEN_WIDTH, 0.0f, 0.0f);
+	pVtx[2].pos = Vector3(0.0f, SCREEN_HEIGHT, 0.0f);
+	pVtx[3].pos = Vector3(SCREEN_WIDTH, SCREEN_HEIGHT, 0.0f);
 
-	// 灰色に設定
-	pLineOutLine->SetColor(Colors::GetColor(Colors::C_WHITE));
+	// 色設定
+	pVtx[0].col = Color(0.0f, 0.0f, 0.0f, 0.0f);
+	pVtx[1].col = Color(0.0f, 0.0f, 0.0f, 0.0f);
+	pVtx[2].col = Color(0.0f, 0.0f, 0.0f, 0.0f);
+	pVtx[3].col = Color(0.0f, 0.0f, 0.0f, 0.0f);
 
-	// ポインタを登録
-	m_pLineOutLine.reset(pLineOutLine);
+	// uv設定
+	pVtx[0].tex = Vector2(0.0f, 0.0f);
+	pVtx[1].tex = Vector2(1.0f, 0.0f);
+	pVtx[2].tex = Vector2(0.0f, 1.0f);
+	pVtx[3].tex = Vector2(1.0f, 1.0f);
 
-	// 電流ポリゴンの生成
-	pVolt = CPolygon2D::Create(FIRST_POSITION,
-		VECTOR3_NULL,
-		FIRST_LINESIZE);
+	// 頂点をアンロック
+	m_pVtxBuff->Unlock();
 
-	// 黄色に設定
-	pVolt->SetColor(Colors::GetColor(Colors::C_YELLOW));
-
-	// ポインタを登録
-	m_pVolt.reset(pVolt);
 	return S_OK;
 }
 
 //==================================================================================
 // --- 終了処理 ---
 //==================================================================================
-void CLineScaleUpTransition::Uninit(void)
+void CFadeTransition::Uninit(void)
 {
-	if (m_pLine != nullptr)
-	{ // 生成済みなら
-		m_pLine->Uninit();
-		m_pLine.reset();
-	}
-
-	if (m_pLineOutLine != nullptr)
-	{ // 生成済みなら
-		m_pLineOutLine->Uninit();
-		m_pLineOutLine.reset();
-	}
-
-	if (m_pVolt != nullptr)
-	{ // 生成済みなら
-		m_pVolt->Uninit();
-		m_pVolt.reset();
-	}
+	
 }
 
 //==================================================================================
 // --- 更新処理 ---
 //==================================================================================
-void CLineScaleUpTransition::Update(void)
+void CFadeTransition::Update(void)
 {
 	STATE state = GetState();		// 遷移状態
 
@@ -140,39 +120,46 @@ void CLineScaleUpTransition::Update(void)
 //==================================================================================
 // --- 描画処理 ---
 //==================================================================================
-void CLineScaleUpTransition::Draw(void)
+void CFadeTransition::Draw(void)
 { // ポリゴンの描画 (待機状態の場合、描画スキップ)
 	if (GetState() == STATE_STAY) return;
-	m_pLineOutLine->Draw();
-	m_pLine->Draw();
-	m_pVolt->Draw();
+
+	CManager *pManager = CManager::GetInstance();	// マネージャー
+	LPDIRECT3DDEVICE9 pDevice = pManager->GetRenderer()->GetDevice();		// デバイス
+	
+	// 頂点バッファをストリームに設定
+	pDevice->SetStreamSource(0, m_pVtxBuff, 0, sizeof(VERTEX_2D));
+
+	// テクスチャ設定
+	pDevice->SetTexture(0, nullptr);
+
+	// 頂点フォーマット設定
+	pDevice->SetFVF(FVF_VERTEX_2D);
+
+	// ポリゴンの描画
+	pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP,
+		0,
+		2);
 }
 
 //==================================================================================
 // --- 遷移演出開始処理 --
 //==================================================================================
-void CLineScaleUpTransition::StartTransition(const int nTransitionTime, const CScene::MODE modeNext)
+void CFadeTransition::StartTransition(const int nTransitionTime, const CScene::MODE modeNext)
 { // ワイプイン開始
 	SetState(STATE_IN);
 	SetModeNext(modeNext);
 
 	// 引数の保存
 	m_nTransitionTime = nTransitionTime;
-
-	// オービットを生成
-	m_pVoltOrbit2D = CMeshOrbit2D::Create(FIRST_POSITION, Vector3(0.0f, HALF_PI, 0.0f), 50, 0.1f);
-	m_pVoltOrbit2D->SetColor(Colors::GetColor(Colors::C_YELLOW));
-
-	CSound *pSound = CManager::GetInstance()->GetSound();		// サウンドへのポインタ7
-
-	// 通電音 (long ver)を流す
-	pSound->Play(CSound::LABEL_SE_ELECTRIC_LONG);
+	m_fAlpha = 0.0f;
+	m_fAlphaAdd = 1.0f / nTransitionTime;
 }
 
 //==================================================================================
 // --- 遷移演出終了処理 ---
 //==================================================================================
-void CLineScaleUpTransition::EndTransition(const int nTransitionTime)
+void CFadeTransition::EndTransition(const int nTransitionTime)
 { // ワイプアウト開始
 	SetState(STATE_OUT);
 }
@@ -180,113 +167,52 @@ void CLineScaleUpTransition::EndTransition(const int nTransitionTime)
 //==================================================================================
 // --- 遷移演出中(ワイプイン)処理 ---
 //==================================================================================
-void CLineScaleUpTransition::UpdateTransitionIn(void)
+void CFadeTransition::UpdateTransitionIn(void)
 {
-	const Vector3 *pPos = m_pLine->GetPosition();		// 現在の座標
-	const Vector2 *pScale = m_pLine->GetSize();			// 現在のサイズ
-	CRand *pRand = CRand::GetInstance();		// 乱数生成インスタンスへのポインタ
-	Vector2 scaleNext;		// 次のサイズ
+	m_fAlpha += m_fAlphaAdd;		// α値加算
 
-	// 変更後のサイズを計算
-	scaleNext.x = pScale->x + CABLE_SCALE_UP_VALUE;		// 幅は拡張
-	scaleNext.y = pScale->y;				// 縦幅は今のサイズを維持
+	// 頂点情報更新
+	UpdateVertex();
 
-	// 画面サイズを超えないように調整
-	if (scaleNext.x > SCREEN_WIDTH) scaleNext.x = SCREEN_WIDTH;
-
-	// サイズを適用
-	m_pLine->SetSize(scaleNext);
-	m_pLineOutLine->SetSize(Vector2(scaleNext.x, FIRST_OUTLINESIZE.y));
-
-	// 位置が中央になるように調整
-	m_pLine->SetPosition(Vector3((pScale->x * 0.5f), pPos->y, pPos->z));
-	m_pLineOutLine->SetPosition(Vector3((pScale->x * 0.5f), pPos->y, pPos->z));
-
-	if (scaleNext.x >= SCREEN_WIDTH)
-	{ // 画面を電線が横切ったら、電流の更新開始
-		pPos = m_pVolt->GetPosition();		// 現在の座標
-		pScale = m_pVolt->GetSize();		// 現在のサイズ
-		
-		// 変更後のサイズを計算
-		scaleNext.x = pScale->x + VOLT_SCALE_UP_VALUE_X;		// 幅は拡張
-		scaleNext.y = (pScale->x >= SCREEN_WIDTH) ? pScale->y * VOLT_SCALE_UP_VALUE_Y : pScale->y;		// 縦幅は横幅が画面いっぱいになったら拡張
-
-		// 画面サイズを超えないように調整
-		if (scaleNext.x > SCREEN_WIDTH) scaleNext.x = SCREEN_WIDTH;
-		if (scaleNext.y > SCREEN_HEIGHT) scaleNext.y = SCREEN_HEIGHT;
-
-		// サイズを適用
-		m_pVolt->SetSize(scaleNext);
-
-		// 位置が中央になるように調整
-		m_pVolt->SetPosition(Vector3((pScale->x * 0.5f), pPos->y, pPos->z));
-
-		// オービットの位置を指定
-		m_pVoltOrbit2D->SetPosition(Vector3(pScale->x,
-			pPos->y + pRand->Generate(-ORBIT_POS_Y_RANGE, ORBIT_POS_Y_RANGE),
-			pPos->z));
-
-		// オービットの幅を指定
-		m_pVoltOrbit2D->SetWidth(pRand->Generate(MIN_ORBIT_WIDTH, MAX_ORBIT_WIDTH));
-
-		if (scaleNext == SCREEN_SIZE && m_nTransitionTime <= 0)
-		{ // 画面を電流が覆いつくし、指定時間以上経過していれば
-			// 元ある電線を消す
-			m_pLine->SetDisp(false);
-			m_pLineOutLine->SetDisp(false);
-
-			// オービットを破棄
-			m_pVoltOrbit2D->Uninit();
-			m_pVoltOrbit2D = nullptr;
-
-			// モード切り替え
-			CManager::GetInstance()->SetMode(GetNextMode());
-			SetState(STATE_OUT);
-		}
+	if (m_fAlpha >= 1.0f)
+	{ // α値が1.0fになったら、画面が隠れるため遷移
+		CManager::GetInstance()->SetMode(GetNextMode());
+		return;
 	}
 }
 
 //==================================================================================
 // --- 遷移演出中(ワイプアウト)処理 ---
 //==================================================================================
-void CLineScaleUpTransition::UpdateTransitionOut(void)
+void CFadeTransition::UpdateTransitionOut(void)
 {
-	const Vector2 *pScale = m_pVolt->GetSize();			// 現在のサイズ
-	Vector2 scaleNext;		// 次のサイズ
+	m_fAlpha += m_fAlphaAdd;		// α値加算
 
-	// 変更後のサイズを計算
-	scaleNext.x = pScale->x;					// 幅はそのまま
-	scaleNext.y = pScale->y * SCALE_DOWN_VALUE;	// 縦幅を縮小していく
+	// 頂点情報更新
+	UpdateVertex();
 
-	if (scaleNext.y <= 0.5f) scaleNext.y = 0.0f;
-
-	// サイズを適用
-	m_pVolt->SetSize(scaleNext);
-
-	if (scaleNext.y <= 0.0f)
-	{ // 画面からラインが消えたら、ワイプアウト終了
+	if (m_fAlpha <= 0.0f)
+	{ // α値が0.0fになったら、画面が全て現れるため、終了
 		SetState(STATE_STAY);
-
-		// 電線の状態を元に戻す
-		m_pLine->SetPosition(FIRST_POSITION);
-		m_pLine->SetSize(FIRST_LINESIZE);
-		m_pLine->SetDisp(true);
-
-		// 電線アウトラインの状態を元に戻す
-		m_pLineOutLine->SetPosition(FIRST_POSITION);
-		m_pLineOutLine->SetSize(FIRST_OUTLINESIZE);
-		m_pLineOutLine->SetDisp(true);
-
-		// 電流の状態を元に戻す
-		m_pVolt->SetPosition(FIRST_POSITION);
-		m_pVolt->SetSize(FIRST_LINESIZE);
 	}
 }
 
 //==================================================================================
 // --- 頂点座標更新処理 ---
 //==================================================================================
-void CLineScaleUpTransition::UpdateVertex(void)
+void CFadeTransition::UpdateVertex(void)
 {
-	
+	VERTEX_2D *pVtx = nullptr;		// 頂点情報へのポインタ
+
+	// 頂点をロック
+	m_pVtxBuff->Lock(0, 0, reinterpret_cast<void **>(&pVtx), 0);
+
+	// 色設定
+	pVtx[0].col = Color(0.0f, 0.0f, 0.0f, m_fAlpha);
+	pVtx[1].col = Color(0.0f, 0.0f, 0.0f, m_fAlpha);
+	pVtx[2].col = Color(0.0f, 0.0f, 0.0f, m_fAlpha);
+	pVtx[3].col = Color(0.0f, 0.0f, 0.0f, m_fAlpha);
+
+	// 頂点をアンロック
+	m_pVtxBuff->Unlock();
 }
