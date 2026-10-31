@@ -17,8 +17,6 @@
 #include "light.h"
 #include "particle.h"
 #include "texture.h"
-<<<<<<< Updated upstream
-=======
 #include "score.h"
 #include "objectBillboard3D.h"
 
@@ -27,7 +25,6 @@ namespace
 {
 	constexpr int ADD_SCORE = 10;		// スコアの加算値
 }
->>>>>>> Stashed changes
 
 //==================================================================================
 // --- アイテムの生成処理 ---

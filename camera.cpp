@@ -341,8 +341,6 @@ CCamera *CCamera::Begin(const int nIdx)
 //==================================================================================
 void CCamera::End(void)
 {
-<<<<<<< Updated upstream
-=======
 	if (m_currentType < 0 || m_currentType >= TYPE_MAX)
 	{
 		assert(false);
@@ -351,7 +349,6 @@ void CCamera::End(void)
 	
 	// nullの場合スキップ
 	if (m_apCamera[m_currentType] == nullptr) return;
->>>>>>> Stashed changes
 	LPDIRECT3DDEVICE9 pDevice = CManager::GetInstance()->GetRenderer()->GetDevice();	// デバイスへのポインタ
 
 	// ビューポートを元に戻す

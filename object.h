@@ -41,6 +41,7 @@ public:
 	typedef enum
 	{
 		TYPE_NONE = 0,		// 指定無し (アサーション対象)
+		TYPE_OBJ_2D,		// Object2D
 		TYPE_OBJ_3D,		// Object3D
 		TYPE_OBJ_BILLBOARD_3D,	// Object3D[Billboard]
 		TYPE_OBJ_X,			// ObjectX
@@ -55,12 +56,9 @@ public:
 		TYPE_TIMER,			// タイマー
 		TYPE_PARTICLE,		// パーティクル
 		TYPE_ITEM_GENERATOR,	// アイテム生成機
-<<<<<<< Updated upstream
-=======
 		TYPE_SCORE,			// スコア
 		TYPE_SCREEN_EFFECT,	// 画面エフェクト (閃光)
 		TYPE_NEXTINFO,		// 次のアイテムの表示
->>>>>>> Stashed changes
 		TYPE_MAX
 	} TYPE;
 

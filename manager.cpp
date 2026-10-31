@@ -312,17 +312,13 @@ void CManager::Update(void)
 	// ライトの更新処理
 	m_pLight->Update();
 
-<<<<<<< Updated upstream
 	// カメラの更新
 	CCamera::UpdateAll();
 
 	// ポーズ
-	if (m_pInputKeyboard->GetTrigger(DIK_P)) m_bPause = m_bPause ^ true;
+	if (GetInputKeyboard()->GetTrigger(DIK_P)) m_bPause = m_bPause ^ true;
 
-	if (m_pInputKeyboard->GetTrigger(DIK_BACK))
-=======
 	if (GetInputKeyboard()->GetTrigger(DIK_BACK))
->>>>>>> Stashed changes
 	{ // リセット
 		SetMode(CScene::MODE_GAME);
 		m_nCountReload++;

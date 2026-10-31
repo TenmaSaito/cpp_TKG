@@ -13,14 +13,11 @@
 #include "itemGenerator.h"
 #include "screenEffect.h"
 #include "rankingClient.h"
-<<<<<<< Updated upstream
-=======
 #include "score.h"
 #include "texture.h"
 #include "manager.h"
 #include "input.h"
 #include "nextInfo.h"
->>>>>>> Stashed changes
 
 //==================================================================================
 // --- コンストラクタ ---
@@ -76,17 +73,6 @@ void CGame::Start(void)
 	std::unique_ptr pMapScriptLoader = std::make_unique<CMapScriptLoader>();		// マップ読み込みインスタンス
 	auto hr = pMapScriptLoader->Load("data/SCRIPT/system.ini");
 
-<<<<<<< Updated upstream
-	new CItemGenerator;
-
-	auto pRanking = std::make_unique<CRankingClient>();
-	pRanking->Init("127.0.0.1", 22333);
-
-	int nRank = pRanking->Send(100);
-	auto aRanking = pRanking->Get();
-
-	auto &a = aRanking;
-=======
 	// アイテム生成器起動
 	(new CItemGenerator)->Init();
 
@@ -99,5 +85,4 @@ void CGame::Start(void)
 		8);
 
 	CNextInfo::Create();
->>>>>>> Stashed changes
 }
