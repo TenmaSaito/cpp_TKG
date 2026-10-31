@@ -51,7 +51,7 @@ public:
 	const Vector3 *GetRotation(void) const { return &m_rot; }
 	void SetSize(const Vector2 &size);
 	const Vector2 *GetSize(void) const { return &m_size; }
-	const Matrix *GetMatrix(void) const { return &m_mtxWorld; }
+	const Matrix *GetMatrix(void);
 	void SetColor(const Color &col);
 	void SetParent(const Matrix *pMtxParent) { m_pMtxParent = pMtxParent; }
 	const Matrix *GetParent(void) const { return &m_mtxWorld; }
@@ -65,5 +65,6 @@ private:
 	Vector3 m_rot = VECTOR3_NULL;			// 角度
 	Vector2 m_size = VECTOR2_NULL;			// サイズ
 	bool m_bXYPlane = false;				// XYポリゴンのフラグ
+	bool m_bMtxInitialize = false;			// マトリックスの計算フラグ
 };
 #endif

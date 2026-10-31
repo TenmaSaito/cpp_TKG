@@ -35,6 +35,42 @@ CObject::~CObject()
 }
 
 //==================================================================================
+// --- レンダーステートの追加処理 ---
+//==================================================================================
+void CObject::AddRenderState(const std::pair<D3DRENDERSTATETYPE, DWORD> state, const bool bAfter)
+{
+	if (bAfter == false)
+	{ // 描画前に設定するなら
+		m_vBeforeRenderState.push_back(state);
+	}
+	else
+	{ // 描画後に設定するなら
+		m_vAfterRenderState.push_back(state);
+	}
+}
+
+//==================================================================================
+// --- レンダーステートの設定処理 ---
+//==================================================================================
+void CObject::SetRenderState(const LPDIRECT3DDEVICE9 pDevice, const bool bAfter)
+{
+	if (bAfter == false)
+	{ // 描画前に設定するなら
+		for (const auto &state : m_vBeforeRenderState)
+		{ // 追加された順にステートを設定
+			pDevice->SetRenderState(state.first, state.second);
+		}
+	}
+	else
+	{ // 描画後に設定するなら
+		for (const auto &state : m_vAfterRenderState)
+		{ // 追加された順にステートを設定
+			pDevice->SetRenderState(state.first, state.second);
+		}
+	}
+}
+
+//==================================================================================
 // --- 自身の観察者に対しての通知処理 ---
 //==================================================================================
 void CObject::NotifyAll(std::string_view message, const std::any &args)
@@ -79,6 +115,8 @@ void CObject::UpdateAll(void)
 {
 	for (int nCntPriority = 0; nCntPriority < MAX_OBJPRIORITY; nCntPriority++)
 	{ // 優先順位分回す
+		if (m_vEnablePriority[nCntPriority] == false) continue;
+
 		CObject *pObject = m_apTop[nCntPriority];		// 先頭オブジェクトへのポインタ
 		while (pObject != nullptr)
 		{ // nullptrになるまで繰り返す
@@ -109,7 +147,9 @@ void CObject::DrawAll(void)
 {
 	for (int nCntPriority = 0; nCntPriority < MAX_OBJPRIORITY; nCntPriority++)
 	{ // 優先順位分回す
-		CObject* pObject = m_apTop[nCntPriority];		// 先頭オブジェクトへのポインタ
+		if (m_vEnablePriority[nCntPriority] == false) continue;
+
+		CObject *pObject = m_apTop[nCntPriority];		// 先頭オブジェクトへのポインタ
 		while (pObject != nullptr)
 		{ // nullptrになるまで繰り返す
 			CObject* pObjectNext = pObject->m_pNext;	// 次のオブジェクトへのポインタ

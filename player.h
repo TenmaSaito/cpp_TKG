@@ -46,6 +46,7 @@ public:
 	const Vector3 *GetPositionOld(void) const { return &m_posOld; }
 	float GetRadius(void) const { return m_fRadius * m_fScaling; }
 	bool IsAutoRotating(void) const { return m_bAutoRotating; }
+	void Eat(void);
 
 private:
 	void CharactorMovable(void);

@@ -1,6 +1,6 @@
 //==================================================================================
 // 
-// Vector2,3の計算関連関数をまとめたソースファイル [vmath.cpp]
+// Vector3の計算関連関数をまとめたソースファイル [vec3math.cpp]
 // Author : TENMA SAITO
 // Date   : 2026/5/16
 // 
@@ -239,15 +239,15 @@ Vector3 Vec3::Nor(const Vector3 &origin,
 	// 法線を各ベクトルから求める
 	if (bInverse == false)
 	{ // 法線ベクトルを逆で求めない場合
-		D3DXVec3Cross(&nor, &aVec[0], &aVec[1]);
+		nor = Cross(aVec[0], aVec[1]);
 	}
 	else
 	{ // 法線ベクトルを逆で求める場合
-		D3DXVec3Cross(&nor, &aVec[1], &aVec[0]);
+		nor = Cross(aVec[1], aVec[0]);
 	}
 
 	// 法線を正規化
-	D3DXVec3Normalize(&nor, &nor);
+	nor = Normalize(nor);
 	return nor;
 }
 
@@ -275,6 +275,7 @@ Vector3 Vec3::Normalize(const Vector3 &vec)
 
 	// ベクトルの長さを取得
 	fLength = Length(vec);
+	if (fLength == 0.0f) VECTOR3_NULL;
 
 	// ベクトルの長さで正規化
 	return Vector3(vec.x / fLength, vec.y / fLength, vec.z / fLength);

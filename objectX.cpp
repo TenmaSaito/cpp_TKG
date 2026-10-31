@@ -225,6 +225,7 @@ const Matrix *CObjectX::GetMatrix(void)
 {
 	if (m_bMtxInitialize == false)
 	{ // マトリックスの計算がされていなければ、計算
+		Mtx::Identity(&m_mtxWorld);
 		Mtx::CalcWorld(&m_mtxWorld, m_pMtxParent, m_pos, m_rot);
 		m_bMtxInitialize = true;	// マトリックスの計算フラグを立てる
 	}

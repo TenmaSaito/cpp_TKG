@@ -309,7 +309,14 @@ CCamera::TYPE CCamera::GetTarget(void)
 // --- カメラの設置開始処理 ---
 //==================================================================================
 CCamera *CCamera::Begin(const int nIdx)
-{ // nullの場合スキップ
+{ 
+	if (nIdx < 0 || nIdx >= TYPE_MAX)
+	{
+		assert(false);
+		return nullptr;
+	}
+
+	// nullの場合スキップ
 	if (m_apCamera[nIdx] == nullptr) return nullptr;
 
 	LPDIRECT3DDEVICE9 pDevice = CManager::GetInstance()->GetRenderer()->GetDevice();	// デバイスへのポインタ
@@ -334,6 +341,17 @@ CCamera *CCamera::Begin(const int nIdx)
 //==================================================================================
 void CCamera::End(void)
 {
+<<<<<<< Updated upstream
+=======
+	if (m_currentType < 0 || m_currentType >= TYPE_MAX)
+	{
+		assert(false);
+		return;
+	}
+	
+	// nullの場合スキップ
+	if (m_apCamera[m_currentType] == nullptr) return;
+>>>>>>> Stashed changes
 	LPDIRECT3DDEVICE9 pDevice = CManager::GetInstance()->GetRenderer()->GetDevice();	// デバイスへのポインタ
 
 	// ビューポートを元に戻す

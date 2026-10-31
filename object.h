@@ -55,6 +55,12 @@ public:
 		TYPE_TIMER,			// タイマー
 		TYPE_PARTICLE,		// パーティクル
 		TYPE_ITEM_GENERATOR,	// アイテム生成機
+<<<<<<< Updated upstream
+=======
+		TYPE_SCORE,			// スコア
+		TYPE_SCREEN_EFFECT,	// 画面エフェクト (閃光)
+		TYPE_NEXTINFO,		// 次のアイテムの表示
+>>>>>>> Stashed changes
 		TYPE_MAX
 	} TYPE;
 
@@ -67,6 +73,9 @@ public:
 	virtual void Draw(void) {}
 	virtual void Notified(CObject *pObject, std::string_view message, const std::any &args = {}) {}
 
+	void AddRenderState(const std::pair<D3DRENDERSTATETYPE, DWORD> state, const bool bAfter);
+	void SetRenderState(const LPDIRECT3DDEVICE9 pDevice, const bool bAfter);
+	bool IsValidRenderState(const bool bAfter) { return (bAfter == true) ? !m_vAfterRenderState.empty() : !m_vBeforeRenderState.empty(); }
 	void NotifyAll(std::string_view message, const std::any &args = {});
 	void SetType(const TYPE type) { m_type = type; }
 	TYPE GetType(void) const { return m_type; }
@@ -88,6 +97,8 @@ public:
 	static std::vector<CObject*> FindObjectsByType(const int nPriority, const TYPE type);
 	template<class T> static std::vector<T*> FindObjectsByType(void);
 	template<class T> static std::vector<T*> FindObjectsByType(const int nPriority);
+	static void SetEnablePriority(const int nPriority, const bool bEnable) { m_vEnablePriority[nPriority] = bEnable; }
+	static bool GetEnablePriority(const int nPriority) { return m_vEnablePriority[nPriority]; }
 
 protected:
 	void Release(void);
@@ -100,12 +111,15 @@ private:
 	inline static CObject *m_apTop[MAX_OBJPRIORITY] = { nullptr };		// 先頭オブジェクトへのポインタ
 	inline static CObject *m_apCur[MAX_OBJPRIORITY] = { nullptr };		// 最後尾オブジェクトへのポインタ
 	inline static int m_nNumAll = 0;	// オブジェクトの総数
+	inline static std::vector<bool> m_vEnablePriority = std::vector<bool>(MAX_OBJPRIORITY, true);		// 各優先順位のフラグ
 	std::vector<CObject*> m_vpObserver = {};	// 自身を管理しているオブジェクトへのポインタ
 	CObject *m_pPrev = nullptr;			// 前のオブジェクトへのポインタ
 	CObject *m_pNext= nullptr;			// 次のオブジェクトへのポインタ
 	int m_nPriority = 0;			// 優先順位の位置
 	TYPE m_type = TYPE_NONE;		// オブジェクトタイプ
 	bool m_bDeath = false;			// 死亡フラグ
+	std::vector<std::pair<D3DRENDERSTATETYPE, DWORD>> m_vBeforeRenderState;		// 描画前に設定されるレンダーステートの種類
+	std::vector<std::pair<D3DRENDERSTATETYPE, DWORD>> m_vAfterRenderState;		// 描画後に設定されるレンダーステートの種類
 };
 
 //==================================================================================

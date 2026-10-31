@@ -26,6 +26,11 @@
 #include "timer.h"
 #include "vec2math.h"
 #include "vec3math.h"
+#include "inputSystem.h"
+#include "inputActionMap.h"
+#include "inputAction.h"
+#include "inputBinding.h"
+#include "inputControl.h"
 
 //==================================================================================
 // --- マネージャの取得処理 ---
@@ -84,7 +89,7 @@ HRESULT CManager::Init(const HINSTANCE hInstance, const HWND hWnd, const BOOL bW
 			return E_FAIL;
 		}
 	}
-
+#ifndef ENABLE_INPUT_SYSTEM
 	// キーボードの生成
 	if (m_pInputKeyboard == nullptr)
 	{ // もしまだ生成されていないなら
@@ -139,6 +144,39 @@ HRESULT CManager::Init(const HINSTANCE hInstance, const HWND hWnd, const BOOL bW
 		// ジョイパッドの初期化
 		m_pJoypad->Init();
 	}
+
+#else
+	CInputSystem *pInputSystem = CInputSystem::GetInstance();	// インスタンス取得
+	if (FAILED(pInputSystem->Init(hInstance, hWnd)))
+	{ // 初期化失敗時、操作不可能な為exeを終了
+		return E_FAIL;
+	}
+
+	// 横
+	CInputActionMap *pMapLegacy = pInputSystem->CreateActionMap("Legacy");
+	CInputAction *pHorizontal = pMapLegacy->Add("Horizontal", CInputAction::ACTION_TYPE::VALUE_1D, 0.1f);
+
+	// A / D
+	pHorizontal->AddBinding(CInputBinding::CreateAxis1D(MakePathKeyboard(DIK_A), MakePathKeyboard(DIK_D)));
+
+	// ← / →
+	pHorizontal->AddBinding(CInputBinding::CreateAxis1D(MakePathKeyboard(DIK_LEFT), MakePathKeyboard(DIK_RIGHT)));
+
+	// 左スティックX (符号付きの軸値をそのまま)
+	pHorizontal->AddBinding(CInputBinding::CreateStick1D(MakePathJoypadAxis(CJoypad::AXIS_LEFT_X)));
+
+	// 縦
+	CInputAction *pVertical = pMapLegacy->Add("Vertical", CInputAction::ACTION_TYPE::VALUE_1D, 0.1f);
+
+	// W / S
+	pVertical->AddBinding(CInputBinding::CreateAxis1D(MakePathKeyboard(DIK_S), MakePathKeyboard(DIK_W)));
+
+	// ↑ / ↓
+	pVertical->AddBinding(CInputBinding::CreateAxis1D(MakePathKeyboard(DIK_DOWN), MakePathKeyboard(DIK_UP)));
+
+	// 左スティックY (符号付きの軸値をそのまま)
+	pVertical->AddBinding(CInputBinding::CreateStick1D(MakePathJoypadAxis(CJoypad::AXIS_LEFT_Y)));
+#endif
 
 	// デバッグ表示の生成
 	if (m_pDebugProc == nullptr)
@@ -219,7 +257,8 @@ void CManager::Uninit(void)
 
 	// デバッグ表示オブジェクトの破棄
 	SafeUniqueUninit(m_pDebugProc);
-	
+
+#ifndef ENABLE_INPUT_SYSTEM
 	// ジョイパッドオブジェクトの破棄
 	SafeUniqueUninit(m_pJoypad);
 
@@ -228,6 +267,10 @@ void CManager::Uninit(void)
 
 	// キーボードオブジェクトの破棄
 	SafeUniqueUninit(m_pInputKeyboard);
+#else
+	// インプットシステムの終了
+	CInputSystem::GetInstance()->Uninit();
+#endif
 
 	// レンダラーオブジェクトの破棄
 	SafeUniqueUninit(m_pRenderer);
@@ -238,6 +281,7 @@ void CManager::Uninit(void)
 //==================================================================================
 void CManager::Update(void)
 {
+#ifndef ENABLE_INPUT_SYSTEM
 	// キーボードの更新処理
 	m_pInputKeyboard->Update();
 
@@ -246,6 +290,10 @@ void CManager::Update(void)
 
 	// ジョイパッドの更新処理
 	m_pJoypad->Update();
+#else
+	// インプットシステムの更新
+	CInputSystem::GetInstance()->Update();
+#endif
 
 	// デバッグ表示の更新処理
 	m_pDebugProc->Update();
@@ -264,6 +312,7 @@ void CManager::Update(void)
 	// ライトの更新処理
 	m_pLight->Update();
 
+<<<<<<< Updated upstream
 	// カメラの更新
 	CCamera::UpdateAll();
 
@@ -271,6 +320,9 @@ void CManager::Update(void)
 	if (m_pInputKeyboard->GetTrigger(DIK_P)) m_bPause = m_bPause ^ true;
 
 	if (m_pInputKeyboard->GetTrigger(DIK_BACK))
+=======
+	if (GetInputKeyboard()->GetTrigger(DIK_BACK))
+>>>>>>> Stashed changes
 	{ // リセット
 		SetMode(CScene::MODE_GAME);
 		m_nCountReload++;

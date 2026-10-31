@@ -76,6 +76,12 @@
     <Filter Include="ヘッダー ファイル\Interface">
       <UniqueIdentifier>{0ca0c624-f13b-4684-b2b7-7d32459f7aea}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ソース ファイル\System\Input\InputSystem">
+      <UniqueIdentifier>{83b06e21-87b4-47a3-9192-f1d5c221aaf2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\System\Input\InputSystem">
+      <UniqueIdentifier>{8df5b6db-1e8a-46c6-9fa1-5dc54eaa6e1d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="color.cpp">
@@ -219,6 +225,54 @@
     <ClCompile Include="itemGenerator.cpp">
       <Filter>ソース ファイル\Object</Filter>
     </ClCompile>
+<<<<<<< Updated upstream
+=======
+    <ClCompile Include="score.cpp">
+      <Filter>ソース ファイル\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="sceneTransition.cpp">
+      <Filter>ソース ファイル\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="fadeTransition.cpp">
+      <Filter>ソース ファイル\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="object2D.cpp">
+      <Filter>ソース ファイル\Object\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="pause.cpp">
+      <Filter>ソース ファイル\System</Filter>
+    </ClCompile>
+    <ClCompile Include="polygon2D.cpp">
+      <Filter>ソース ファイル\System</Filter>
+    </ClCompile>
+    <ClCompile Include="inputBinding.cpp">
+      <Filter>ソース ファイル\System\Input\InputSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="inputAction.cpp">
+      <Filter>ソース ファイル\System\Input\InputSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="inputActionMap.cpp">
+      <Filter>ソース ファイル\System\Input\InputSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="inputSystem.cpp">
+      <Filter>ソース ファイル\System\Input\InputSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="inputKeytable.cpp">
+      <Filter>ソース ファイル\System\Input\InputSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="number3D.cpp">
+      <Filter>ソース ファイル\Other</Filter>
+    </ClCompile>
+    <ClCompile Include="number3DBillboard.cpp">
+      <Filter>ソース ファイル\Other</Filter>
+    </ClCompile>
+    <ClCompile Include="screenEffect.cpp">
+      <Filter>ソース ファイル\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="nextInfo.cpp">
+      <Filter>ソース ファイル\Object</Filter>
+    </ClCompile>
+>>>>>>> Stashed changes
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="directX.h">
@@ -374,5 +428,62 @@
     <ClInclude Include="itemGenerator.h">
       <Filter>ヘッダー ファイル\Object</Filter>
     </ClInclude>
+<<<<<<< Updated upstream
+=======
+    <ClInclude Include="score.h">
+      <Filter>ヘッダー ファイル\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="sceneTransition.h">
+      <Filter>ヘッダー ファイル\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="fadeTransition.h">
+      <Filter>ヘッダー ファイル\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="object2D.h">
+      <Filter>ヘッダー ファイル\Object\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="pause.h">
+      <Filter>ヘッダー ファイル\System</Filter>
+    </ClInclude>
+    <ClInclude Include="polygon2D.h">
+      <Filter>ヘッダー ファイル\System</Filter>
+    </ClInclude>
+    <ClInclude Include="inputControl.h">
+      <Filter>ヘッダー ファイル\System\Input\InputSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="inputBinding.h">
+      <Filter>ヘッダー ファイル\System\Input\InputSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="inputAction.h">
+      <Filter>ヘッダー ファイル\System\Input\InputSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="inputActionMap.h">
+      <Filter>ヘッダー ファイル\System\Input\InputSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="inputSystem.h">
+      <Filter>ヘッダー ファイル\System\Input\InputSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="inputProcessor.h">
+      <Filter>ヘッダー ファイル\System\Input\InputSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="singleton.h">
+      <Filter>ヘッダー ファイル\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="inputKeytable.h">
+      <Filter>ヘッダー ファイル\System\Input\InputSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="number3D.h">
+      <Filter>ヘッダー ファイル\Other</Filter>
+    </ClInclude>
+    <ClInclude Include="number3DBillboard.h">
+      <Filter>ヘッダー ファイル\Other</Filter>
+    </ClInclude>
+    <ClInclude Include="screenEffect.h">
+      <Filter>ヘッダー ファイル\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="nextInfo.h">
+      <Filter>ヘッダー ファイル\Object</Filter>
+    </ClInclude>
+>>>>>>> Stashed changes
   </ItemGroup>
 </Project>

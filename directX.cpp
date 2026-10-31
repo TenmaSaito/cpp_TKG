@@ -103,9 +103,8 @@ void CDirectX::DirectXProc(HINSTANCE hInstance, HWND hWnd, BOOL bWindowed, int n
 	}
 	else
 	{ // 初期化失敗時
+		// 失敗メッセージを送信して、EXEを終了
 		MessageBox(hWnd, "DirectXの初期化に失敗しました...", "DirectX Initialize Failed", MB_ICONERROR);
-
-		// 失敗メッセージを送信
 		PostMessage(hWnd, WM_FAILED_INIT, 0, 0);
 	}
 

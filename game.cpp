@@ -11,7 +11,16 @@
 #include "game.h"
 #include "mapScriptLoader.h"
 #include "itemGenerator.h"
+#include "screenEffect.h"
 #include "rankingClient.h"
+<<<<<<< Updated upstream
+=======
+#include "score.h"
+#include "texture.h"
+#include "manager.h"
+#include "input.h"
+#include "nextInfo.h"
+>>>>>>> Stashed changes
 
 //==================================================================================
 // --- コンストラクタ ---
@@ -65,8 +74,9 @@ void CGame::Draw(void)
 void CGame::Start(void)
 { // マップ読み込み
 	std::unique_ptr pMapScriptLoader = std::make_unique<CMapScriptLoader>();		// マップ読み込みインスタンス
-	pMapScriptLoader->Load("data/SCRIPT/system.ini");
+	auto hr = pMapScriptLoader->Load("data/SCRIPT/system.ini");
 
+<<<<<<< Updated upstream
 	new CItemGenerator;
 
 	auto pRanking = std::make_unique<CRankingClient>();
@@ -76,4 +86,18 @@ void CGame::Start(void)
 	auto aRanking = pRanking->Get();
 
 	auto &a = aRanking;
+=======
+	// アイテム生成器起動
+	(new CItemGenerator)->Init();
+
+	// スクリーンエフェクト生成
+	CScreenEffect::Create(Color(1.0f, 0.0f, 0.0f, 0.0f), 60.0f);
+
+	CScore::Create(CTexture::GetInstance()->Register("data/TEXTURE/voltNumber003.png"),
+		Vector3(SCREEN_MIDDLE.x * 1.35f, 30.0f, 0.0f),
+		Vector2(350.0f, 70.0f),
+		8);
+
+	CNextInfo::Create();
+>>>>>>> Stashed changes
 }

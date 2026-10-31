@@ -360,7 +360,7 @@ void CRenderer::Draw(void)
 		DrawScreen();
 
 		// デバッグ表示の描画
-		pDebugProc->Draw();
+		// pDebugProc->Draw();
 
 		// 描画終了
 		m_pD3DDevice->EndScene();
@@ -452,9 +452,10 @@ void CRenderer::ChangeTarget(const CCamera *pFocus)
 	pViewportMT = pFocus->GetViewport();
 
 	// レンダリングターゲットを切り替え
-	if (FAILED(m_pD3DDevice->SetRenderTarget(0, m_apRenderMT[0]))
-		&& FAILED(m_pD3DDevice->SetDepthStencilSurface(m_pZBuffMT)))
-	{ // 切り替え失敗
+	const HRESULT hrTarget = m_pD3DDevice->SetRenderTarget(0, m_apRenderMT[0]);
+	const HRESULT hrDepth =	m_pD3DDevice->SetDepthStencilSurface(m_pZBuffMT);
+	if (FAILED(hrTarget) || FAILED(hrDepth))
+	{
 		return;
 	}
 

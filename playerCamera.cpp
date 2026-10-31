@@ -21,7 +21,7 @@
 //**********************************************************************************
 namespace
 {
-	constexpr float LENGTH_PLAYER = 700.0f;		// カメラとプレイヤーの距離
+	constexpr float LENGTH_PLAYER = 1000.0f;		// カメラとプレイヤーの距離
 	constexpr float ROTATE_SPD = 0.04f;			// カメラの回転速度
 	constexpr float POSITION_DEST_ACCELE = 0.03f;	// カメラの目標位置への移動速度
 }
@@ -137,9 +137,8 @@ void CPlayerCamera::Update(void)
 	// プレイヤーへのポインタが存在するなら
 	if (m_pPlayer != nullptr)
 	{ // プレイヤーへ滑らかに追従するために、過去の位置と現在位置で補間
-		Vector3 posWorld = *D3DXVec3TransformCoord(&posWorld, m_pPlayer->GetPosition(), m_pPlayer->GetMatrix());
-		Vector3 posDiff = *m_pPlayer->GetPosition() - posR;				// 現在位置と予定位置の差分
-
+		Vector3 posWorld = *D3DXVec3TransformCoord(&posWorld, &VECTOR3_NULL, m_pPlayer->GetMatrix());
+		Vector3 posDiff = posWorld - posR;				// 現在位置と予定位置の差分
 		posR = posR + (posDiff * POSITION_DEST_ACCELE);		// 次の注視点座標を計算
 	}
 
@@ -154,15 +153,15 @@ void CPlayerCamera::Update(void)
 	CCamera::SetRotate(Vec3::FixedRotation(rot));
 	CCamera::SetVecU(Vec2::ToVector3(Vec2::Arc(1.0f, m_fPhi * QUARTER_PI)));
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
 	// プレイヤーの位置を表示
 	CDebugProc *pProc = CManager::GetInstance()->GetDebugProc();		// デバッグ表示へのポインタ
-	pProc->Print("====== カメラ ======\n");
-	pProc->Print("視点   ({:.2f}/{:.2f}/{:.2f}) [Q/E]\n", PRINT_VECTOR3(*GetPosV()));
-	pProc->Print("注視点 ({:.2f}/{:.2f}/{:.2f})\n", PRINT_VECTOR3(*GetPosR()));
-	pProc->Print("角度   ({:.2f}/{:.2f}/{:.2f})\n", PRINT_VECTOR3(*GetRotate()));
-	pProc->Print("上方向 ({:.2f}/{:.2f}/{:.2f})\n\n", PRINT_VECTOR3(*GetVecU()));
-#endif
+	pProc->ForcePrint("====== カメラ ======\n");
+	pProc->ForcePrint("視点   ({:.2f}/{:.2f}/{:.2f}) [Q/E]\n", PRINT_VECTOR3(*GetPosV()));
+	pProc->ForcePrint("注視点 ({:.2f}/{:.2f}/{:.2f})\n", PRINT_VECTOR3(*GetPosR()));
+	pProc->ForcePrint("角度   ({:.2f}/{:.2f}/{:.2f})\n", PRINT_VECTOR3(*GetRotate()));
+	pProc->ForcePrint("上方向 ({:.2f}/{:.2f}/{:.2f})\n\n", PRINT_VECTOR3(*GetVecU()));
+//#endif
 }
 
 //==================================================================================

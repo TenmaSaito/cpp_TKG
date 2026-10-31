@@ -11,6 +11,8 @@
 #include "manager.h"
 #include "input.h"
 #include "joypad.h"
+#include "inputSystem.h"
+#include "inputAction.h"
 #include "util.h"
 #include "vec2math.h"
 #include "player.h"
@@ -22,7 +24,7 @@ namespace
 {
 	constexpr float LEAN_MIN = -QUARTER_PI * 0.5f;		// ŒX‚«‚ÌÅ¬
 	constexpr float LEAN_MAX = QUARTER_PI * 0.5f;		// ŒX‚«‚ÌÅ‘å
-	constexpr float LEAN_POW = 0.005f;		// ŒX‚¯‚é‹­‚³
+	constexpr float LEAN_POW = 0.05f;		// ŒX‚¯‚é‹­‚³
 	constexpr float LEAN_RESIST = 0.1f;		// ŒX‚«‚ÌŒ³‚É–ß‚é‹­‚³
 	constexpr float ROLL_FORCE = 0.05f;		// “]‚ª‚·‹­‚³
 }
@@ -142,8 +144,37 @@ bool CStage::LeanInput(Vector3 *pRot)
 	CManager *pManager = CManager::GetInstance();					// ƒ}ƒl[ƒWƒƒ[
 	CInputKeyboard *pKeyboard = pManager->GetInputKeyboard();		// ƒL[ƒ{[ƒh
 	CJoypad *pJoypad = pManager->GetJoypad();						// ƒWƒ‡ƒCƒpƒbƒh
+	CInputSystem *pSystem = CInputSystem::GetInstance();
+	auto pVertical = pSystem->FindAction("Legacy", "Vertical");
+	auto pHorizontal = pSystem->FindAction("Legacy", "Horizontal");
 	bool bPush = false;			// “ü—Í‚³‚ê‚½‚©
 
+	float fValueVertical = pVertical->ReadValue1D();
+	float fValueHorizontal = pHorizontal->ReadValue1D() * -1;
+
+	if (pVertical->IsPressed())
+	{
+		pRot->x += fValueVertical * LEAN_POW;
+		pRot->x = std::clamp(pRot->x, LEAN_MIN, LEAN_MAX);
+		bPush = true;		// “ü—Íƒtƒ‰ƒO‚ð—§‚Ä‚é
+	}
+	else
+	{ // ‘OŒã‚Ì‘ä‚ÌŒX‚«‚ðŒ³‚É–ß‚·
+		pRot->x += (0.0f - pRot->x) * LEAN_RESIST;
+	}
+
+	if (pHorizontal->IsPressed())
+	{
+		pRot->z += fValueHorizontal * LEAN_POW;
+		pRot->z = std::clamp(pRot->z, LEAN_MIN, LEAN_MAX);
+		bPush = true;		// “ü—Íƒtƒ‰ƒO‚ð—§‚Ä‚é
+	}
+	else
+	{ // ¶‰E‚Ì‘ä‚ÌŒX‚«‚ðŒ³‚É–ß‚·
+		pRot->z += (0.0f - pRot->z) * LEAN_RESIST;
+	}
+
+#if 0
 	// ‘OŒã‚ÌŒX‚«“ü—Í
 	if (pKeyboard->GetPress(DIK_W))
 	{ // ‘ä‚ð‘O‚ÉŒX‚¯‚é
@@ -179,6 +210,7 @@ bool CStage::LeanInput(Vector3 *pRot)
 	{ // ¶‰E‚Ì‘ä‚ÌŒX‚«‚ðŒ³‚É–ß‚·
 		pRot->z += (0.0f - pRot->z) * LEAN_RESIST;
 	}
+#endif
 
 	// “ü—Í‚³‚ê‚½‚©‚ð•Ô‚·
 	return bPush;

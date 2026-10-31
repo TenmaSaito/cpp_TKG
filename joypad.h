@@ -71,6 +71,18 @@ public:
 		STICK_MAX
 	} STICK;
 
+	//******************************************************************************
+	// *** ジョイスティック入力方向一覧 ***
+	//******************************************************************************
+	typedef enum
+	{
+		AXIS_LEFT_X = 0,		// 左スティックのX軸
+		AXIS_LEFT_Y,			// 左スティックのY軸
+		AXIS_RIGHT_X,			// 右スティックのX軸
+		AXIS_RIGHT_Y,			// 右スティックのY軸
+		AXIS_MAX
+	} AXIS;
+
 	CJoypad();
 	~CJoypad();
 
@@ -85,6 +97,7 @@ public:
 		const int nWaitPress = JOYPAD_DEFAULT_WAIT_PRESS,
 		const int nInterval = JOYPAD_DEFAULT_INTERVAL,
 		const int nPadID = 0);
+	float GetAxis(const AXIS axis, const int nPadID = 0);
 
 	bool GetStick(const STICK stick,
 		const float fRange = JOYPAD_DEFAULT_STICK_RANGE,

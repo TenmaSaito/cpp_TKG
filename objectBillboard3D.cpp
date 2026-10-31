@@ -251,10 +251,20 @@ void CObjectBillboard3D::Draw(void)
 	// 描画前関数呼び出し
 	if (m_beforeDraw) m_beforeDraw(pDevice);
 
+	if (IsValidRenderState(false) == true)
+	{ // 描画前レンダーステートが登録されていれば、設定
+		SetRenderState(pDevice, false);
+	}
+
 	// ポリゴンの描画
 	pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP,
 		0,
 		2);
+
+	if (IsValidRenderState(true) == true)
+	{ // 描画後レンダーステートが登録されていれば、設定
+		SetRenderState(pDevice, true);
+	}
 
 	// 描画後関数呼び出し
 	if (m_afterDraw) m_afterDraw(pDevice);

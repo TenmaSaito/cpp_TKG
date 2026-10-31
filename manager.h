@@ -13,6 +13,15 @@
 //**********************************************************************************
 #include "main.h"
 #include "scene.h"
+#define ENABLE_INPUT_SYSTEM
+#ifdef ENABLE_INPUT_SYSTEM
+#include "inputSystem.h"
+#endif
+
+//**********************************************************************************
+// *** ƒ}ƒNƒ’è‹` ***
+//**********************************************************************************
+#define ENABLE_INPUT_SYSTEM
 
 //**********************************************************************************
 // *** ’è”éŒ¾ ***
@@ -24,9 +33,12 @@ constexpr int DEFAULT_APPLICATION_DRAW_PER_SECOND = 60;			// ˆê•bŠÔ‚ÉDraw‚·‚é‰ñ
 // *** ‘O•ûéŒ¾ ***
 //**********************************************************************************
 class CRenderer;
+#ifndef ENABLE_INPUT_SYSTEM
 class CInputKeyboard;
 class CInputMouse;	
 class CJoypad;
+#else
+#endif
 class CDebugProc;	
 class CSound;		
 class CLight;
@@ -49,9 +61,15 @@ public:
 	void SetEnablePause(const bool bEnable);
 	bool GetEnablePause(void);
 	CRenderer *GetRenderer(void) const { return m_pRenderer.get(); }
+#ifndef ENABLE_INPUT_SYSTEM
 	CInputKeyboard *GetInputKeyboard(void) const { return m_pInputKeyboard.get(); }
 	CInputMouse *GetInputMouse(void) const { return m_pInputMouse.get(); }
 	CJoypad *GetJoypad(void) const { return m_pJoypad.get(); }
+#else
+	CInputKeyboard *GetInputKeyboard(void) const { return CInputSystem::GetInstance()->GetKeyboard(); }
+	CInputMouse *GetInputMouse(void) const { return CInputSystem::GetInstance()->GetMouse(); }
+	CJoypad *GetJoypad(void) const { return CInputSystem::GetInstance()->GetJoypad(); }
+#endif
 	CDebugProc *GetDebugProc(void) const { return m_pDebugProc.get(); }
 	CSound *GetSound(void) const { return m_pSound.get(); }
 	CLight *GetLight(void) const { return m_pLight.get(); }
@@ -67,15 +85,21 @@ public:
 	static constexpr float FrameToSec(const float fFrame) { return fFrame / static_cast<float>(DEFAULT_APPLICATION_UPDATE_PER_SECOND); }
 	static constexpr float RatioToSec(const float fT) { return FrameToSec(1.0f / fT); }
 	static constexpr float SecToRatio(const float fSec) { return 1.0f / SecToFrame(fSec); }
+	static constexpr float FrameToRatio(const float fFrame) { return 1.0f / fFrame; }
+	static constexpr float RatioToFrame(const float fT) { return 1.0f / fT ; }
 
 private:
 	CManager();
 	~CManager();
 
 	std::unique_ptr<CRenderer> m_pRenderer;				// ƒŒƒ“ƒ_ƒ‰[‚Ö‚Ìƒ|ƒCƒ“ƒ^
+#ifndef ENABLE_INPUT_SYSTEM
 	std::unique_ptr<CInputKeyboard> m_pInputKeyboard;	// ƒL[ƒ{[ƒhƒIƒuƒWƒFƒNƒg‚Ö‚Ìƒ|ƒCƒ“ƒ^
 	std::unique_ptr<CInputMouse> m_pInputMouse;			// ƒ}ƒEƒXƒIƒuƒWƒFƒNƒg‚Ö‚Ìƒ|ƒCƒ“ƒ^
 	std::unique_ptr<CJoypad> m_pJoypad;					// ƒWƒ‡ƒCƒpƒbƒhƒIƒuƒWƒFƒNƒg‚Ö‚Ìƒ|ƒCƒ“ƒ^
+#else
+
+#endif
 	std::unique_ptr<CDebugProc> m_pDebugProc;			// ƒfƒoƒbƒO•\¦ƒIƒuƒWƒFƒNƒg‚Ö‚Ìƒ|ƒCƒ“ƒ^
 	std::unique_ptr<CSound> m_pSound;					// ƒTƒEƒ“ƒhƒIƒuƒWƒFƒNƒg‚Ö‚Ìƒ|ƒCƒ“ƒ^
 	std::unique_ptr<CLight> m_pLight;					// ƒ‰ƒCƒgƒIƒuƒWƒFƒNƒg‚Ö‚Ìƒ|ƒCƒ“ƒ^

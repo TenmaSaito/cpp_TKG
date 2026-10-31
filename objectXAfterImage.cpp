@@ -115,6 +115,11 @@ void CObjectXAfterImage::Draw(void)
 	//  現在のマテリアルを保存
 	pDevice->GetMaterial(&matDef);
 
+	if (IsValidRenderState(false) == true)
+	{ // 描画前レンダーステートが登録されていれば、設定
+		SetRenderState(pDevice, false);
+	}
+
 	// 各マテリアルを描画
 	for (int nCntMat = 0; nCntMat < static_cast<int>(pInfo->GetMatrialNum()); nCntMat++)
 	{
@@ -130,6 +135,11 @@ void CObjectXAfterImage::Draw(void)
 
 		// モデル(パーツ)の描画
 		pInfo->DrawSubset(nCntMat);
+	}
+
+	if (IsValidRenderState(true) == true)
+	{ // 描画後レンダーステートが登録されていれば、設定
+		SetRenderState(pDevice, true);
 	}
 
 	// 保存していたマテリアルを戻す

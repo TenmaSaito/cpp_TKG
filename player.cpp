@@ -39,7 +39,7 @@ namespace
 	constexpr float MODEL_RADIUS = 10.0f;			// モデルの半径
 	constexpr float VALUE_ROT = 0.005f;				// 回転速度
 	constexpr float MAX_ROT_VALUE = 0.85f;			// 最大回転速度
-	constexpr float RESIST_ROT = 0.003f;			// 減速速度
+	constexpr float RESIST_ROT = 0.007f;			// 減速速度
 	constexpr float SCALE_VALUE = 1.0f;				// 拡大倍率
 	constexpr float RAY_LENGTH = 50.0f;				// レイの長さ
 	const Vector3 VEC_QUAT = Vector3(1, 0, 0);		// 初期任意軸
@@ -89,6 +89,7 @@ HRESULT CPlayer::Init(const std::string_view pFilename,
 	CObjectX::Init(pFilename, pos, VECTOR3_NULL);
 
 	// 各メンバ変数を初期化
+	m_bAutoRotating = false;
 	m_fRadius = fRadius;
 	m_vecAxis = VEC_QUAT;
 	m_fValueRot = 0.0f;
@@ -121,7 +122,7 @@ void CPlayer::Update(void)
 	}
 
 	// 傾き入力時は自動回転を行わない
-	m_bAutoRotating = !m_pStage->IsLeanInput();
+	//m_bAutoRotating = !m_pStage->IsLeanInput();
 
 	// 過去の座標を保存
 	m_posOld = *GetPosition();
@@ -131,6 +132,14 @@ void CPlayer::Update(void)
 	if (m_fValueRot > MAX_ROT_VALUE)
 	{ // 最大速度を超えていたら、修正
 		m_fValueRot = MAX_ROT_VALUE;
+	}
+	else if (m_fValueRot > 0.0f)
+	{ // 動いていない時は回転角を減少
+		m_fValueRot -= RESIST_ROT * (m_fValueRot + (1.0f - m_fValueRot));
+		if (m_fValueRot < 0.0f)
+		{ // 0.0f以下になった場合は、0.0fに戻す
+			m_fValueRot = 0.0f;
+		}
 	}
 
 	// ステータス変更
@@ -165,8 +174,8 @@ void CPlayer::Update(void)
 
 	// 境界線を計算
 	boader.x = m_pStage->GetPosition()->x + (m_pStage->GetSize()->x * 0.5f) - GetRadius();		// 右端
-	boader.y = m_pStage->GetPosition()->y + (m_pStage->GetSize()->x * 0.5f) - GetRadius();		// 上端
-	boader.z = m_pStage->GetPosition()->y - (m_pStage->GetSize()->x * 0.5f) + GetRadius();		// 下端
+	boader.y = m_pStage->GetPosition()->y + (m_pStage->GetSize()->y * 0.5f) - GetRadius();		// 上端
+	boader.z = m_pStage->GetPosition()->y - (m_pStage->GetSize()->y * 0.5f) + GetRadius();		// 下端
 	boader.w = m_pStage->GetPosition()->x - (m_pStage->GetSize()->x * 0.5f) + GetRadius();		// 左端
 
 	// X軸の判定
@@ -181,10 +190,13 @@ void CPlayer::Update(void)
 	SetPosition(pos);
 
 	// 残像生成
-	CObjectXAfterImage::Create(GetFileName(),
+	CObjectXAfterImage *pAfterImage = CObjectXAfterImage::Create(GetFileName(),
 		*GetMatrix(),
 		15,
 		0.5f);
+
+	pAfterImage->AddRenderState({ D3DRS_ZWRITEENABLE, FALSE }, false);
+	pAfterImage->AddRenderState({ D3DRS_ZWRITEENABLE, TRUE }, true);
 
 #ifdef _DEBUG
 	// デバッグ用ライン表示
@@ -332,7 +344,7 @@ void CPlayer::AddForce(const float fRotDest, const float fValueRot)
 
 	// 差分を正規化して、絶対値に変換
 	fValue = fabsf(Util::FixedRotation(fValue));
-	if (fValue >= D3DX_PI * 0.85f)
+	if (fValue >= D3DX_PI * 0.75f)
 	{ // プレイヤーの向きが前回とπ(+ε)分離れていたら、回転量をマイナスにし、角度即時適用
 		m_fValueRot *= -1;
 
@@ -346,6 +358,15 @@ void CPlayer::AddForce(const float fRotDest, const float fValueRot)
 
 		SetRotation(Vector3(0.0f, Util::FixedRotation(GetRotation()->y + (fAngle * ANGLE_DEST_ACCELE)), 0.0f));
 	}
+}
+
+//==================================================================================
+// --- アイテム取得による拡大処理 ---
+//==================================================================================
+void CPlayer::Eat(void)
+{
+	m_fScaling *= 1.01f;		// 拡大
+	m_fRotSpeed *= 0.99f;		// 速度は少し落とす
 }
 
 //==================================================================================

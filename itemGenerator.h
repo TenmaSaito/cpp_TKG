@@ -11,11 +11,14 @@
 // *** インクルードファイル ***
 //**********************************************************************************
 #include "object.h"
+#include "item.h"
 
 //**********************************************************************************
 // *** 前方宣言 ***
 //**********************************************************************************
 class CField;
+class CScore;
+class CScreenEffect;
 
 //**********************************************************************************
 // *** 定数宣言 ***
@@ -38,7 +41,14 @@ public:
 	void Notified(CObject *pObject, std::string_view message, const std::any &args) override;
 
 private:
-	CField *m_pField = nullptr;			// 床へのポインタ
+	CField *m_pField = nullptr;			// 床
+	CScore *m_pScore = nullptr;			// スコア表示
+	CScreenEffect *m_pScreenEffect = nullptr;			// スクリーンエフェクト
+	std::vector<CItem*> m_vpItem;		// 生成したアイテムへのポインタ
 	int m_nNumItem = 0;		// アイテムの総数
+	CItem::TYPE m_nextType = CItem::TYPE::NONE;		// 次に取るべき食事の種類
+	int m_nCombo = 0;		// コンボ数
+	int m_nMaxItem = 0;		// 一度に生成するアイテムの最大数
+	bool m_bWasCreated = false;		// 既にアイテムが生成されたか
 };
 #endif

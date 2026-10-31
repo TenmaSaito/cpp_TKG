@@ -155,6 +155,41 @@ bool CJoypad::GetRepeat(const KEY key, const int nWaitPress, const int nInterval
 }
 
 //==================================================================================
+// --- スティックの軸取得処理 ---
+//==================================================================================
+float CJoypad::GetAxis(const AXIS axis, const int nPadID)
+{
+	// 省略用変数
+	XINPUT_GAMEPAD *pGamepad = &m_aJoypad[nPadID].joykeyState.Gamepad;		// ゲームパッドへのポインタ
+	float fValue = 0.0f;	// 傾き度合い
+
+	// 向き別で値を返す
+	switch (axis)
+	{
+	case AXIS_LEFT_X:		// 左スティックのX軸
+		fValue = static_cast<float>(pGamepad->sThumbLX) / static_cast<float>(SHRT_MAX);
+		break;
+
+	case AXIS_LEFT_Y:		// 左スティックのY軸
+		fValue = static_cast<float>(pGamepad->sThumbLY) / static_cast<float>(SHRT_MAX);
+		break;
+
+	case AXIS_RIGHT_X:		// 右スティックのX軸
+		fValue = static_cast<float>(pGamepad->sThumbRX) / static_cast<float>(SHRT_MAX);
+		break;
+
+	case AXIS_RIGHT_Y:		// 右スティックのY軸
+		fValue = static_cast<float>(pGamepad->sThumbRY) / static_cast<float>(SHRT_MAX);
+		break;
+
+	default:
+		break;
+	}
+
+	return fValue;
+}
+
+//==================================================================================
 // --- スティック判定処理 ---
 //==================================================================================
 bool CJoypad::GetStick(const STICK stick, const float fRange, const int nPadID)
