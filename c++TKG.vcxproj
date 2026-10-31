@@ -171,6 +171,7 @@
     <ClCompile Include="itemGenerator.cpp" />
     <ClCompile Include="joypad.cpp" />
     <ClCompile Include="light.cpp" />
+    <ClCompile Include="fadeTransition.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="manager.cpp" />
     <ClCompile Include="mapScriptLoader.cpp" />
@@ -190,12 +191,14 @@
     <ClCompile Include="objectX.cpp" />
     <ClCompile Include="objectXAfterImage.cpp" />
     <ClCompile Include="particle.cpp" />
+    <ClCompile Include="pause.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="player.cpp" />
     <ClCompile Include="playerCamera.cpp" />
+    <ClCompile Include="polygon2D.cpp" />
     <ClCompile Include="rand.cpp" />
     <ClCompile Include="rankingClient.cpp" />
     <ClCompile Include="ray.cpp" />
@@ -203,6 +206,7 @@
     <ClCompile Include="scene.cpp" />
     <ClCompile Include="score.cpp" />
     <ClCompile Include="screenEffect.cpp" />
+    <ClCompile Include="sceneTransition.cpp" />
     <ClCompile Include="shadow.cpp" />
     <ClCompile Include="sound.cpp" />
     <ClCompile Include="stage.cpp" />
@@ -229,6 +233,7 @@
     <ClInclude Include="number.h" />
     <ClInclude Include="number3D.h" />
     <ClInclude Include="number3DBillboard.h" />
+    <ClInclude Include="fadeTransition.h" />
     <ClInclude Include="object2D.h" />
     <ClInclude Include="objectBillboard3D.h" />
     <ClInclude Include="objectBillboard3DScaling.h" />
@@ -256,9 +261,11 @@
     <ClInclude Include="objectLine.h" />
     <ClInclude Include="objectX.h" />
     <ClInclude Include="particle.h" />
+    <ClInclude Include="pause.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="player.h" />
     <ClInclude Include="playerCamera.h" />
+    <ClInclude Include="polygon2D.h" />
     <ClInclude Include="protocol_ranking.h" />
     <ClInclude Include="rand.h" />
     <ClInclude Include="rankingClient.h" />
@@ -267,6 +274,7 @@
     <ClInclude Include="scene.h" />
     <ClInclude Include="score.h" />
     <ClInclude Include="screenEffect.h" />
+    <ClInclude Include="sceneTransition.h" />
     <ClInclude Include="shadow.h" />
     <ClInclude Include="shadows.h" />
     <ClInclude Include="singleton.h" />

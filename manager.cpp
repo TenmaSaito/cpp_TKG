@@ -20,6 +20,8 @@
 #include "light.h"
 #include "texture.h"
 #include "xfile.h"
+#include "sceneTransition.h"
+#include "pause.h"
 #include "util.h"
 #include "matrix.h"
 #include "player.h"
@@ -31,6 +33,12 @@
 #include "inputAction.h"
 #include "inputBinding.h"
 #include "inputControl.h"
+
+// 定数宣言
+namespace
+{
+	constexpr int TRANSITION_FRAME = CManager::SecToFrame(1);	// 遷移にかかる時間
+}
 
 //==================================================================================
 // --- マネージャの取得処理 ---
@@ -225,8 +233,14 @@ HRESULT CManager::Init(const HINSTANCE hInstance, const HWND hWnd, const BOOL bW
 	m_pLight = std::make_unique<CLight>();
 	m_pLight->Init();
 
+	// 遷移演出の作成
+	m_pTransition.reset(CSceneTransition::Create(CSceneTransition::TYPE_FADE));
+
+	// ポーズ画面の作成
+	m_pPause.reset(CPause::Create());
+
 	// モード作成
-	SetMode(CScene::MODE_GAME);
+	SetMode(CScene::MODE_TITLE);
 
 	// 成功
 	return S_OK;
@@ -248,6 +262,12 @@ void CManager::Uninit(void)
 
 	// テクスチャの破棄
 	CTexture::GetInstance()->Unload();
+
+	// ポーズオブジェクトの破棄
+	SafeUniqueUninit(m_pPause);
+
+	// 遷移演出の破棄
+	SafeUniqueUninit(m_pTransition);
 
 	// ライトオブジェクトの破棄
 	SafeUniqueUninit(m_pLight);
@@ -307,27 +327,38 @@ void CManager::Update(void)
 	// 操作説明
 	m_pDebugProc->ForcePrint("======== 操作 ========\n");
 	m_pDebugProc->ForcePrint("WASD : 台を傾ける\n");
-	m_pDebugProc->ForcePrint("BACK : リセット\n");
+	m_pDebugProc->ForcePrint("BACK : リトライ\n");
 
 	// ライトの更新処理
 	m_pLight->Update();
 
-	// カメラの更新
-	CCamera::UpdateAll();
-
-	// ポーズ
-	if (GetInputKeyboard()->GetTrigger(DIK_P)) m_bPause = m_bPause ^ true;
-
 	if (GetInputKeyboard()->GetTrigger(DIK_BACK))
 	{ // リセット
-		SetMode(CScene::MODE_GAME);
+		SetTransition(CScene::MODE_GAME);
 		m_nCountReload++;
 	}
 
-	if (m_bPause == false)
-	{ // レンダラーの更新
+	// ポーズの更新
+	m_pPause->Update();
+
+	if (m_pPause->GetDisp() != true)
+	{
+		// カメラの更新
+		CCamera::UpdateAll();
+
+		// レンダラーの更新処理
 		m_pRenderer->Update();
 	}
+	else
+	{ // ポーズ中なら、デバッグ表示
+		m_pDebugProc->Print("[現在ポーズ中！]\n");
+	}
+
+	// シーンの更新
+	m_pScene->Update();
+
+	// トランジション更新
+	m_pTransition->Update();
 
 	// フレームカウンターを増加
 	m_nCounterFrame++;
@@ -346,7 +377,7 @@ void CManager::Draw(void)
 //==================================================================================
 void CManager::SetEnablePause(const bool bEnable)
 {
-	m_bPause = bEnable;
+	m_pPause->SetDisp(bEnable);
 }
 
 //==================================================================================
@@ -354,7 +385,7 @@ void CManager::SetEnablePause(const bool bEnable)
 //==================================================================================
 bool CManager::GetEnablePause(void)
 {
-	return false;
+	return m_pPause->GetDisp();
 }
 
 //==================================================================================
@@ -382,5 +413,22 @@ HRESULT CManager::SetMode(const CScene::MODE modeNext)
 
 	// シーンの生成
 	CScene::Create(modeNext, m_pScene);
+	m_pPause->SetDisp(false);
 	return (m_pScene == nullptr) ? E_FAIL : S_OK;
+}
+
+//==================================================================================
+// --- トランジション設定処理 ---
+//==================================================================================
+void CManager::SetTransition(const CScene::MODE modeNext)
+{
+	m_pTransition->StartTransition(TRANSITION_FRAME, modeNext);
+}
+
+//==================================================================================
+// --- トランジション確認処理 ---
+//==================================================================================
+bool CManager::IsTransition(void) const
+{
+	return m_pTransition->GetState() != CSceneTransition::STATE_STAY;
 }

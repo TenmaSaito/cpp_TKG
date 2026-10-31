@@ -9,6 +9,7 @@
 // *** インクルードファイル ***
 //**********************************************************************************
 #include "scene.h"
+#include "title.h"
 #include "game.h"
 
 //==================================================================================
@@ -21,6 +22,10 @@ CScene *CScene::Create(const MODE mode, std::unique_ptr<CScene> &rpOut)
 	// モード別にインスタンス生成
 	switch (mode)
 	{
+	case MODE_TITLE:	// タイトルシーンを生成
+		pScene = new CTitle;
+		break;
+
 	case MODE_GAME:		// ゲームシーンを生成
 		pScene = new CGame;
 		break;

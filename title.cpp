@@ -8,6 +8,11 @@
 // *** インクルードファイル ***
 //**********************************************************************************
 #include "title.h"
+#include "object2D.h"
+#include "manager.h"
+#include "input.h"
+#include "texture.h"
+#include "camera.h"
 
 //==================================================================================
 // --- コンストラクタ ---
@@ -45,7 +50,13 @@ void CTitle::Uninit(void)
 //==================================================================================
 void CTitle::Update(void)
 {
-	
+	CManager *pManager = CManager::GetInstance();
+	CInputKeyboard *pKeyboard = pManager->GetInputKeyboard();
+
+	if (pKeyboard->GetTrigger(DIK_RETURN) && pManager->IsTransition() == false)
+	{ // 遷移中でなく、Enterを押されたら遷移
+		pManager->SetTransition(MODE_GAME);
+	}
 }
 
 //==================================================================================
@@ -60,4 +71,16 @@ void CTitle::Draw(void)
 //==================================================================================
 void CTitle::Start(void)
 {
+	CObject2D::Info info = {};
+
+	info.pos = SCREEN_MIDDLE;
+	info.size = SCREEN_SIZE;
+
+	CObject2D::Create(info)->SetColor(COLOR_ONE);
+
+	info.pos = Vector3(SCREEN_MIDDLE.x, 600.0f, 0.0f);
+	info.size = Vector2(300.0f, 50.0f);
+
+	CObject2D::Create(info)->BindTexture(CTexture::GetInstance()->Register("data/TEXTURE/pressEnter.png"));
+	CCamera::Create(VECTOR3_ONE, VECTOR3_NULL);
 }

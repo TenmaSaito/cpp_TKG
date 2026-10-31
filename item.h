@@ -19,6 +19,7 @@ class CPlayer;
 class CParticle;
 class CNumber3D;
 class CObjectBillboard3D;
+class CScore;
 
 //**********************************************************************************
 // *** 定数宣言 ***
@@ -65,6 +66,7 @@ private:
 	CObjectBillboard3D *m_pIcon = nullptr;		// 表示アイコン
 	CPlayer *m_pPlayer = nullptr;		// プレイヤーへのポインタ
 	CParticle *m_pParticle = nullptr;	// パーティクルへのポインタ
+	CScore *m_pScore = nullptr;			// スコア表示へのポインタ
 	Vector3 m_move = VECTOR3_NULL;	// 加速度
 	float m_fRadius = 0.0f;			// モデルの獲得半径
 	int m_nLife = 0;				// 体力

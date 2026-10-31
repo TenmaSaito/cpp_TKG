@@ -55,7 +55,13 @@ void CGame::Uninit(void)
 //==================================================================================
 void CGame::Update(void)
 {
-	
+	CManager *pManager = CManager::GetInstance();
+	CInputKeyboard *pKeyboard = pManager->GetInputKeyboard();
+
+	if (pKeyboard->GetTrigger(DIK_P) && pManager->IsTransition() == false)
+	{
+		pManager->SetEnablePause(!pManager->GetEnablePause());
+	}
 }
 
 //==================================================================================
