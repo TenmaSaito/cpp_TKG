@@ -182,6 +182,7 @@
     <ClCompile Include="number3D.cpp" />
     <ClCompile Include="number3DBillboard.cpp" />
     <ClCompile Include="object.cpp" />
+    <ClCompile Include="object2D.cpp" />
     <ClCompile Include="object3D.cpp" />
     <ClCompile Include="objectBillboard3D.cpp" />
     <ClCompile Include="objectBillboard3DScaling.cpp" />
@@ -200,12 +201,8 @@
     <ClCompile Include="ray.cpp" />
     <ClCompile Include="renderer.cpp" />
     <ClCompile Include="scene.cpp" />
-<<<<<<< Updated upstream
-=======
-    <ClCompile Include="sceneTransition.cpp" />
     <ClCompile Include="score.cpp" />
     <ClCompile Include="screenEffect.cpp" />
->>>>>>> Stashed changes
     <ClCompile Include="shadow.cpp" />
     <ClCompile Include="sound.cpp" />
     <ClCompile Include="stage.cpp" />
@@ -228,16 +225,11 @@
     <ClInclude Include="inputProcessor.h" />
     <ClInclude Include="inputSystem.h" />
     <ClInclude Include="itemGenerator.h" />
-<<<<<<< Updated upstream
-    <ClInclude Include="number.h" />
-=======
-    <ClInclude Include="fadeTransition.h" />
     <ClInclude Include="nextInfo.h" />
     <ClInclude Include="number.h" />
     <ClInclude Include="number3D.h" />
     <ClInclude Include="number3DBillboard.h" />
     <ClInclude Include="object2D.h" />
->>>>>>> Stashed changes
     <ClInclude Include="objectBillboard3D.h" />
     <ClInclude Include="objectBillboard3DScaling.h" />
     <ClInclude Include="parentable.h" />
@@ -273,12 +265,8 @@
     <ClInclude Include="ray.h" />
     <ClInclude Include="renderer.h" />
     <ClInclude Include="scene.h" />
-<<<<<<< Updated upstream
-=======
-    <ClInclude Include="sceneTransition.h" />
     <ClInclude Include="score.h" />
     <ClInclude Include="screenEffect.h" />
->>>>>>> Stashed changes
     <ClInclude Include="shadow.h" />
     <ClInclude Include="shadows.h" />
     <ClInclude Include="singleton.h" />
