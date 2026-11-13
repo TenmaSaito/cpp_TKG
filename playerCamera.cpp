@@ -11,7 +11,6 @@
 #include "player.h"
 #include "manager.h"
 #include "input.h"
-#include "debugproc.h"
 #include "vec2math.h"
 #include "vec3math.h"
 #include "util.h"
@@ -22,7 +21,6 @@
 namespace
 {
 	constexpr float LENGTH_PLAYER = 1500.0f;		// カメラとプレイヤーの距離
-	constexpr float ROTATE_SPD = 0.04f;			// カメラの回転速度
 	constexpr float POSITION_DEST_ACCELE = 0.03f;	// カメラの目標位置への移動速度
 }
 
@@ -108,31 +106,6 @@ void CPlayerCamera::Update(void)
 	Vector3 posR = *CCamera::GetPosR();		// 注視点座標
 	Vector3 rot = *CCamera::GetRotate();	// 角度
 	Vector3 vecU = *CCamera::GetVecU();		// 上方向ベクトル
-	CManager *pManager = CManager::GetInstance();		// マネージャへのポインタ
-	CInputKeyboard *pKeyboard = pManager->GetInputKeyboard();		// キーボードへのポインタ
-
-#if 0
-	// 視点回転
-	if (pKeyboard->GetPress(DIK_Q))
-	{
-		rot.z -= ROTATE_SPD;
-	}
-	else if (pKeyboard->GetPress(DIK_E))
-	{
-		rot.z += ROTATE_SPD;
-	}
-	// 上方向ベクトル回転
-	if (pKeyboard->GetPress(DIK_LEFT))
-	{
-		m_fPhi += ROTATE_SPD;
-		m_fPhi = std::clamp(m_fPhi, -1.0f, 1.0f);
-	}
-	else if (pKeyboard->GetPress(DIK_RIGHT))
-	{
-		m_fPhi -= ROTATE_SPD;
-		m_fPhi = std::clamp(m_fPhi, -1.0f, 1.0f);
-	}
-#endif
 
 	// プレイヤーへのポインタが存在するなら
 	if (m_pPlayer != nullptr)
@@ -153,15 +126,6 @@ void CPlayerCamera::Update(void)
 	CCamera::SetRotate(Vec3::FixedRotation(rot));
 	CCamera::SetVecU(Vec2::ToVector3(Vec2::Arc(1.0f, m_fPhi * QUARTER_PI)));
 
-//#ifdef _DEBUG
-	// プレイヤーの位置を表示
-	CDebugProc *pProc = CManager::GetInstance()->GetDebugProc();		// デバッグ表示へのポインタ
-	pProc->ForcePrint("====== カメラ ======\n");
-	pProc->ForcePrint("視点   ({:.2f}/{:.2f}/{:.2f}) [Q/E]\n", PRINT_VECTOR3(*GetPosV()));
-	pProc->ForcePrint("注視点 ({:.2f}/{:.2f}/{:.2f})\n", PRINT_VECTOR3(*GetPosR()));
-	pProc->ForcePrint("角度   ({:.2f}/{:.2f}/{:.2f})\n", PRINT_VECTOR3(*GetRotate()));
-	pProc->ForcePrint("上方向 ({:.2f}/{:.2f}/{:.2f})\n\n", PRINT_VECTOR3(*GetVecU()));
-//#endif
 }
 
 //==================================================================================

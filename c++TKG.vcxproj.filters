@@ -114,9 +114,6 @@
     <ClCompile Include="rand.cpp">
       <Filter>ソース ファイル\System</Filter>
     </ClCompile>
-    <ClCompile Include="debugproc.cpp">
-      <Filter>ソース ファイル\System</Filter>
-    </ClCompile>
     <ClCompile Include="light.cpp">
       <Filter>ソース ファイル\System</Filter>
     </ClCompile>
@@ -147,9 +144,6 @@
     <ClCompile Include="scene.cpp">
       <Filter>ソース ファイル\Scene</Filter>
     </ClCompile>
-    <ClCompile Include="memdbg.cpp">
-      <Filter>ソース ファイル\Other</Filter>
-    </ClCompile>
     <ClCompile Include="pch.cpp">
       <Filter>ソース ファイル\Other</Filter>
     </ClCompile>
@@ -169,9 +163,6 @@
       <Filter>ソース ファイル\Object\Base</Filter>
     </ClCompile>
     <ClCompile Include="object.cpp">
-      <Filter>ソース ファイル\Object\Base</Filter>
-    </ClCompile>
-    <ClCompile Include="objectLine.cpp">
       <Filter>ソース ファイル\Object\Base</Filter>
     </ClCompile>
     <ClCompile Include="objectX.cpp">
@@ -332,17 +323,11 @@
     <ClInclude Include="ray.h">
       <Filter>ヘッダー ファイル\Util</Filter>
     </ClInclude>
-    <ClInclude Include="debugproc.h">
-      <Filter>ヘッダー ファイル\System</Filter>
-    </ClInclude>
     <ClInclude Include="renderer.h">
       <Filter>ヘッダー ファイル\System</Filter>
     </ClInclude>
     <ClInclude Include="sound.h">
       <Filter>ヘッダー ファイル\System</Filter>
-    </ClInclude>
-    <ClInclude Include="memdbg.h">
-      <Filter>ヘッダー ファイル\Other</Filter>
     </ClInclude>
     <ClInclude Include="vtxManager.h">
       <Filter>ヘッダー ファイル\Other</Filter>
@@ -372,9 +357,6 @@
       <Filter>ヘッダー ファイル\Object\Base</Filter>
     </ClInclude>
     <ClInclude Include="object3D.h">
-      <Filter>ヘッダー ファイル\Object\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="objectLine.h">
       <Filter>ヘッダー ファイル\Object\Base</Filter>
     </ClInclude>
     <ClInclude Include="objectX.h">

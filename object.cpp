@@ -122,13 +122,6 @@ void CObject::UpdateAll(void)
 		{ // nullptrになるまで繰り返す
 			CObject *pObjectNext = pObject->m_pNext;	// 次のオブジェクトへのポインタ
 
-#ifdef _DEBUG
-#ifdef DEBUG_ASSERT_TYPE_NONE
-			// オブジェクトのタイプがNONEの場合、アサーション + ブレークポイント
-			assert(pObject->m_type != TYPE_NONE);
-			if (pObject->m_type == TYPE_NONE) __debugbreak();
-#endif
-#endif
 			// オブジェクトの更新
 			pObject->Update();
 

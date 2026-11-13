@@ -157,7 +157,6 @@
     <ClCompile Include="bitePause.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="color.cpp" />
-    <ClCompile Include="debugproc.cpp" />
     <ClCompile Include="Coroutine.cpp" />
     <ClCompile Include="directX.cpp" />
     <ClCompile Include="field.cpp" />
@@ -181,7 +180,6 @@
     <ClCompile Include="manager.cpp" />
     <ClCompile Include="mapScriptLoader.cpp" />
     <ClCompile Include="matrix.cpp" />
-    <ClCompile Include="memdbg.cpp" />
     <ClCompile Include="model.cpp" />
     <ClCompile Include="modelParticle.cpp" />
     <ClCompile Include="mouthTransition.cpp" />
@@ -194,7 +192,6 @@
     <ClCompile Include="object3D.cpp" />
     <ClCompile Include="objectBillboard3D.cpp" />
     <ClCompile Include="objectBillboard3DScaling.cpp" />
-    <ClCompile Include="objectLine.cpp" />
     <ClCompile Include="objectX.cpp" />
     <ClCompile Include="objectXAfterImage.cpp" />
     <ClCompile Include="particle.cpp" />
@@ -257,7 +254,6 @@
     <ClInclude Include="objectXAfterImage.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="color.h" />
-    <ClInclude Include="debugproc.h" />
     <ClInclude Include="directX.h" />
     <ClInclude Include="field.h" />
     <ClInclude Include="filestream.h" />
@@ -270,11 +266,9 @@
     <ClInclude Include="manager.h" />
     <ClInclude Include="mapScriptLoader.h" />
     <ClInclude Include="matrix.h" />
-    <ClInclude Include="memdbg.h" />
     <ClInclude Include="model.h" />
     <ClInclude Include="object.h" />
     <ClInclude Include="object3D.h" />
-    <ClInclude Include="objectLine.h" />
     <ClInclude Include="objectX.h" />
     <ClInclude Include="particle.h" />
     <ClInclude Include="pause.h" />

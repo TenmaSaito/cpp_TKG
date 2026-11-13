@@ -11,15 +11,6 @@
 #include "light.h"
 #include "manager.h"
 #include "renderer.h"
-#include "input.h"
-#include "joypad.h"
-#include "debugproc.h"
-#include "vec3math.h"
-
-//**********************************************************************************
-// *** マクロ定義 ***
-//**********************************************************************************
-//#define LIGHT_OPERABLE		// 一番ライトを操作可能か
 
 //**********************************************************************************
 // *** 定数宣言 ***
@@ -105,47 +96,4 @@ void CLight::Uninit(void)
 //==================================================================================
 void CLight::Update(void)
 {
-	CManager *pManager = CManager::GetInstance();			// マネージャーへのポインタ
-#ifdef LIGHT_OPERABLE
-	LPDIRECT3DDEVICE9 pDevice = pManager->GetRenderer()->GetDevice();		// デバイスへのポインタ
-	auto pKeyboard = pManager->GetInputKeyboard();			// キーボードへのポインタ
-	Vector3 vecDir = m_aLight[m_nIdxLight].Direction;	// ライトの向き 
-
-	// 縦回転
-	if (pKeyboard->GetPress(DIK_J))
-	{
-		m_rot.y -= 0.05f;
-	}
-	else if (pKeyboard->GetPress(DIK_L))
-	{
-		m_rot.y += 0.05f;
-	}
-
-	// 横回転
-	if (pKeyboard->GetPress(DIK_I))
-	{
-		m_rot.z += 0.05f;
-	}
-	else if (pKeyboard->GetPress(DIK_K))
-	{
-		m_rot.z -= 0.05f;
-	}
-
-	// ベクトルを求める
-	vecDir = Vec3::Arc(1.0f, m_rot.y, m_rot.z);
-
-	// 正規化
-	D3DXVec3Normalize(&vecDir, &vecDir);
-	m_aLight[m_nIdxLight].Direction = vecDir;
-
-	// ライトを再設定
-	pDevice->SetLight(m_nIdxLight, &m_aLight[m_nIdxLight]);
-#endif
-
-#ifdef _DEBUG
-	auto pProc = CManager::GetInstance()->GetDebugProc();		// デバッグ表示へのポインタ
-	pProc->Print("====== ライト ======\n");
-	pProc->Print("垂直回転 ({:.2f}) [I/K]\n", m_rot.z);
-	pProc->Print("水平回転 ({:.2f}) [J/L]\n\n", m_rot.y);
-#endif
 }

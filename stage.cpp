@@ -174,44 +174,6 @@ bool CStage::LeanInput(Vector3 *pRot)
 		pRot->z += (0.0f - pRot->z) * LEAN_RESIST;
 	}
 
-#if 0
-	// ‘OŒã‚ÌŒX‚«“ü—Í
-	if (pKeyboard->GetPress(DIK_W))
-	{ // ‘ä‚ð‘O‚ÉŒX‚¯‚é
-		pRot->x += LEAN_POW;
-		pRot->x = std::clamp(pRot->x, LEAN_MIN, LEAN_MAX);		
-		bPush = true;		// “ü—Íƒtƒ‰ƒO‚ð—§‚Ä‚é
-	}
-	else if (pKeyboard->GetPress(DIK_S))
-	{ // ‘ä‚ðŒã‚ë‚ÉŒX‚¯‚é
-		pRot->x -= LEAN_POW;
-		pRot->x = std::clamp(pRot->x, LEAN_MIN, LEAN_MAX);
-		bPush = true;		// “ü—Íƒtƒ‰ƒO‚ð—§‚Ä‚é
-	}
-	else
-	{ // ‘OŒã‚Ì‘ä‚ÌŒX‚«‚ðŒ³‚É–ß‚·
-		pRot->x += (0.0f - pRot->x) * LEAN_RESIST;
-	}
-
-	// ¶‰E‚ÌŒX‚«“ü—Í
-	if (pKeyboard->GetPress(DIK_A))
-	{ // ‘ä‚ð¶‚ÉŒX‚¯‚é
-		pRot->z += LEAN_POW;
-		pRot->z = std::clamp(pRot->z, LEAN_MIN, LEAN_MAX);
-		bPush = true;		// “ü—Íƒtƒ‰ƒO‚ð—§‚Ä‚é
-	}
-	else if (pKeyboard->GetPress(DIK_D))
-	{ // ‘ä‚ð‰E‚ÉŒX‚¯‚é
-		pRot->z -= LEAN_POW;
-		pRot->z = std::clamp(pRot->z, LEAN_MIN, LEAN_MAX);
-		bPush = true;		// “ü—Íƒtƒ‰ƒO‚ð—§‚Ä‚é
-	}
-	else
-	{ // ¶‰E‚Ì‘ä‚ÌŒX‚«‚ðŒ³‚É–ß‚·
-		pRot->z += (0.0f - pRot->z) * LEAN_RESIST;
-	}
-#endif
-
 	// “ü—Í‚³‚ê‚½‚©‚ð•Ô‚·
 	return bPush;
 }

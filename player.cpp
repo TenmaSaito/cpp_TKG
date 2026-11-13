@@ -14,7 +14,6 @@
 #include "input.h"
 #include "joypad.h"
 #include "light.h"
-#include "debugproc.h"
 #include "vec2math.h"
 #include "vec3math.h"
 #include "matrix.h"
@@ -22,8 +21,6 @@
 #include "texture.h"
 #include "camera.h"
 #include "stage.h"
-#include "wall.h"
-#include "ray.h"
 #include "objectXAfterImage.h"
 #include <bitset>
 
@@ -41,10 +38,7 @@ namespace
 	constexpr float MAX_ROT_VALUE = 0.85f;			// 最大回転速度
 	constexpr float RESIST_ROT = 0.017f;			// 減速速度
 	constexpr float SCALE_VALUE = 1.0f;				// 拡大倍率
-	constexpr float RAY_LENGTH = 50.0f;				// レイの長さ
 	const Vector3 VEC_QUAT = Vector3(1, 0, 0);		// 初期任意軸
-	const Color VEC_PLAYER_RAY_COL = Color(0.0f, 1.0f, 0.0f, 1.0f);		// プレイヤーの向きのレイの色
-	const Color VEC_QUAT_RAY_COL = Color(1.0f, 0.0f, 0.0f, 1.0f);		// 任意軸のレイの色
 	constexpr std::string_view SHADOW_PATH = "data/TEXTURE/effect001.jpg";		// 影のテクスチャパス
 }
 
@@ -121,9 +115,6 @@ void CPlayer::Update(void)
 		// ステージの取得に失敗した場合はスキップ
 		if (m_pStage == nullptr) return;
 	}
-
-	// 傾き入力時は自動回転を行わない
-	//m_bAutoRotating = !m_pStage->IsLeanInput();
 
 	// 過去の座標を保存
 	m_posOld = *GetPosition();
@@ -203,40 +194,6 @@ void CPlayer::Update(void)
 
 	pAfterImage->AddRenderState({ D3DRS_ZWRITEENABLE, FALSE }, false);
 	pAfterImage->AddRenderState({ D3DRS_ZWRITEENABLE, TRUE }, true);
-
-#ifdef _DEBUG
-	// デバッグ用ライン表示
-	CRay vecPlayer;		// プレイヤーの向き
-	Vector2 vec = Vec2::Direction(Util::FixedRotation(-GetRotation()->y));		// プレイヤーの向き
-	Vector3 posCalc = *D3DXVec3TransformCoord(&posCalc, GetPosition(), GetParent());
-
-	// プレイヤーの向きの情報を指定し描画
-	vecPlayer.SetStart(posCalc);
-	vecPlayer.SetVector(Vector3(vec.x, 0.0f, -vec.y));
-	vecPlayer.SetLength(RAY_LENGTH + GetRadius());
-	vecPlayer.SetColor(VEC_PLAYER_RAY_COL);
-	vecPlayer.Draw();
-
-	// 任意軸の向きの情報を指定し描画
-	vecPlayer.SetVector(m_vecAxis);
-	vecPlayer.SetColor(VEC_QUAT_RAY_COL);
-	vecPlayer.Draw();
-
-	// 任意軸の逆向きの情報を指定し描画
-	vecPlayer.SetVector(-m_vecAxis);
-	vecPlayer.Draw();
-
-	// デバッグ情報表示
-	CDebugProc *pProc = CManager::GetInstance()->GetDebugProc();		// デバッグ表示へのポインタ
-	pProc->Print("====== プレイヤー ======\n");
-	pProc->Print("座標     ({:.2f}/{:.2f}/{:.2f})\n", PRINT_VECTOR3(*GetPosition()));
-	pProc->Print("角度     ({:.2f}/{:.2f}/{:.2f})\n", PRINT_VECTOR3(*GetRotation()));
-	pProc->Print("移動量   ({:.2f}/{:.2f}/{:.2f})\n", PRINT_VECTOR3(m_move));
-	pProc->Print("回転軸   ({:.2f}/{:.2f}/{:.2f})\n", PRINT_VECTOR3(m_vecAxis));
-	pProc->Print("回転量   ({:.4f})\n", m_fValueRot);
-	pProc->Print("回転速度 ({:.4f})\n", m_fRotSpeed);
-	pProc->Print("半径     ({:.4f}) [1/2]\n", GetRadius());
-#endif
 }
 
 //==================================================================================
@@ -290,31 +247,6 @@ void CPlayer::Draw(void)
 
 	// 影を描画
 	CObjectX::DrawShadow(mtxShadow);
-#if FALSE
-	std::vector vpWall = FindObjectsByType<CWall>(WALL_PRIORITY);
-	for (auto &pWall : vpWall)
-	{
-		Vector3 nor = VECTOR3_NULL;
-
-		// 法線を計算
-		Vector2 vec = Vec2::Direction(pWall->GetRotation()->y);
-		nor.x = -vec.x;
-		nor.z = -vec.y;
-
-		// 壁のシャドウマトリックスを生成
-		Mtx::CreateShadow(&mtxWorld,
-			Vector3(pWall->GetPosition()->x + nor.x, pWall->GetPosition()->y, pWall->GetPosition()->z + nor.z),
-			nor,
-			*pManager->GetLight()->GetLight(0),
-			&mtxShadow);
-
-		// 親マトリックスと乗算
-		Mtx::CalcParent(&mtxShadow, GetParent());
-
-		// 影を描画
-		CObjectX::DrawShadow(mtxShadow);
-	}
-#endif
 
 	// 法線ベクトルの再正規化を無効化
 	pDevice->SetRenderState(D3DRS_NORMALIZENORMALS, FALSE);
@@ -385,7 +317,6 @@ void CPlayer::CharactorMovable(void)
 	CJoypad *pJoypad = pManager->GetJoypad();			// ジョイパッドへのポインタ
 	Vector3 stick = VECTOR3_NULL;						// ジョイパッドのスティック入力
 	float fRotDest = GetRotation()->y;					// 目標角度
-	CDebugProc *pProc = pManager->GetDebugProc();		// デバッグ表示へのポインタ
 	CCamera *pPlayerCam = CCamera::GetCamera(CCamera::TYPE_PLAYER);		// プレイヤーカメラへのポインタ
 	const Vector3 *pCamRotate = pPlayerCam->GetRotate();				// カメラの角度
 

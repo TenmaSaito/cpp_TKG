@@ -10,7 +10,6 @@
 //**********************************************************************************
 #include "renderer.h"
 #include "manager.h"
-#include "debugproc.h"
 #include "object.h"
 #include "camera.h"
 #include "sceneTransition.h"
@@ -151,7 +150,6 @@ HRESULT CRenderer::Init(HWND hWnd, BOOL bWindow)
 		return E_FAIL;
 	}
 
-#ifdef ENABLE_FEEDBACK_EFFECT
 	for (int nCntMulti = 0; nCntMulti < 2; nCntMulti++)
 	{
 		// レンダリングターゲット用テクスチャ作成
@@ -244,8 +242,6 @@ HRESULT CRenderer::Init(HWND hWnd, BOOL bWindow)
 
 	// 頂点バッファをアンロック
 	m_pVtxBuffMT->Unlock();
-#else
-#endif
 	// ビューポート設定
 	m_viewportMT.X = 0;
 	m_viewportMT.Y = 0;
@@ -320,7 +316,6 @@ void CRenderer::Update(void)
 void CRenderer::Draw(void)
 {
 	CManager *pManager = CManager::GetInstance();		// マネージャへのポインタ
-	CDebugProc *pDebugProc = pManager->GetDebugProc();	// デバッグ表示へのポインタ
 	CSceneTransition *pTransition = pManager->GetTransition();		// 遷移演出
 
 	// 画面クリア(バックバッファとZバッファのクリア)
@@ -350,12 +345,10 @@ void CRenderer::Draw(void)
 		// カメラの設置終了
 		CCamera::End();
 
-#ifdef ENABLE_MULTI_TARGET_RENDERING
 		if (m_bEnableFeedBack == true)
 		{ // フィードバック用ポリゴンにテクスチャ1を張り付けて描画
 			DrawFeedBack();
 		}
-#endif 
 		// ターゲットをスクリーンに戻す
 		SetDefaultTarget();
 
@@ -367,9 +360,6 @@ void CRenderer::Draw(void)
 
 		// 遷移演出の描画
 		pTransition->Draw();
-
-		// デバッグ表示の描画
-		pDebugProc->Draw();
 
 		// 描画終了
 		m_pD3DDevice->EndScene();

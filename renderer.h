@@ -14,12 +14,6 @@
 #include "main.h"
 
 //**********************************************************************************
-// *** マクロ定義 ***
-//**********************************************************************************
-#define ENABLE_MULTI_TARGET_RENDERING		// マルチターゲットレンダリング
-#define ENABLE_FEEDBACK_EFFECT				// フィードバックエフェクト
-
-//**********************************************************************************
 // *** 定数宣言 ***
 //**********************************************************************************
 constexpr int FEEDBACK_TEX_NUM = 2;			// フィードバックエフェクト用バッファの配列数
@@ -50,20 +44,14 @@ public:
 		const Vector3 &vecU,
 		const D3DVIEWPORT9 *pViewport = nullptr);
 	void ChangeTarget(const CCamera *pFocus);
-#ifdef ENABLE_FEEDBACK_EFFECT
 	LPDIRECT3DTEXTURE9 GetTextureMT(void) { return m_apTextureMT[0]; }
 	void SetEnableFeedBack(const bool bEnable) { m_bEnableFeedBack = bEnable; }
 	bool GetEnableFeedBack(void) const { return m_bEnableFeedBack; }
-#else
-	LPDIRECT3DTEXTURE9 GetTextureMT(void) { return m_pTextureMT; }
-#endif
 
 private:
-#ifdef ENABLE_FEEDBACK_EFFECT
 	void DrawFeedBack(void);
 	void DrawScreen(void);
 	void SwapTarget(void);
-#endif
 	LPDIRECT3D9 m_pD3D;					// Direct3Dオブジェクトへのポインタ
 	LPDIRECT3DDEVICE9 m_pD3DDevice;		// 〃デバイスへのポインタ
 	LPDIRECT3DSURFACE9 m_pRenderDef;	// デフォルトインターフェース
@@ -71,15 +59,10 @@ private:
 	D3DVIEWPORT9 m_viewportDef;			// 〃ビューポート
 	Matrix m_mtxProjDef;			// 〃プロジェクションマトリックス
 	Matrix m_mtxViewDef;			// 〃ビューマトリックス
-#ifdef ENABLE_FEEDBACK_EFFECT
 	LPDIRECT3DTEXTURE9 m_apTextureMT[FEEDBACK_TEX_NUM];		// レンダリングターゲット用テクスチャ
 	LPDIRECT3DSURFACE9 m_apRenderMT[FEEDBACK_TEX_NUM];		// テクスチャレンダリング用インターフェース
 	LPDIRECT3DVERTEXBUFFER9 m_pVtxBuffMT;	// フィードバックエフェクト用頂点バッファ
 	bool m_bEnableFeedBack;					// フィードバックエフェクトの有無
-#else
-	LPDIRECT3DTEXTURE9 m_pTextureMT;	// レンダリングターゲット用テクスチャ
-	LPDIRECT3DSURFACE9 m_pRenderMT;		// テクスチャレンダリング用インターフェース
-#endif
 	LPDIRECT3DSURFACE9 m_pZBuffMT;		// 〃Zバッファ
 	D3DVIEWPORT9 m_viewportMT;			// 〃ビューポート
 };

@@ -13,15 +13,7 @@
 //**********************************************************************************
 #include "main.h"
 #include "scene.h"
-#define ENABLE_INPUT_SYSTEM
-#ifdef ENABLE_INPUT_SYSTEM
 #include "inputSystem.h"
-#endif
-
-//**********************************************************************************
-// *** ƒ}ƒNƒ’è‹` ***
-//**********************************************************************************
-#define ENABLE_INPUT_SYSTEM
 
 //**********************************************************************************
 // *** ’è”éŒ¾ ***
@@ -33,13 +25,6 @@ constexpr int DEFAULT_APPLICATION_DRAW_PER_SECOND = 60;			// ˆê•bŠÔ‚ÉDraw‚·‚é‰ñ
 // *** ‘O•ûéŒ¾ ***
 //**********************************************************************************
 class CRenderer;
-#ifndef ENABLE_INPUT_SYSTEM
-class CInputKeyboard;
-class CInputMouse;	
-class CJoypad;
-#else
-#endif
-class CDebugProc;	
 class CSound;		
 class CLight;
 class CScene;
@@ -63,16 +48,9 @@ public:
 	void SetEnablePause(const bool bEnable);
 	bool GetEnablePause(void);
 	CRenderer *GetRenderer(void) const { return m_pRenderer.get(); }
-#ifndef ENABLE_INPUT_SYSTEM
-	CInputKeyboard *GetInputKeyboard(void) const { return m_pInputKeyboard.get(); }
-	CInputMouse *GetInputMouse(void) const { return m_pInputMouse.get(); }
-	CJoypad *GetJoypad(void) const { return m_pJoypad.get(); }
-#else
 	CInputKeyboard *GetInputKeyboard(void) const { return CInputSystem::GetInstance()->GetKeyboard(); }
 	CInputMouse *GetInputMouse(void) const { return CInputSystem::GetInstance()->GetMouse(); }
 	CJoypad *GetJoypad(void) const { return CInputSystem::GetInstance()->GetJoypad(); }
-#endif
-	CDebugProc *GetDebugProc(void) const { return m_pDebugProc.get(); }
 	CSound *GetSound(void) const { return m_pSound.get(); }
 	CLight *GetLight(void) const { return m_pLight.get(); }
 	CSceneTransition *GetTransition(void) const { return m_pTransition.get(); }
@@ -99,14 +77,6 @@ private:
 	~CManager();
 
 	std::unique_ptr<CRenderer> m_pRenderer;				// ƒŒƒ“ƒ_ƒ‰[‚Ö‚Ìƒ|ƒCƒ“ƒ^
-#ifndef ENABLE_INPUT_SYSTEM
-	std::unique_ptr<CInputKeyboard> m_pInputKeyboard;	// ƒL[ƒ{[ƒhƒIƒuƒWƒFƒNƒg‚Ö‚Ìƒ|ƒCƒ“ƒ^
-	std::unique_ptr<CInputMouse> m_pInputMouse;			// ƒ}ƒEƒXƒIƒuƒWƒFƒNƒg‚Ö‚Ìƒ|ƒCƒ“ƒ^
-	std::unique_ptr<CJoypad> m_pJoypad;					// ƒWƒ‡ƒCƒpƒbƒhƒIƒuƒWƒFƒNƒg‚Ö‚Ìƒ|ƒCƒ“ƒ^
-#else
-
-#endif
-	std::unique_ptr<CDebugProc> m_pDebugProc;			// ƒfƒoƒbƒO•\¦ƒIƒuƒWƒFƒNƒg‚Ö‚Ìƒ|ƒCƒ“ƒ^
 	std::unique_ptr<CSound> m_pSound;					// ƒTƒEƒ“ƒhƒIƒuƒWƒFƒNƒg‚Ö‚Ìƒ|ƒCƒ“ƒ^
 	std::unique_ptr<CLight> m_pLight;					// ƒ‰ƒCƒgƒIƒuƒWƒFƒNƒg‚Ö‚Ìƒ|ƒCƒ“ƒ^
 	std::unique_ptr<CScene> m_pScene;					// ƒV[ƒ“‚Ö‚Ìƒ|ƒCƒ“ƒ^
@@ -115,7 +85,6 @@ private:
 	HWND m_hWnd = nullptr;		// ƒEƒBƒ“ƒhƒEƒnƒ“ƒhƒ‹
 	int m_nCountFPS = 0;		// FPSƒJƒEƒ“ƒg
 	int m_nCounterFrame = 0;	// ƒtƒŒ[ƒ€ƒJƒEƒ“ƒ^[
-	int m_nCountReload = 0;		// ƒŠƒ[ƒhƒJƒEƒ“ƒg
 	bool m_bPause = false;		// ƒ|[ƒYó‘Ô
 };
 

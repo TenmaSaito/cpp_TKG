@@ -13,7 +13,6 @@
 #include "renderer.h"
 #include "input.h"
 #include "vec3math.h"
-#include "debugproc.h"
 #include "ray.h"
 
 //**********************************************************************************

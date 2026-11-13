@@ -28,11 +28,6 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 //==================================================================================
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hInstancePrev, LPSTR lpCmdLine, int nCmdShow)
 {
-	
-#ifdef _DEBUG
-	// メモリリーク検知用のフラグを立てる
-	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF | _CRTDBG_CHECK_ALWAYS_DF);	
-#endif
 	HWND hWnd;					// ウィンドウハンドル
 	MSG msg = {};				// メッセージを格納する変数
 	RECT rect = { 0,0,SCREEN_WIDTH,SCREEN_HEIGHT };	// ウィンドウサイズ

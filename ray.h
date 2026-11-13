@@ -15,11 +15,6 @@
 #include <compare>
 
 //**********************************************************************************
-// *** 定数宣言 ***
-//**********************************************************************************
-constexpr int DEFAULT_RAY_DRAWFRAME = 1;	// デフォルトのレイの描画回数
-
-//**********************************************************************************
 // *** 光線クラス ***
 //**********************************************************************************
 class CRay
@@ -30,7 +25,6 @@ public:
 	CRay(const Vector3 &start, const Vector3 &end);
 	~CRay();
 
-	void Draw(const int nFrame = DEFAULT_RAY_DRAWFRAME);
 	void SetStart(const Vector3 &start);
 	const Vector3 *GetStart(void) const { return &m_start; }
 	void SetEnd(const Vector3 &end);

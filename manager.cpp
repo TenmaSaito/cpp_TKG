@@ -12,7 +12,6 @@
 #include "renderer.h"
 #include "input.h"
 #include "joypad.h"
-#include "debugproc.h"
 #include "sound.h"
 #include "object.h"
 #include "camera.h"
@@ -97,63 +96,8 @@ HRESULT CManager::Init(const HINSTANCE hInstance, const HWND hWnd, const BOOL bW
 			return E_FAIL;
 		}
 	}
-#ifndef ENABLE_INPUT_SYSTEM
-	// キーボードの生成
-	if (m_pInputKeyboard == nullptr)
-	{ // もしまだ生成されていないなら
-		// キーボードを生成
-		m_pInputKeyboard = std::make_unique<CInputKeyboard>();
-		if (m_pInputKeyboard == nullptr)
-		{ // 生成失敗
-			MessageBox(hWnd, "キーボードの生成に失敗しました！", "Failed", MB_ICONERROR);
-			return E_FAIL;
-		}
 
-		// キーボードの初期化
-		hr = m_pInputKeyboard->Init(hInstance, hWnd);
-		if (FAILED(hr))
-		{ // キーボードの初期化失敗
-			MessageBox(hWnd, "キーボードの初期化に失敗しました！", "Failed", MB_ICONERROR);
-			return E_FAIL;
-		}
-	}
-
-	// マウスの生成
-	if (m_pInputMouse == nullptr)
-	{ // もしまだ生成されていないなら
-		// マウスを生成
-		m_pInputMouse = std::make_unique<CInputMouse>();
-		if (m_pInputMouse == nullptr)
-		{ // 生成失敗
-			MessageBox(hWnd, "マウスの生成に失敗しました！", "Failed", MB_ICONERROR);
-			return E_FAIL;
-		}
-
-		// マウスの初期化
-		hr = m_pInputMouse->Init(hInstance, hWnd);
-		if (FAILED(hr))
-		{ // マウスの初期化失敗
-			MessageBox(hWnd, "マウスの初期化に失敗しました！", "Failed", MB_ICONERROR);
-			return E_FAIL;
-		}
-	}
-
-	// ジョイパッドの生成
-	if (m_pJoypad == nullptr)
-	{ // もしまだ生成されていないなら
-		// ジョイパッドを生成
-		m_pJoypad = std::make_unique<CJoypad>();
-		if (m_pJoypad == nullptr)
-		{ // 生成失敗
-			MessageBox(hWnd, "ジョイパッドの生成に失敗しました！", "Failed", MB_ICONERROR);
-			return E_FAIL;
-		}
-
-		// ジョイパッドの初期化
-		m_pJoypad->Init();
-	}
-
-#else
+	// インプットシステムの初期化
 	CInputSystem *pInputSystem = CInputSystem::GetInstance();	// インスタンス取得
 	if (FAILED(pInputSystem->Init(hInstance, hWnd)))
 	{ // 初期化失敗時、操作不可能な為exeを終了
@@ -184,27 +128,6 @@ HRESULT CManager::Init(const HINSTANCE hInstance, const HWND hWnd, const BOOL bW
 
 	// 左スティックY (符号付きの軸値をそのまま)
 	pVertical->AddBinding(CInputBinding::CreateStick1D(MakePathJoypadAxis(CJoypad::AXIS_LEFT_Y)));
-#endif
-
-	// デバッグ表示の生成
-	if (m_pDebugProc == nullptr)
-	{ // もしまだ生成されていないなら
-		// デバッグ表示を生成
-		m_pDebugProc = std::make_unique<CDebugProc>();
-		if (m_pDebugProc == nullptr)
-		{ // 生成失敗
-			MessageBox(hWnd, "デバッグ表示の生成に失敗しました！", "Failed", MB_ICONERROR);
-			return E_FAIL;
-		}
-
-		// デバッグ表示の初期化
-		hr = m_pDebugProc->Init(DEFAULT_SIZE, "PixelMplus12");
-		if (FAILED(hr))
-		{ // デバッグ表示の初期化失敗
-			MessageBox(hWnd, "デバッグ表示の初期化に失敗しました！", "Failed", MB_ICONERROR);
-			return E_FAIL;
-		}
-	}
 
 	// 音声の生成
 	if (m_pSound == nullptr)
@@ -220,7 +143,7 @@ HRESULT CManager::Init(const HINSTANCE hInstance, const HWND hWnd, const BOOL bW
 		// サウンドの初期化
 		hr = m_pSound->Init(hWnd);
 		if (FAILED(hr))
-		{ // デバッグ表示の初期化失敗
+		{ // サウンドの初期化失敗
 			MessageBox(hWnd, "サウンドの初期化に失敗しました！", "Failed", MB_ICONERROR);
 			return E_FAIL;
 		}
@@ -278,22 +201,8 @@ void CManager::Uninit(void)
 	// サウンドオブジェクトの破棄
 	SafeUniqueUninit(m_pSound);
 
-	// デバッグ表示オブジェクトの破棄
-	SafeUniqueUninit(m_pDebugProc);
-
-#ifndef ENABLE_INPUT_SYSTEM
-	// ジョイパッドオブジェクトの破棄
-	SafeUniqueUninit(m_pJoypad);
-
-	// マウスオブジェクトの破棄
-	SafeUniqueUninit(m_pInputMouse);
-
-	// キーボードオブジェクトの破棄
-	SafeUniqueUninit(m_pInputKeyboard);
-#else
 	// インプットシステムの終了
 	CInputSystem::GetInstance()->Uninit();
-#endif
 
 	// レンダラーオブジェクトの破棄
 	SafeUniqueUninit(m_pRenderer);
@@ -304,33 +213,8 @@ void CManager::Uninit(void)
 //==================================================================================
 void CManager::Update(void)
 {
-#ifndef ENABLE_INPUT_SYSTEM
-	// キーボードの更新処理
-	m_pInputKeyboard->Update();
-
-	// マウスの更新処理
-	m_pInputMouse->Update();
-
-	// ジョイパッドの更新処理
-	m_pJoypad->Update();
-#else
 	// インプットシステムの更新
 	CInputSystem::GetInstance()->Update();
-#endif
-
-	// デバッグ表示の更新処理
-	m_pDebugProc->Update();
-	
-#ifdef _DEBUG
-	// デバッグ情報
-	m_pDebugProc->Print("======== デバッグ情報 ========\n");
-	m_pDebugProc->Print("FPS : ({})\n", m_nCountFPS);
-	m_pDebugProc->Print("リロード : ({}) [BackSpace]\n\n", m_nCountReload);
-#endif
-	// 操作説明
-	m_pDebugProc->ForcePrint("======== 操作 ========\n");
-	m_pDebugProc->ForcePrint("WASD : 台を傾ける\n");
-	m_pDebugProc->ForcePrint("BACK : リトライ\n");
 
 	// ライトの更新処理
 	m_pLight->Update();
@@ -338,7 +222,6 @@ void CManager::Update(void)
 	if (GetInputKeyboard()->GetTrigger(DIK_BACK))
 	{ // リセット
 		SetTransition(CScene::MODE_GAME);
-		m_nCountReload++;
 	}
 
 	// ポーズの更新
@@ -351,10 +234,6 @@ void CManager::Update(void)
 
 		// レンダラーの更新処理
 		m_pRenderer->Update();
-	}
-	else
-	{ // ポーズ中なら、デバッグ表示
-		m_pDebugProc->Print("[現在ポーズ中！]\n");
 	}
 
 	// シーンの更新
