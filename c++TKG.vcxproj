@@ -154,12 +154,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="bitePause.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="color.cpp" />
     <ClCompile Include="debugproc.cpp" />
+    <ClCompile Include="Coroutine.cpp" />
     <ClCompile Include="directX.cpp" />
     <ClCompile Include="field.cpp" />
     <ClCompile Include="filestream.cpp" />
+    <ClCompile Include="foodBackground.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="input.cpp" />
     <ClCompile Include="inputAction.cpp" />
@@ -168,16 +171,20 @@
     <ClCompile Include="inputKeytable.cpp" />
     <ClCompile Include="inputSystem.cpp" />
     <ClCompile Include="item.cpp" />
+    <ClCompile Include="itemBiteEffect.cpp" />
     <ClCompile Include="itemGenerator.cpp" />
     <ClCompile Include="joypad.cpp" />
     <ClCompile Include="light.cpp" />
     <ClCompile Include="fadeTransition.cpp" />
+    <ClCompile Include="Log.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="manager.cpp" />
     <ClCompile Include="mapScriptLoader.cpp" />
     <ClCompile Include="matrix.cpp" />
     <ClCompile Include="memdbg.cpp" />
     <ClCompile Include="model.cpp" />
+    <ClCompile Include="modelParticle.cpp" />
+    <ClCompile Include="mouthTransition.cpp" />
     <ClCompile Include="nextInfo.cpp" />
     <ClCompile Include="number.cpp" />
     <ClCompile Include="number3D.cpp" />
@@ -200,6 +207,7 @@
     <ClCompile Include="playerCamera.cpp" />
     <ClCompile Include="polygon2D.cpp" />
     <ClCompile Include="rand.cpp" />
+    <ClCompile Include="ranking.cpp" />
     <ClCompile Include="rankingClient.cpp" />
     <ClCompile Include="ray.cpp" />
     <ClCompile Include="renderer.cpp" />
@@ -221,6 +229,10 @@
     <ClCompile Include="xfile.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="bitePause.h" />
+    <ClInclude Include="Coroutine.h" />
+    <ClInclude Include="Delegate.h" />
+    <ClInclude Include="foodBackground.h" />
     <ClInclude Include="inputAction.h" />
     <ClInclude Include="inputActionMap.h" />
     <ClInclude Include="inputBinding.h" />
@@ -228,7 +240,11 @@
     <ClInclude Include="inputKeytable.h" />
     <ClInclude Include="inputProcessor.h" />
     <ClInclude Include="inputSystem.h" />
+    <ClInclude Include="itemBiteEffect.h" />
     <ClInclude Include="itemGenerator.h" />
+    <ClInclude Include="Log.h" />
+    <ClInclude Include="modelParticle.h" />
+    <ClInclude Include="mouthTransition.h" />
     <ClInclude Include="nextInfo.h" />
     <ClInclude Include="number.h" />
     <ClInclude Include="number3D.h" />
@@ -268,6 +284,7 @@
     <ClInclude Include="polygon2D.h" />
     <ClInclude Include="protocol_ranking.h" />
     <ClInclude Include="rand.h" />
+    <ClInclude Include="ranking.h" />
     <ClInclude Include="rankingClient.h" />
     <ClInclude Include="ray.h" />
     <ClInclude Include="renderer.h" />

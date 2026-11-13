@@ -39,7 +39,7 @@ namespace
 	constexpr float MODEL_RADIUS = 10.0f;			// モデルの半径
 	constexpr float VALUE_ROT = 0.005f;				// 回転速度
 	constexpr float MAX_ROT_VALUE = 0.85f;			// 最大回転速度
-	constexpr float RESIST_ROT = 0.007f;			// 減速速度
+	constexpr float RESIST_ROT = 0.017f;			// 減速速度
 	constexpr float SCALE_VALUE = 1.0f;				// 拡大倍率
 	constexpr float RAY_LENGTH = 50.0f;				// レイの長さ
 	const Vector3 VEC_QUAT = Vector3(1, 0, 0);		// 初期任意軸

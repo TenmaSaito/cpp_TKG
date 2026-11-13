@@ -46,6 +46,17 @@ CXFile::~CXFile()
 }
 
 //==================================================================================
+// --- 事前登録済みのXファイル読み込み処理 ---
+//==================================================================================
+void CXFile::Load(void)
+{
+	for (auto &sPath : m_vsPathPreLoad)
+	{ // XFileの読み込み
+		Register(sPath);
+	}
+}
+
+//==================================================================================
 // --- 全XFILEの解放処理 ---
 //==================================================================================
 void CXFile::Unload(void)
@@ -92,6 +103,18 @@ UINT CXFile::Register(const char *pPath)
 }
 
 //==================================================================================
+// --- XFILEの事前登録処理 ---
+//==================================================================================
+UINT CXFile::PreRegister(std::string path)
+{ // 登録済みならインデックスを返す
+	if (UINT uIdx = IsAlreadyRegister(path) != -1) return uIdx;
+
+	UINT uIdx = m_vsPathPreLoad.size();		// インデックス
+	m_vsPathPreLoad.push_back(path);		// パスを登録
+	return uIdx;
+}
+
+//==================================================================================
 // --- 読み込んだXFILEの取得処理 ---
 //==================================================================================
 CXFile::CXInfo *CXFile::GetAddress(const UINT uIdx)
@@ -100,6 +123,23 @@ CXFile::CXInfo *CXFile::GetAddress(const UINT uIdx)
 
 	// XInfoへのポインタを返す
 	return &m_vXInfo[uIdx];
+}
+
+//==================================================================================
+// --- 登録済み判定処理 ---
+//==================================================================================
+UINT CXFile::IsAlreadyRegister(std::string_view path)
+{
+	// 既に読み込んでいないかを確認
+	for (int nCntXFile = 0; nCntXFile < static_cast<int>(m_vXInfo.size()); nCntXFile++)
+	{
+		if (m_vXInfo[nCntXFile].GetFilePath() == path)
+		{ // 既に読み込み済みのテクスチャなら、そのインデックスを返す
+			return static_cast<UINT>(nCntXFile);
+		}
+	}
+
+	return INVALID_XFILE_ID;
 }
 
 //==================================================================================
@@ -112,7 +152,6 @@ UINT CXFile::Load(std::string_view path)
 	
 	// ファイル名を渡して初期化
 	rNewXInfo.Init(path);
-
 	return uIdx;
 }
 

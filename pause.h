@@ -34,21 +34,25 @@ public:
 	} TYPE;
 
 	CPause();
-	~CPause();
+	virtual ~CPause();
 
 	static CPause *Create(void);
 
 	HRESULT Init(void);
-	void Uninit(void);
-	void Update(void);
-	void Draw(void);
+	virtual void Uninit(void);
+	virtual void Update(void);
+	virtual void Draw(void);
 	void SetDisp(const bool bDisp) { m_bDisp = bDisp; }
 	bool GetDisp(void) const { return m_bDisp; }
 	TYPE GetType(void) const { return m_type; }
 
+protected:
+	const CPolygon2D *GetMenu(const TYPE type) const;
+	void ExecuteType(const TYPE type);
+
 private:
 	void UpdateInput(void);
-	void ActionType(void);
+	virtual void ActionType(void);
 
 	std::array<std::unique_ptr<CPolygon2D>, TYPE_MAX> m_apMenu;		// ‘I‘ðŽˆƒ|ƒŠƒSƒ“‚Ö‚Ìƒ|ƒCƒ“ƒ^
 	std::unique_ptr<CPolygon2D> m_pBack;		// ”wŒiƒ|ƒŠƒSƒ“

@@ -2,7 +2,6 @@
 // 
 // プリコンパイル済みヘッダーファイル [pch.h]
 // Author : TENMA SAITO
-// Date   : 2026/5/15
 // 
 //==================================================================================
 #ifndef _PCH_H_
@@ -59,10 +58,11 @@ using Matrix = D3DXMATRIX;
 //**********************************************************************************
 constexpr int SCREEN_WIDTH = 1280;			// ウィンドウの横幅
 constexpr int SCREEN_HEIGHT = 720;			// ウィンドウの横幅
-constexpr float DOUBLE_PI = D3DX_PI * 2.0f;		// 2π
-constexpr float HALF_PI = D3DX_PI * 0.5f;		// 1/2π
-constexpr float QUARTER_PI = D3DX_PI * 0.25f;	// 1/4π
-constexpr int DEFAULT_VERTEX_NUM = 4;			// 板ポリのデフォルトの頂点数
+constexpr float PI = D3DX_PI;				// π
+constexpr float DOUBLE_PI = PI * 2.0f;		// 2π
+constexpr float HALF_PI = PI * 0.5f;		// 1/2π
+constexpr float QUARTER_PI = PI * 0.25f;	// 1/4π
+constexpr int DEFAULT_VERTEX_NUM = 4;		// 板ポリのデフォルトの頂点数
 constexpr int FVF_VERTEX_2D = D3DFVF_XYZRHW | D3DFVF_DIFFUSE | D3DFVF_TEX1;					// 2D頂点フォーマット
 constexpr int FVF_VERTEX_3D = D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_DIFFUSE | D3DFVF_TEX1;	// 3D頂点フォーマット
 constexpr int FVF_VERTEX_3D_MULTI = D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_DIFFUSE | D3DFVF_TEX1 | D3DFVF_TEX2;	// マルチテクスチャ3D頂点フォーマット

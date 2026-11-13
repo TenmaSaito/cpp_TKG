@@ -281,7 +281,7 @@ void CPolygon2D::SetRotation(const Vector3 &rotation)
 //==================================================================================
 void CPolygon2D::SetSize(const Vector2 &size)
 {
-	VERTEX_2D* pVtx = nullptr;		// 頂点情報へのポインタ
+	VERTEX_2D *pVtx = nullptr;		// 頂点情報へのポインタ
 
 	// サイズの保存
 	m_size = size;
@@ -319,7 +319,7 @@ void CPolygon2D::SetSize(const Vector2 &size)
 //==================================================================================
 void CPolygon2D::SetColor(const Color &color)
 {
-	VERTEX_2D *pVtx = NULL;		// 頂点情報へのポインタ
+	VERTEX_2D *pVtx = nullptr;		// 頂点情報へのポインタ
 
 	// 色を保存
 	m_col = color;
@@ -332,6 +332,26 @@ void CPolygon2D::SetColor(const Color &color)
 	pVtx[1].col = m_col;
 	pVtx[2].col = m_col;
 	pVtx[3].col = m_col;
+
+	// 頂点バッファをアンロック
+	m_pVtxBuff->Unlock();
+}
+
+//==================================================================================
+// --- UV座標の設定処理 ---
+//==================================================================================
+void CPolygon2D::SetUV(const std::array<Vector2, DEFAULT_VERTEX_NUM> aUV)
+{
+	VERTEX_2D *pVtx = nullptr;		// 頂点情報へのポインタ
+
+	// 頂点バッファをロック
+	m_pVtxBuff->Lock(0, 0, (void **)&pVtx, 0);
+
+	// 頂点カラー設定
+	pVtx[0].tex = aUV[0];
+	pVtx[1].tex = aUV[1];
+	pVtx[2].tex = aUV[2];
+	pVtx[3].tex = aUV[3];
 
 	// 頂点バッファをアンロック
 	m_pVtxBuff->Unlock();

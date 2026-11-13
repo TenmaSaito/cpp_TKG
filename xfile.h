@@ -28,9 +28,11 @@ public:
 
 	static CXFile *GetInstance(void);
 
+	void Load(void);
 	void Unload(void);
 	UINT Register(std::string_view path);
 	UINT Register(const char *pPath);
+	UINT PreRegister(std::string path);
 	CXInfo *GetAddress(const UINT uIdx);
 
 private:
@@ -38,8 +40,10 @@ private:
 	CXFile();
 	~CXFile();
 
+	UINT IsAlreadyRegister(std::string_view path);
 	UINT Load(std::string_view path);
 
+	std::vector<std::string> m_vsPathPreLoad;		// 読み込み予定のモデルパス
 	std::vector<CXInfo> m_vXInfo;			// XInfoの配列
 };
 

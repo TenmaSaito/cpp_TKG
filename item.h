@@ -45,14 +45,12 @@ public:
 	CItem(const int nPriority = ITEM_PRIORITY);
 	~CItem();
 
-	static CItem *Create(std::string_view path,
-		const Vector3 &pos,
+	static CItem *Create(const Vector3 &pos,
 		const float fRadius,
 		const int nLife,
 		const TYPE type);
 
-	HRESULT Init(std::string_view path,
-		const Vector3 &pos,
+	HRESULT Init(const Vector3 &pos,
 		const float fRadius,
 		const int nLife,
 		const TYPE type);
@@ -60,7 +58,6 @@ public:
 	void Update(void) override;
 	void Draw(void) override;
 	bool IsEqualType(const TYPE type) const { return m_type == type; }
-	static constexpr std::string_view GetPath(const TYPE type) { return c_asModelPath[static_cast<UINT>(type)]; }
 
 private:
 	CObjectBillboard3D *m_pIcon = nullptr;		// 表示アイコン
@@ -71,12 +68,5 @@ private:
 	float m_fRadius = 0.0f;			// モデルの獲得半径
 	int m_nLife = 0;				// 体力
 	TYPE m_type = TYPE::NONE;		// 自身のタイプ
-	inline static constexpr std::string_view c_asModelPath[static_cast<UINT>(TYPE::MAX)] =
-	{
-		"",
-		"data/MODEL/rice000.x",
-		"data/MODEL/humbarg.x",
-		"data/MODEL/miso_soup.x",
-	};
 };
 #endif

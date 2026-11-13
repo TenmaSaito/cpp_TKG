@@ -8,7 +8,11 @@
 // *** インクルードファイル ***
 //**********************************************************************************
 #include "itemGenerator.h"
+#include "manager.h"
+#include "sound.h"
 #include "screenEffect.h"
+#include "nextInfo.h"
+#include "object2D.h"
 #include "score.h"
 #include "player.h"
 #include "item.h"
@@ -22,7 +26,14 @@
 //**********************************************************************************
 namespace
 {
-	constexpr int MAX_ITEM_NUM = 30;		// 一度に出現するアイテムの総数
+	constexpr int MAX_ITEM_NUM = 15;		// 一度に出現するアイテムの総数
+	constexpr std::string_view FOOD_TEXPATHS[static_cast<UINT>(CItem::TYPE::MAX)] =
+	{
+		"",
+		"data/TEXTURE/foods/rice.png",			// ご飯
+		"data/TEXTURE/foods/hamburg.png",		// ハンバーグ
+		"data/TEXTURE/foods/miso_soup.png",		// みそ汁
+	};
 }
 
 //==================================================================================
@@ -45,8 +56,9 @@ CItemGenerator::~CItemGenerator()
 //==================================================================================
 HRESULT CItemGenerator::Init(void)
 {
-	m_nMaxItem = 17;
+	m_nMaxItem = 15;
 	m_nextType = CItem::TYPE::RICE;
+	m_bWillSetNext = true;
 	return S_OK;
 }
 
@@ -70,6 +82,16 @@ void CItemGenerator::Update(void)
 		m_pField = FindAnyObjectByType<CField>(FIELD_PRIORITY);
 	}
 	
+	if (m_bWillSetNext == true)
+	{ // 次の食べ物の表示の更新を行うフラグが立っていれば
+		CObject2D::Info info = {};
+		info.pTexturePath = FOOD_TEXPATHS[static_cast<UINT>(m_nextType)].data();
+
+		// 次に食べる食べ物のテクスチャを設定
+		FindAnyObjectByType<CNextInfo>(NEXTINFO_PRIORITY)->SetNext(CObject2D::Create(info));
+		m_bWillSetNext = false;		// フラグを下ろす
+	}
+
 	// アイテムが最大数分生成されているなら、
 	// もしくは床へのポインタがnullならスキップ
 	if (m_nNumItem > MAX_ITEM_NUM || m_pField == nullptr || pPlayer == nullptr) return;
@@ -126,8 +148,7 @@ void CItemGenerator::Update(void)
 		nLife = pRand->Generate(1, 1);
 
 		// アイテムを生成
-		CItem *pItem = CItem::Create(CItem::GetPath(nextType),
-			pos,
+		CItem *pItem = CItem::Create(pos,
 			fRadius,
 			nLife,
 			nextType);
@@ -188,7 +209,7 @@ void CItemGenerator::Notified(CObject *pObject, std::string_view message, const 
 		{ // 未取得なら、取得する
 			m_pScore = FindAnyObjectByType<CScore>(SCORE_PRIORITY);
 		}
-		m_pScore->AddScore(50);
+		m_pScore->AddScore(50 * (1.1f * (m_nCombo + 1)));
 
 		// スクリーンエフェクト起動
 		if (m_pScreenEffect == nullptr)
@@ -220,6 +241,10 @@ void CItemGenerator::Notified(CObject *pObject, std::string_view message, const 
 		{ // ポインタの登録解除
 			m_vpItem.erase(std::ranges::find(m_vpItem, pItem));
 		}
+
+		CManager::GetInstance()->GetSound()->Play(CSound::LABEL_SE_SUCCESS);
+		m_bWillSetNext = true;
+		m_nCombo++;
 		return;
 	}
 
@@ -248,4 +273,9 @@ void CItemGenerator::Notified(CObject *pObject, std::string_view message, const 
 
 	// 配列をクリア
 	m_vpItem.clear();
+
+	// 怒らせる
+	FindAnyObjectByType<CNextInfo>(NEXTINFO_PRIORITY)->Angry();
+	CManager::GetInstance()->GetSound()->Play(CSound::LABEL_SE_FAIL);
+	m_bWillSetNext = true;		// 次の食べ物の表示を行うフラグを立てる
 }

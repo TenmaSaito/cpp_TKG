@@ -10,6 +10,7 @@
 //**********************************************************************************
 #include "sceneTransition.h"
 #include "fadeTransition.h"
+#include "mouthTransition.h"
 
 //==================================================================================
 // --- トランジションの作成 ---
@@ -22,6 +23,10 @@ CSceneTransition *CSceneTransition::Create(const TYPE type)
 	{
 	case TYPE_FADE:				// 暗転フェード
 		pTransition = new CFadeTransition;
+		break;
+
+	case TYPE_MOUTH:			// 口に食べられる遷移
+		pTransition = new CMouthTransition;
 		break;
 
 	default:

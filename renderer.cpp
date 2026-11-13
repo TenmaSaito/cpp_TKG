@@ -342,7 +342,7 @@ void CRenderer::Draw(void)
 		// 画面クリア(バックバッファとZバッファのクリア)
 		m_pD3DDevice->Clear(0, NULL,
 			(D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER),
-			D3DCOLOR_RGBA(0, 0, 0, 0), 1.0f, 0);
+			D3DCOLOR_RGBA(50, 50, 100, 0), 1.0f, 0);
 
 		// 全てのオブジェクトを描画
 		CObject::DrawAll();
@@ -369,7 +369,7 @@ void CRenderer::Draw(void)
 		pTransition->Draw();
 
 		// デバッグ表示の描画
-		// pDebugProc->Draw();
+		pDebugProc->Draw();
 
 		// 描画終了
 		m_pD3DDevice->EndScene();

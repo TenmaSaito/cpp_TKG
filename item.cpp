@@ -13,24 +13,43 @@
 #include "vec3math.h"
 #include "matrix.h"
 #include "manager.h"
+#include "sound.h"
 #include "renderer.h"
 #include "light.h"
 #include "particle.h"
 #include "texture.h"
 #include "score.h"
 #include "objectBillboard3D.h"
+#include "itemBiteEffect.h"
+#include "modelParticle.h"
 
-// 定数宣言
+//**********************************************************************************
+// *** 定数宣言 ***
+//**********************************************************************************
 namespace
 {
 	constexpr int ADD_SCORE = 10;		// スコアの加算値
+	constexpr std::string_view MODEL_PATHS[static_cast<UINT>(CItem::TYPE::MAX)] =		// 各アイテムのモデルパス
+	{
+		"",
+		"data/MODEL/rice.x",
+		"data/MODEL/humbarg.x",
+		"data/MODEL/miso_soup.x",
+	};
+
+	const UINT PARTICLE_XFILE_IDS[static_cast<UINT>(CItem::TYPE::MAX)] =
+	{
+		INVALID_XFILE_ID,
+		CXFile::GetInstance()->PreRegister("data/MODEL/food_particle_rice.x"),
+		CXFile::GetInstance()->PreRegister("data/MODEL/food_particle_humbarg.x"),
+		CXFile::GetInstance()->PreRegister("data/MODEL/food_particle_miso_soup.x"),
+	};
 }
 
 //==================================================================================
 // --- アイテムの生成処理 ---
 //==================================================================================
-CItem *CItem::Create(std::string_view path,
-	const Vector3 &pos,
+CItem *CItem::Create(const Vector3 &pos,
 	const float fRadius,
 	const int nLife,
 	const TYPE type)
@@ -38,7 +57,7 @@ CItem *CItem::Create(std::string_view path,
 	CItem *pItem = new CItem;		// 生成したオブジェクトへのポインタ
 	if (pItem != nullptr)
 	{ // 生成出来ていれば初期化
-		pItem->Init(path, pos, fRadius, nLife, type);
+		pItem->Init(pos, fRadius, nLife, type);
 	}
 
 	return pItem;
@@ -62,13 +81,12 @@ CItem::~CItem()
 //==================================================================================
 // --- 初期化処理 ---
 //==================================================================================
-HRESULT CItem::Init(std::string_view path,
-	const Vector3 &pos,
+HRESULT CItem::Init(const Vector3 &pos,
 	const float fRadius,
 	const int nLife,
 	const TYPE type)
 { // モデル生成
-	CObjectX::Init(path, pos, VECTOR3_NULL);
+	CObjectX::Init(MODEL_PATHS[static_cast<UINT>(type)], pos, VECTOR3_NULL);
 
 	m_fRadius = fRadius;		// 半径保存
 	m_nLife = nLife;			// 体力保存
@@ -161,7 +179,40 @@ void CItem::Update(void)
 
 	if (m_nLife <= 0)
 	{ // 体力が尽きたら取得時処理を呼び出して死亡
+		Vector3 posWorld = *D3DXVec3TransformCoord(&posWorld, &VECTOR3_NULL, GetMatrix());
 		m_pPlayer->Eat();
+		CItemBiteEffect::Create(*GetPosition(), 160.0f, 30, GetParent());
+		CManager::GetInstance()->GetSound()->Play(CSound::LABEL_SE_BITE);
+
+		CModelParticle::Setting setting = {};
+		setting.pos = *GetPosition();
+		setting.move = Vector3(0.0f, 8.0f, 0.0);
+		setting.moveVariation = Vector3(10.0f, 4.0f, 10.0);
+		setting.nLife = 90;
+		setting.nNum = 8;
+		setting.fGravity = 0.3f;
+		setting.fBounce = 0.8f;
+		setting.sModelPath = "data/MODEL/food_particle_";
+		
+		// 種類によってパスを変える
+		switch (m_type)
+		{
+		case CItem::TYPE::RICE:
+			setting.sModelPath += "rice.x";
+			break;
+		case CItem::TYPE::SIDE_DISH:
+			setting.sModelPath += "humbarg.x";
+			break;
+		case CItem::TYPE::SOUP:
+			setting.sModelPath += "miso_soup.x";
+			break;
+		default:
+			break;
+		}
+
+		// パーティクル生成
+		CModelParticle::Create(setting);
+
 		Uninit();
 	}
 }

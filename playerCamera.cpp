@@ -21,7 +21,7 @@
 //**********************************************************************************
 namespace
 {
-	constexpr float LENGTH_PLAYER = 1000.0f;		// カメラとプレイヤーの距離
+	constexpr float LENGTH_PLAYER = 1500.0f;		// カメラとプレイヤーの距離
 	constexpr float ROTATE_SPD = 0.04f;			// カメラの回転速度
 	constexpr float POSITION_DEST_ACCELE = 0.03f;	// カメラの目標位置への移動速度
 }

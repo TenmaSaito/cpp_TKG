@@ -39,7 +39,12 @@ private:
 //**********************************************************************************
 CSound::INFO const CSound::m_aInfo[CSound::LABEL_MAX] =		// サウンド情報
 {
-	{"data/SOUND/BGM/title.wav", -1},			// タイトル画面のBGM
+	{"data/SOUND/BGM/fancy_pop_title.wav", -1},	// タイトル画面のBGM
+	{"data/SOUND/BGM/bright_pop_80.wav", -1},	// ゲーム画面のBGM
+	{"data/SOUND/BGM/enjoy_meal_result.wav", -1},	// リザルト画面のBGM
+	{"data/SOUND/SE/bite.wav", 0},				// 咀嚼音
+	{"data/SOUND/SE/correct_175.wav", 0},		// 成功音
+	{"data/SOUND/SE/incorrect_175.wav", 0},		// 失敗音
 };
 
 //**********************************************************************************

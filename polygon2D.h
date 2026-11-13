@@ -44,6 +44,7 @@ public:
 	const Color *GetColor(void) const { return &m_col; }
 	void SetDisp(const bool bDisp) { m_bDisp = bDisp; }
 	bool GetDisp(void) const { return m_bDisp; }
+	void SetUV(const std::array<Vector2, DEFAULT_VERTEX_NUM> aUV);
 	void BindTexture(LPDIRECT3DTEXTURE9 pTexture);
 	void BindTexture(const int nIdxTexture);
 	bool Collision(const Vector3 &point);

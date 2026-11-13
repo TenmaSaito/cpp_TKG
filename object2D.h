@@ -28,9 +28,9 @@ public:
 	// ポリゴン作成時の情報更新構造体
 	struct Info
 	{
-		Vector3 pos;					// 位置
-		Vector2 size;					// サイズ
-		const char *pTexturePath;		// テクスチャパス
+		Vector3 pos = VECTOR3_NULL;		// 位置
+		Vector2 size = VECTOR2_NULL;	// サイズ
+		const char *pTexturePath = nullptr;		// テクスチャパス
 	};
 
 	CObject2D(const int nPriority = DEFAULT_OBJ2D_PRIORITY);

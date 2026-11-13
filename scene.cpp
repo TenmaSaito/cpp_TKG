@@ -11,6 +11,7 @@
 #include "scene.h"
 #include "title.h"
 #include "game.h"
+#include "ranking.h"
 
 //==================================================================================
 // --- モードの設定処理 (pOutに代入後初期化) ---
@@ -28,6 +29,10 @@ CScene *CScene::Create(const MODE mode, std::unique_ptr<CScene> &rpOut)
 
 	case MODE_GAME:		// ゲームシーンを生成
 		pScene = new CGame;
+		break;
+
+	case MODE_RANKING:	// ランキングシーンを生成
+		pScene = new CRanking;
 		break;
 	}
 

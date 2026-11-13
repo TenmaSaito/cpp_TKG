@@ -26,6 +26,7 @@ public:
 		MODE_NONE = 0,		// 無し
 		MODE_TITLE,			// タイトルシーン
 		MODE_GAME,			// ゲームシーン
+		MODE_RANKING,		// ランキングシーン
 		MODE_MAX
 	} MODE;
 
@@ -41,7 +42,7 @@ public:
 	MODE GetMode(void) const { return m_mode; }
 
 private:
-	MODE m_mode;		// 現在のモード
+	MODE m_mode = MODE_NONE;		// 現在のモード
 };
 
 //**********************************************************************************

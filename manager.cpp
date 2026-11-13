@@ -21,7 +21,7 @@
 #include "texture.h"
 #include "xfile.h"
 #include "sceneTransition.h"
-#include "pause.h"
+#include "bitePause.h"
 #include "util.h"
 #include "matrix.h"
 #include "player.h"
@@ -229,15 +229,18 @@ HRESULT CManager::Init(const HINSTANCE hInstance, const HWND hWnd, const BOOL bW
 	// テクスチャの読み込み
 	CTexture::GetInstance()->Load();
 
+	// モデルの読み込み
+	CXFile::GetInstance()->Load();
+
 	// ライトの生成
 	m_pLight = std::make_unique<CLight>();
 	m_pLight->Init();
 
 	// 遷移演出の作成
-	m_pTransition.reset(CSceneTransition::Create(CSceneTransition::TYPE_FADE));
+	m_pTransition.reset(CSceneTransition::Create(CSceneTransition::TYPE_MOUTH));
 
 	// ポーズ画面の作成
-	m_pPause.reset(CPause::Create());
+	m_pPause.reset(CBitePause::Create());
 
 	// モード作成
 	SetMode(CScene::MODE_TITLE);

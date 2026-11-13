@@ -33,9 +33,9 @@ namespace
 {
 	constexpr std::string_view c_asPausePath[CPause::TYPE_MAX] =
 	{ // ポーズ画面の各メニューのテクスチャパス
-		"data/TEXTURE/continue.png",		// 続行
-		"data/TEXTURE/replay.png",			// やり直し
-		"data/TEXTURE/exit.png",			// 終了
+		"data/TEXTURE/pause/continue.png",		// 続行
+		"data/TEXTURE/pause/restart.png",		// やり直し
+		"data/TEXTURE/pause/exit.png",			// 終了
 	};
 
 	const Vector3 c_aPosMenu[CPause::TYPE_MAX] =
@@ -180,14 +180,20 @@ void CPause::UpdateInput(void)
 
 	if (pKeyboard->GetTrigger(DIK_D)
 		|| pJoypad->GetTrigger(CJoypad::KEY_RIGHT)
-		|| pJoypad->GetStickRepeat(CJoypad::STICK_LEFT_RIGHT))
+		|| pJoypad->GetStickRepeat(CJoypad::STICK_LEFT_RIGHT, 
+			JOYPAD_DEFAULT_STICK_RANGE,
+			5,
+			15))
 	{ // ユーザーが右入力をした際、タイプを進める
 		m_type = Util::AddEnum(m_type, 1);
 		if (m_type >= TYPE_MAX) m_type = TYPE_CONTINUE;
 	}
 	else if (pKeyboard->GetTrigger(DIK_A)
 		|| pJoypad->GetTrigger(CJoypad::KEY_LEFT)
-		|| pJoypad->GetStickRepeat(CJoypad::STICK_LEFT_LEFT))
+		|| pJoypad->GetStickRepeat(CJoypad::STICK_LEFT_LEFT,
+			JOYPAD_DEFAULT_STICK_RANGE,
+			5,
+			15))
 	{ // ユーザーが左入力をした際、タイプを戻す
 		m_type = Util::AddEnum(m_type, -1);
 		if (m_type < TYPE_CONTINUE) m_type = TYPE_EXIT;
@@ -204,11 +210,19 @@ void CPause::UpdateInput(void)
 // --- タイプ別処理 ---
 //==================================================================================
 void CPause::ActionType(void)
+{ // 現在のタイプの処理を実行
+	ExecuteType(m_type);
+}
+
+//==================================================================================
+// --- 指定タイプの処理実行 ---
+//==================================================================================
+void CPause::ExecuteType(const TYPE type)
 {
 	CManager *pManager = CManager::GetInstance();			// マネージャへのポインタ
 
-	// 現在のタイプで処理を分ける
-	switch (m_type)
+	// 指定されたタイプで処理を分ける
+	switch (type)
 	{
 	case TYPE_CONTINUE:		// ゲーム再開 (ポーズ解除)
 		m_bDisp = false;	// 描画フラグを下ろす
@@ -216,13 +230,25 @@ void CPause::ActionType(void)
 
 	case TYPE_RESTART:		// リスタート (現在のシーン読み込み直し)
 		pManager->SetTransition(pManager->GetMode());
+		pManager->GetSound()->Play(CSound::LABEL_SE_BITE);
 		break;
 
 	case TYPE_EXIT:			// タイトルへ戻る
 		pManager->SetTransition(CScene::MODE_TITLE);
+		pManager->GetSound()->Play(CSound::LABEL_SE_BITE);
 		break;
 
 	default:
 		break;
 	}
+}
+
+//==================================================================================
+// --- 選択肢ポリゴンの取得処理 ---
+//==================================================================================
+const CPolygon2D *CPause::GetMenu(const TYPE type) const
+{ // 範囲外ならnullを返す
+	if (type < TYPE_CONTINUE || type >= TYPE_MAX) return nullptr;
+
+	return m_apMenu[type].get();
 }

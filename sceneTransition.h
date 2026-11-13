@@ -32,6 +32,7 @@ public:
 	typedef enum
 	{
 		TYPE_FADE = 0,		// 基本の暗転フェード
+		TYPE_MOUTH,			// 口の食べる動きによる遷移
 		TYPE_MAX
 	} TYPE;
 

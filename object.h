@@ -59,6 +59,7 @@ public:
 		TYPE_SCORE,			// スコア
 		TYPE_SCREEN_EFFECT,	// 画面エフェクト (閃光)
 		TYPE_NEXTINFO,		// 次のアイテムの表示
+		TYPE_MODEL_PARTICLE,	// モデルパーティクル
 		TYPE_MAX
 	} TYPE;
 

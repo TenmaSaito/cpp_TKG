@@ -50,5 +50,6 @@ private:
 	int m_nCombo = 0;		// コンボ数
 	int m_nMaxItem = 0;		// 一度に生成するアイテムの最大数
 	bool m_bWasCreated = false;		// 既にアイテムが生成されたか
+	bool m_bWillSetNext = false;	// 次のアイテムの表示を生成するか
 };
 #endif

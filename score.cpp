@@ -218,8 +218,12 @@ void CScore::Update(void)
 {
 	if (m_nAdditionalScore > 0)
 	{ // 追加予定スコアがまだ残っていたら5足す
-		SetScore(m_nScore + 1);
-		m_nAdditionalScore--;
+		SetScore(m_nScore + 50);
+		m_nAdditionalScore -= 50;
+		if (m_nAdditionalScore < 0)
+		{ // 0未満になった時、スコア修正
+			SetScore(m_nScore + m_nAdditionalScore);
+		}
 	}
 
 	for (int nCntNumber = 0; nCntNumber < MAX_SCORENUM; nCntNumber++)
